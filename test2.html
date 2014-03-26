@@ -219,7 +219,6 @@
                     'query_var_name': table_name,
                     'type' : 'node',
                     'incoming_lines': [],
-                    'outgoing_lines': null,
                     'query_param': {
                         'input': null,
                         'selection': []
@@ -364,14 +363,9 @@
                 //console.log(d);
                 return d.geometry;
               })
-              .on("drag", function(d) {
-
-                var arr = d.incoming_lines;
-                var arr_out = d.outgoing_lines;                    
+              .on("drag", function(d) {                  
                 d.geometry.x = d3.event.x;
-                d.geometry.y = d3.event.y;
-                //console.log(d3.mouse(this)[0],  d3.mouse(this)[1], d3.event, );
-                //console.log(d3.event.x, d);   
+                d.geometry.y = d3.event.y;  
                 render_graph(graph);
               });
 
@@ -380,16 +374,11 @@
               .origin(function(node) {
                 return node.geometry;
               })
-              .on("drag", function(node) {
-
-                // var arr = d.incoming_lines;
-                // var arr_out = d.outgoing_lines;                    
+              .on("drag", function(node) {              
                 x = d3.event.dx;
                 y = d3.event.dy;
                 change_node_size(graph, node, x, y);
                 console.log(d3.event);
-                //console.log(d3.event.x, d);   
-                //render_graph(graph);
               });
 
 
@@ -898,7 +887,7 @@
                 name: node.name,
                 query_body: cons
             })
-            //console.log(query);
+            console.log(query);
             return query;
         }
 
@@ -912,10 +901,9 @@
                     'query_var_name': 't1',
                     'type' : 'node',
                     'incoming_lines': ['l1'],
-                    'outgoing_lines': null,
                     'query_param': {
                         'input': null,
-                        'selection': ['http://myvehicledata.com/anna', 'http://myvehicledata.com/jack']
+                        'selection': []
                     },
                     'geometry' : {
                         'x' : 150,
@@ -935,8 +923,7 @@
                     'name': 't2',
                     'query_var_name': 't2',
                     'type' : 'node',
-                    'incoming_lines': [],
-                    'outgoing_lines': ['l1'],
+                    'incoming_lines': ['l1'],
                     'query_param': {
                         'input': null,
                         'selection': []
@@ -959,8 +946,7 @@
                     'name': 't3',
                     'query_var_name': 'l1',
                     'type' : 'node',
-                    'incoming_lines': ['hl2'],
-                    'outgoing_lines': null,
+                    'incoming_lines': ['hl1'],
                     'query_param': {
                         'input': null,
                         'selection': []
@@ -983,8 +969,7 @@
                 'l1': {
                     'name': 'l1',
                     'query_var_name': 'l1',
-                    'incoming_lines': [],
-                    'outgoing_lines': null,
+                    'incoming_lines': ['hl1'],
                     'geometry': {
                         'x1': 1155,
                         'y1': 375,
@@ -995,11 +980,10 @@
                     'end': 't2',
                     'type': 'edge'
                 },
-                'hl2': {
-                    'name': 'hl2',
-                    'query_var_name': 'hl2',
+                'hl1': {
+                    'name': 'hl1',
+                    'query_var_name': 'hl1',
                     'incoming_lines': [],
-                    'outgoing_lines': null,
                     'geometry': {
                         'x1': 1440,
                         'y1': 885,
@@ -1258,7 +1242,6 @@
                     'name': edge_name,
                     'query_var_name': edge_name,
                     'incoming_lines': [],
-                    'outgoing_lines': [],
                     'geometry': {
                         'x1': x1,
                         'y1': y1,
