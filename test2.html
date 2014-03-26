@@ -745,10 +745,7 @@
                         return node.geometry.height + 'px';
                     })
                     .on('click', function(node) {
-                        //generate_query(graph, node);
-                        
-                        get_table_content(graph, node, node.grid.getSelectedRows(), node.grid);
-                        //console.warn('render', node, node.grid, node['query_param']['selection']);
+                        fill_tables(graph);
                     });
 
 
@@ -811,10 +808,12 @@
                     var table_selec_values = _.map(row_ids, function(index) {
                         return table_values[index];
                     })
-                   
+                    
+
                     if(_.difference(table_selec_values, node['query_param']['selection']).length > 0 || 
                         _.difference(node['query_param']['selection'], table_selec_values).length > 0) {
-                        get_table_content(graph, node, row_ids, table_grid);
+                        node['query_param']['selection'] = table_selec_values;
+                        fill_tables(graph);
                     }
 
 
@@ -827,76 +826,6 @@
 
         }
 
-        function get_table_content(graph, node, row_ids, grid) {
-            var query = generate_query(graph, node);
-
-            
-
-            var as;
-
-            conn.query({
-                        database: 'myDB3',
-                        query: query, 
-                        limit: 30,
-                        offset: 0
-                    },
-                    function(data) {
-                    
-
-                    var map = _.map(row_ids, function(values) { // need the table object? 
-                        return data.results.bindings[values];
-                    });
-
-                    get_first_data = _.map(map, function(obj) {
-                        //console.log(obj);
-                        return obj[node.name]['value'];
-                    });
-                    //console.log(row_ids, map, get_first_data);
-
-                    //console.log(string);
-                    var cell_arr = _.chain(get_first_data)
-                        .map(function(cell) {
-                            return cell;
-                        })
-                        .value();
-
-                    var query_value_data = cell_arr.join(''); // selected crap
-
-                    node['query_param']['selection'] = cell_arr; // after this we will call a function
-
-                    
-                    //console.log(node['query_param']['selection'], cell_arr);
-                    //console.log('ss');
-                    update_selection(graph, node, cell_arr);
-
-                    //console.log(node['query_param']['selection']);
-
-
-                    var table_ids = _.map(data.results.bindings, function(obj, i) {
-                        //console.log(obj);
-                            return "<" + obj[node.name]['value'] + ">";
-                        });
-
-                    var selec_arr = node['query_param']['selection']
-
-                    var highligth_indexes = [];
-
-
-                    _.each(selec_arr, function(selec) {
-                    //var bool = _.indexOf(table_ids, selec)
-                        var index = _.indexOf(table_ids, selec)
-                        if(index != -1) {
-                            highligth_indexes.push(index);
-                        }
-
-                    })
-
-                    fill_tables(graph);
-
-                    });
- 
-
-        }
 
         function fill_tables(graph) {
 
@@ -908,7 +837,7 @@
                     //console.log(node.name);
                     var query = generate_query(graph, node);
                     conn.query({
-                        database: 'myDB3',
+                        database: 'myDB4',
                         query: query, 
                         limit: 30,
                         offset: 0
@@ -931,12 +860,7 @@
 
                         node['query_param']['selection'] = _.intersection(node['query_param']['selection'], table_ids);
 
-                        //console.log(node['query_param']['selection']);
-
-                        //table_grid.setSelectionModel(new Slick.RowSelectionModel({selectActiveRow: true}));
-
-                        //table_grid.onSelectedRowsChanged.subscribe(function() { 
-
+                    
                         var selec_arr = node['query_param']['selection']
 
                         var highligth_indexes = [];
@@ -1180,7 +1104,7 @@
                case 'node':
                    var node = elem;
                    //console.log('mm');
-                   
+
                    pattern = local_filter(node) + '\n' + local_selection(graph, node);
                    break;
                case 'edge':
