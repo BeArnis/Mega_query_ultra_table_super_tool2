@@ -717,7 +717,7 @@
                     })
                     .on('click', function(node) {
                         var query = generate_query(graph, node);
-                        console.log('query', query);
+                        console.log('query', query, node.query_param);
                     });
 
                 node_div.append('div')
@@ -784,24 +784,20 @@
                 table_grid.setSelectionModel(new Slick.RowSelectionModel({selectActiveRow: true}));
 
                 table_grid.onSelectedRowsChanged.subscribe(function() { 
+                    var selected_row_indexes = table_grid.getSelectedRows();
 
-
-                    row_ids = table_grid.getSelectedRows();
-
-                
-                    
-                    var table_values = _.map(table_grid.getData(), function(obj) {
+                    var all_table_row_values = _.map(table_grid.getData(), function(obj) {
                         return obj.table;
                     })
-                    //if()
-                    var table_selec_values = _.map(row_ids, function(index) {
-                        return table_values[index];
+                    
+                    var current_selected_values = _.map(selected_row_indexes, function(index) {
+                        return all_table_row_values[index];
                     })
                     
+                    var previous_selected_values = node['query_param']['selection'];
 
-                    if(_.difference(table_selec_values, node['query_param']['selection']).length > 0 || 
-                        _.difference(node['query_param']['selection'], table_selec_values).length > 0) {
-                        node['query_param']['selection'] = table_selec_values;
+                    if(!are_equal_as_sets(current_selected_values, previous_selected_values)) {
+                        node['query_param']['selection'] = current_selected_values;
                         fill_tables(graph);
                     }
 
@@ -815,6 +811,9 @@
 
         }
 
+        function are_equal_as_sets(array_1, array_2) {
+            return _.isEmpty(_.difference(array_1, array_2)) && _.isEmpty(_.difference(array_2, array_1));
+        }
 
         function fill_tables(graph) {
 
@@ -833,10 +832,10 @@
                     },
                     function(data) {
                         //console.log(data);
-                        var arr = [];
-                       
+                        var data_for_grid = [];
+                        //console.log(node.name, data);
                         for (var i = 0; i < data.results.bindings.length; i++) {
-                            var d = (arr[i] = {});
+                            var d = (data_for_grid[i] = {});
 
                             d["table"] = data.results.bindings[i][node.name]['value']; //
                         } 
@@ -863,9 +862,14 @@
                         })
                         //console.log(table_ids);
                         //console.log(highligth_indexes);
-                        node['grid'].setSelectedRows(highligth_indexes);
+                        
 
-                        node['grid'].setData(arr);
+                        node['grid'].setData(data_for_grid);
+                        node['grid'].setSelectedRows(highligth_indexes);
+                        // unified coloring
+                        // ja kaut kas ir selekteets, tad...
+                        // selekciju atziimeet baltu
+                        // paareejam uzlikt setCellCssStyle uz peleeku
                         node['grid'].invalidate();    
                         
                     })
