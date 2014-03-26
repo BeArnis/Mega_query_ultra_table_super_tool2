@@ -1,0 +1,1366 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+    <meta charset='utf-8'>
+        <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+        <title></title>
+        <meta name='description' content=''>
+        <meta name='viewport' content='width=device-width, initial-scale=1'>
+
+        <script src='bower_components/jquery/jquery.min.js' type='text/javascript'></script>
+        <script src='bower_components/jquery-migrate/jquery-migrate.js' type='text/javascript'></script>  <!-- needed for slick grid, because uses features removed from jquery 1.9 -->
+        <script src='bower_components/underscore/underscore.js' type='text/javascript'></script>
+        <script src='bower_components/stardog/js/stardog.js' type='text/javascript'></script>
+        <script src='bower_components/d3/d3.js' type='text/javascript'></script>
+        <script src='bower_components/vega/vega.js' type='text/javascript'></script>
+
+        <!-- bootstrap -->
+        <link rel='stylesheet' href='bower_components/bootstrap/dist/css/bootstrap.min.css' type='text/css'/>
+        <script src='bower_components/bootstrap/dist/js/bootstrap.min.js'></script>
+        
+
+        <!-- SlickGrid -->
+        <script src='bower_components/slickgrid/lib/jquery.event.drag-2.0.min.js'></script>
+        <script src='bower_components/slickgrid/slick.core.js'></script>
+        <script src='bower_components/slickgrid/slick.grid.js'></script>
+        <script src="bower_components/slickgrid/plugins/slick.rowselectionmodel.js"></script>
+
+
+        <link rel='stylesheet' href='bower_components/slickgrid/slick.grid.css' type='text/css'/>
+        <link rel='stylesheet' href='bower_components/slickgrid/css/smoothness/jquery-ui-1.8.16.custom.css' type='text/css'/>
+        <link rel='stylesheet' href='bower_components/slickgrid/examples/examples.css' type='text/css'/>
+
+
+        <script src="./lib/firebugx.js"></script>
+
+        <script src="./lib/jquery-1.7.min.js"></script>
+        <script src="./lib/jquery-ui-1.8.16.custom.min.js"></script>
+        <script src="./lib/jquery.event.drag-2.2.js"></script>
+
+
+
+
+
+        <script src="./slick.core.js"></script>
+        <script src="./slick.formatters.js"></script>
+        <script src="./slick.grid.js"></script>
+
+        <script src="./plugins/slick.checkboxselectcolumn.js"></script>
+        <script src="./plugins/slick.autotooltips.js"></script>
+        <script src="./plugins/slick.cellrangedecorator.js"></script>
+        <script src="./plugins/slick.cellrangeselector.js"></script>
+        <script src="./plugins/slick.cellcopymanager.js"></script>
+        <script src="./plugins/slick.cellselectionmodel.js"></script>
+        <script src="./plugins/slick.rowselectionmodel.js"></script>
+        <script src="./controls/slick.columnpicker.js"></script>
+
+        <script src="./slick.editors.js"></script>
+
+          <style>
+            .cell-title {
+              font-weight: bold;
+            }
+
+            .cell-effort-driven {
+              text-align: center;
+            }
+
+            .button-sprite { 
+                background: url('close_button.png') no-repeat; 
+                width: 30px; 
+                height: 30px; 
+            }
+
+            .button-sprite:hover { 
+                background-position: 0 -30px; 
+            }
+
+
+          </style>
+
+    </head>
+
+
+</head>
+<body>
+
+<div id='query-graph-container'></div>
+
+
+
+        <script type='text/javascript'>
+
+        var conn = new Stardog.Connection();
+            conn.setEndpoint('http://localhost:5820/'); 
+            conn.setCredentials('admin', 'admin');
+            conn.setReasoning('QL');
+
+
+        function toggleWay(graph, edge) {
+            var start_node = edge['start'];
+            var end_node = edge['end'];
+
+            console.log('swap', edge.name, graph[start_node], graph[end_node]);
+            
+            if((_.contains(graph[start_node]['incoming_lines'], edge.name)) && !(_.contains(graph[end_node]['incoming_lines'], edge.name))) {
+                graph[start_node]['incoming_lines'] = _.without(graph[start_node]['incoming_lines'], edge.name);
+
+                graph[end_node]['incoming_lines'].push(edge.name);
+            
+                render_graph(graph)
+
+                return;
+
+            } else if(!(_.contains(graph[start_node]['incoming_lines'], edge.name)) && (_.contains(graph[end_node]['incoming_lines'], edge.name))) {
+                graph[start_node]['incoming_lines'].push(edge.name);
+
+                render_graph(graph)
+
+                return;
+            }else if((_.contains(graph[start_node]['incoming_lines'], edge.name)) && (_.contains(graph[end_node]['incoming_lines'], edge.name))) {
+                graph[start_node]['incoming_lines'] = _.without(graph[start_node]['incoming_lines'], edge.name);
+                graph[end_node]['incoming_lines'] = _.without(graph[end_node]['incoming_lines'], edge.name);
+
+                render_graph(graph)
+
+                return;
+            }else if(!(_.contains(graph[start_node]['incoming_lines'], edge.name)) && !(_.contains(graph[end_node]['incoming_lines'], edge.name))) {
+                graph[start_node]['incoming_lines'].push(edge.name);
+
+                render_graph(graph)
+
+                return;
+            }   
+        }
+
+        function make_marker() {
+            var container = d3.select('#query-graph-container')
+                .style('position', 'relative');
+
+            var svg = container
+            .select('svg')
+            var marker_destoy = [];
+
+
+            svg.selectAll('marker')
+                .data(marker_destoy)
+                .exit()
+                    .remove();
+
+           
+
+            var end_marker = svg.append('marker')
+                //.attr('style', ' markerWidth="6" markerHeight="6" orient="auto"')
+                .attr('id', 'link_path_end')
+                .attr('viewBox', '-10 -5 10 10')
+                .attr('refX', -2)
+                .attr('refY', 0)
+                .attr('markerWidth', 6)
+                .attr('markerHeight', 6)
+                .attr('orient', 'auto')
+                .append('path')
+                    .attr('d', 'M-10,-5L0,0L-10,5')
+                    .attr('fill', 'steelblue');
+
+            var end_red_marker = svg.append('marker')
+                .attr('id', 'link_path_end_red')
+                .attr('viewBox', '-10 -5 10 10')
+                .attr('refX', -2)
+                .attr('refY', 0)
+                .attr('markerWidth', 6)
+                .attr('markerHeight', 6)
+                .attr('orient', 'auto')
+                .append('path')
+                    .attr('d', 'M-10,-5L0,0L-10,5')
+                    .attr('fill', 'red');
+
+            var start_marker = svg.append('marker')
+                .attr('id', 'link_path_start')
+                .attr('viewBox', '0 -5 10 10')
+                .attr('refX', 2)
+                .attr('refY', 0)
+                .attr('markerWidth', 6)
+                .attr('markerHeight', 6)
+                .attr('orient', 'auto')
+                .append('path')
+                    .attr('d', 'M10,-5L0,0L10,5')
+                    .attr('fill', 'red');
+
+            
+        }
+
+        function get_max_element_number(graph, element) {
+            var node_num = _.chain(graph)
+                    .filter(function(obj) {
+                        console.log(obj)
+                        if(obj['type'] == element) {
+                            return obj.name;
+                        }
+                    })
+                    .map(function(node_name) {
+                        var patt = /(\d)+/g;
+                        var s = patt.exec(node_name.name)[0];
+                        s = parseInt(s);
+                        return s;
+                    })
+                    .max()
+                    .value();
+            node_num = parseInt(node_num);
+            node_num = node_num + 1;        
+            return node_num;   
+        }
+
+        function make_node(graph, x, y) {
+
+            var table_name = 't' + get_max_element_number(graph, 'node');
+            //table_name
+            var temp = {
+                    'name': table_name,
+                    'query_var_name': table_name,
+                    'type' : 'node',
+                    'incoming_lines': [],
+                    'outgoing_lines': null,
+                    'query_param': {
+                        'input': null,
+                        'selection': []
+                    },
+                    'geometry' : {
+                        'x' : x,
+                        'y' : y,
+                        'width' : 1010,
+                        'height' : 500,
+                    },
+                    'columns' : [
+                        {
+                            // data property
+                            'column_label' : 'label',
+                            'property_name' : 'rdfs:label'
+                        }
+                    ]
+                }
+            graph[table_name] = temp;
+
+            render_graph(graph);
+
+            //console.log(temp, table_name, graph);
+
+        }
+
+        function exit_box(svg, node) {
+            svg.append('rect')
+                .attr("x", (node.geometry['x'] - 30))
+                .attr("y", (node.geometry['y'] - 30))
+                //.attr('fill', 'white')
+                .attr('stroke', 'black')
+                .attr("width", 30)
+                .attr("height", 30)
+                .append('path')
+                    .attr('d', 'M0,0L30,30')
+                    .attr('stroke', 'red'); 
+        }
+
+        function destroy_node(graph, node) {
+            console.log(node.name, graph);
+            delete graph[node.name];
+            //graph = _.omit(graph, node.name);
+            console.log(node.name, graph);
+            render_graph(graph);
+        }
+        
+         function lineIntersection (x1, y1, x2, y2, x3, y3, x4, y4) {
+            //console.log(x1, y1, x2, y2, x3, y3, x4, y4);
+            var dx12 = x2 - x1, dx34 = x4 - x3,
+                dy12 = y2 - y1, dy34 = y4 - y3,
+                denominator = dy34 * dx12 - dx34 * dy12;
+            if (denominator == 0) return null;
+            var dx31 = x1 - x3, dy31 = y1 - y3,
+                numa = dx34 * dy31 - dy34 * dx31,
+                a = numa / denominator,
+                numb = dx12 * dy31 - dy12 * dx31,
+                b = numb / denominator;
+            if (a >= 0 && a <= 1 && b >= 0 && b <= 1) {
+                return {
+                    x: x1 + a * dx12,
+                    y: y1 + a * dy12
+                };
+            }
+            return null;
+        }
+        function get_middle_point(node1_geo) {
+
+            //console.log(node1_geo);
+
+            if(node1_geo.width != undefined) {
+                var x = node1_geo.width / 2 + node1_geo.x;
+                var y = node1_geo.height / 2 + node1_geo.y;
+                var center = {
+                    x: x,
+                    y: y
+                };
+                return center;
+            } else {
+                //console.log(node1_geo);
+                var x = Math.min(node1_geo.x2, node1_geo.x1) + Math.abs((node1_geo.x2 - node1_geo.x1) / 2);
+                var y = Math.min(node1_geo.y2, node1_geo.y1) + Math.abs((node1_geo.y2 - node1_geo.y1) / 2);
+                var center = {
+                    x: x,
+                    y: y
+                };
+                return center;
+            }
+
+        }
+        
+        function rayIntersection(graph, source, target, rect) {
+            //console.log(graph, source, target, rect);
+            var x1 = source.x;
+            var y1 = source.y;
+            var x2 = target.x;
+            var y2 = target.y;
+            //var rect =  graph[node2]['geometry'];
+            var rectx = rect['x'];
+            var rectX = rect['x'] + rect['width'];
+            var recty = rect['y'];
+            var rectY = rect['y'] + rect['height'];
+            var sides = [[rectx, recty, rectX, recty],
+                    [rectX, recty, rectX, rectY],
+                    [rectX, rectY, rectx, rectY],
+                    [rectx, rectY, rectx, recty]];
+            
+            for (var i = 0; i < 4; ++i) {
+                var r = lineIntersection(x1, y1, x2, y2, sides[i][0], sides[i][1], sides[i][2], sides[i][3]);
+                if (r !== null) return { x: r.x, y: r.y }; // ?
+            }
+            return null;
+        }
+
+        function makeEdgeBetween(graph, node1_geo, node2_goe, ah, link_name) { //????????
+            //console.log(graph, node1_geo, node2_goe, ah);
+            var source_center = get_middle_point(node1_geo);
+            var target_center = get_middle_point(node2_goe);
+            //console.log(source_center, target_center);  
+
+        var si = rayIntersection(graph, source_center, target_center, node1_geo);
+        if (!si) si = { x: source_center.x, y: source_center.y }; //?
+        var ti = rayIntersection(graph, target_center, source_center, node2_goe);
+        if (!ti) ti = { x: target_center.x, y: target_center.y }; // ?
+        var dx = ti.x - si.x,
+            dy = ti.y - si.y,
+            l = Math.sqrt(dx * dx + dy * dy);
+            var al = l - ah;
+            
+           var arrowstart = { x: si.x + al * dx / l, y: si.y + al * dy / l };
+           graph[link_name]['geometry']['x1'] = si.x;
+           graph[link_name]['geometry']['y1'] = si.y;
+           graph[link_name]['geometry']['x2'] = ti.x;
+           graph[link_name]['geometry']['y2'] = ti.y;   
+
+        }
+
+        function render_graph(graph) {
+
+            drag = d3.behavior.drag()
+              .origin(function(d) {
+                //console.log(d);
+                return d.geometry;
+              })
+              .on("drag", function(d) {
+
+                var arr = d.incoming_lines;
+                var arr_out = d.outgoing_lines;                    
+                d.geometry.x = d3.event.x;
+                d.geometry.y = d3.event.y;
+                //console.log(d3.mouse(this)[0],  d3.mouse(this)[1], d3.event, );
+                //console.log(d3.event.x, d);   
+                render_graph(graph);
+              });
+
+
+            drag2 = d3.behavior.drag()
+              .origin(function(node) {
+                return node.geometry;
+              })
+              .on("drag", function(node) {
+
+                // var arr = d.incoming_lines;
+                // var arr_out = d.outgoing_lines;                    
+                x = d3.event.dx;
+                y = d3.event.dy;
+                change_node_size(graph, node, x, y);
+                console.log(d3.event);
+                //console.log(d3.event.x, d);   
+                //render_graph(graph);
+              });
+
+
+
+            var container = d3.select('#query-graph-container')
+                .style('position', 'relative')
+                .on('keydown', function(d) {
+                    console.log('ss');
+                })
+                //.on("mousemove", function(d) {
+                //    console.log(d3.mouse(this));
+                //});
+          
+
+            var node_arr = _.filter(graph, function(obj) {
+                if(obj['type'] == 'node') {
+                    return obj;
+                }
+            });
+
+            var edge_arr = _.filter(graph, function(obj) {
+                if(obj['type'] == 'edge' || obj['type'] == 'hyper_edge') {
+                    return obj;
+                }
+            });
+
+            var graph_elements = _.filter(graph, function(obj) {
+                return obj;
+            });
+
+            var svg_arr = ['1'];
+            var svg_des = [];
+
+            container.selectAll('svg')
+                .data(svg_des)
+                .exit()
+                    .remove();
+
+
+
+            var svg = container.selectAll('svg')
+                .data(svg_arr).on('keydown', function(d) {
+                    console.log('ss');
+                })
+                .enter()
+                .append('svg')
+                    .attr('width', 7000)
+                    .attr('height',7000)
+                    .call(make_marker)
+                    .on('click', function(d) {
+                       // mousemove
+                        //console.log(d3.mouse(this));
+                        var x = d3.mouse(this)[0];
+                        var y = d3.mouse(this)[1];
+                        if(this == d3.event.target) {
+                            make_node(graph, x, y);
+                        }
+                        
+                        console.log('hi', this, d3.event.target);
+                    })
+
+
+            //exit_box(svg);
+
+            //console.log(edge_arr);
+            //console.log(node_arr);
+            var nodes = container.selectAll('.query-node')
+                    .data(node_arr, function(d) {
+                        return d.name;
+                    })
+                    .style('x', function(node) {return node.geometry.x;})
+                    .style('y', function(node) {return node.geometry.y;});
+
+
+                    
+             
+            nodes.exit()
+                .remove();        
+
+            var sprite = nodes.selectAll('.resize-sprite')
+                        .style('height', 40 + 'px')
+                    .style('width', 40 + 'px')
+                    .style('background-color', 'blue')
+                    .style('left', function(node) {
+                        return node.geometry.width - 40 + 'px';
+                    })
+                    .style('top', function(node) {
+                        return node.geometry.height - 40 + 'px';
+                    });
+
+            var delete_node = nodes.selectAll('.button-sprite')
+                        .style('left', function(node) {
+                        return node.geometry.width - 15 + 'px';
+                        })
+                        .style('top', '-15px')
+
+
+            var grid = nodes.selectAll('.query-result-redering-container')
+                        .style('left', '30px')
+                        .style('top', '30px')
+                        .style('width', function(node) {
+                            return node.geometry.width - 40 + 'px';
+                        })
+                        .style('height', function(node) {
+                            return node.geometry.height - 40 + 'px';
+                        });
+
+            //console.log(nodes);
+
+
+            var edges = svg.selectAll('.query-edges')
+                      .data(edge_arr)
+                    .enter()
+                 .append('path')
+                    .classed('query-edge', true)
+                    .attr('stroke', "steelblue")
+                    .attr('stroke-width', "2px")
+                    .attr('marker-end', "url(#link_path_end)")
+                    .attr('d', function(d) {
+                        var path = 'M' + d.geometry.x1 + ',' + d.geometry.y1 + 'L' + d.geometry.x2 + ',' + d.geometry.y2;
+                        //console.log(path);  
+                        return path;
+                    })
+                    .attr('id', function(node) {return node['name']; })
+                    .each(function(d){
+                        //console.log(d);
+
+                        
+                    });
+
+
+            var red_edges = svg.selectAll('.query-edges_red')
+                    .data(edge_arr)
+                    .attr('marker-end', function(edge) {
+                        //console.log(edge, graph);
+                        if(_.contains(graph[edge.end]['incoming_lines'], edge.name)) {
+                            return 'url(#link_path_end_red)';
+                        }
+                        else return '';
+                    })
+                    .attr('marker-start', function(edge) {
+                        //console.log(edge, graph);
+                        if(_.contains(graph[edge.start]['incoming_lines'], edge.name)) {
+                            return 'url(#link_path_start)';
+                        }
+                        else return '';
+                    })
+                    .enter()
+                 .append('path')
+                    .classed('query-edge', true)
+                    .attr('stroke', "red")
+                    .attr('stroke-width', "6px")
+                    .attr('marker-end', function(edge) {
+                        //console.log(edge, graph);
+                        if(_.contains(graph[edge.end]['incoming_lines'], edge.name)) {
+                            return 'url(#link_path_end_red)';
+                        }
+                        else return '';
+                    })
+                    .attr('marker-start', function(edge) {
+                        //console.log(edge, graph);
+                        if(_.contains(graph[edge.start]['incoming_lines'], edge.name)) {
+                            return 'url(#link_path_start)';
+                        }
+                        else return '';
+                    })
+                    .attr('d', function(d) {
+                        //console.log(d);
+                        if(d.geometry.x1 == d.geometry.x2) {
+                            var path = 'M' + (d.geometry.x1 + 20) + ',' + d.geometry.y1 + 'L' + (d.geometry.x2 + 20) + ',' + d.geometry.y2;
+                        }else {
+                            var path = 'M' + d.geometry.x1 + ',' + (d.geometry.y1 - 20) + 'L' + d.geometry.x2 + ',' + (d.geometry.y2 - 20);
+                        }
+                        
+                        //console.log(d);  
+                        return path;
+                    })
+                    .attr('id', function(node) {return node['name']; })
+                    .on('click', function(d) {
+                        toggleWay(graph, d);
+                        return;
+                    });
+
+
+            svg.selectAll('.query-edges_red').selectAll('.path')
+                    .attr('marker-end', function(edge) {
+                        //console.log(edge, graph);
+                        if(_.contains(graph[edge.end]['incoming_lines'], edge.name)) {
+                            return 'url(#link_path_end_red)';
+                        }
+                        else return '';
+                    })
+                    .attr('marker-start', function(edge) {
+                        //console.log(edge, graph);
+                        if(_.contains(graph[edge.start]['incoming_lines'], edge.name)) {
+                            return 'url(#link_path_start)';
+                        }
+                        else return '';
+                    });
+
+                    //.on('click', redraw());
+            var margin = 20;
+
+            var new_nodes = nodes
+                   .enter()
+                    .append('div')
+                    .classed('query-node', true) // if type node than node is needed
+                    .style('position', 'absolute')
+                    .style('left', function(node) {return node.geometry.x + 'px';})
+                    .style('top', function(node) {return node.geometry.y  +'px';})
+                    .style('width', function(node) {return node.geometry.width +'px';})
+                    .style('height', function(node) {return node.geometry.height + 'px';})
+                    .style('color', 'black')
+                    .style('background-color', 'indianred')
+                    .attr('id', function(node) {return node['name']; })
+                    .on('click', function(d) {
+                        //console.log('hi', this);
+                    })
+                    .call(drag);
+                    
+
+            nodes.classed('query-node', true)
+            .style('position', 'absolute')
+                .style('left', function(node) {return node.geometry.x + 'px';})
+                .style('top', function(node) {return node.geometry.y  +'px';})
+                .style('width', function(node) {return node.geometry.width +'px';})
+                .style('height', function(node) {return node.geometry.height + 'px';});
+
+            edges.each(function(edge) {
+                //console.log(edge.start, edge.end);
+                makeEdgeBetween(graph, graph[edge.start]['geometry'], graph[edge.end]['geometry'], 5, edge.name);
+                
+            });
+
+
+
+            var labels = svg.selectAll('.text')
+                    .data(graph_elements)
+                    .enter()
+                     .append('text')
+                     .attr('class', 'text')
+                     .text( function(d) {
+                        return d.name;
+                     })
+                     .attr('x', function(d) {
+                        return d.geometry['x'] || (d.geometry['x2'] - 20);
+                     })
+                     .attr('y', function(d) {
+                        return (d.geometry['y'] - 0) || (d.geometry['y2'] + 10);
+                     })
+                     .attr("font-family", "sans-serif")
+                     .attr("font-size", "20px")
+                     .attr("fill", "balck");
+
+            /*var new_edges = svg.selectAll('.query-edges')
+                .data(edges)
+                .enter()
+                 .append('path')
+                    .classed('query-edge', true)
+                    .attr('stroke', "steelblue")
+                    .attr('stroke-width', "2px")
+                    .attr('marker-end', "url(#link_path_end)")
+                    .attr('d', function(d) {
+                        console.log(d);
+                        var path = 'M' + d.geometry.x1 + ',' + d.geometry.y1 + 'L' + d.geometry.x2 + ',' + d.geometry.y2;
+                        console.log(path);  
+                        return path;
+                    })
+                    .attr('id', function(node) {return node['name']; });*/
+
+
+
+
+            new_nodes.each(function(node, i) {
+                var node_div = d3.select(this);
+                //console.log(this);
+
+                //console.log(node.geometry['width']);
+
+
+
+                node_div.append('div')
+                    .attr('class', 'button-sprite')
+                    .style('position', 'absolute')
+                    .style('left', function(node) {
+                        return node.geometry.width - 15 + 'px';
+                    })
+                    .style('top', '-15px')
+                    .on('click', function(node) {
+
+                        //console.log(node)
+                        destroy_node(graph, node);
+                    })
+
+                node_div.append('div')
+                    .attr('class', 'resize-sprite')
+                    .attr('id', node.name)
+                    .style('position', 'absolute')
+                    .style('height', 40 + 'px')
+                    .style('width', 40 + 'px')
+                    .style('background-color', 'blue')
+                    .style('left', function(node) {
+                        return node.geometry.width - 40 + 'px';
+                    })
+                    .style('top', function(node) {
+                        return node.geometry.height - 40 + 'px';
+                    })
+                    // .on('mousedown', function(node) {
+                    //     d3.event.stopPropagation();
+                    // })
+                    .call(drag2);
+                    //.on('click', 's')
+                    // .on('drag', function(node) { 
+                    //     d3.event.stopPropagation();
+                    //     var x = d3.event.x - 150;
+                    //     var y = d3.event.y - 125;
+                    //     change_node_size(graph, node, x, y);
+                    //     //drag_node(graph, node);
+
+                    //     console.warn(this); 
+                    // });
+                    
+
+                node_div.append('div')
+                    .attr('class', 'query-button')
+                    .attr('id', node.name)
+                    .style('position', 'absolute')
+                    .style('height', 40 + 'px')
+                    .style('width', 40 + 'px')
+                    .style('background-color', 'yellow')
+                    .style('left', function(node) {
+                        return node.geometry.width + 'px';
+                    })
+                    .style('top', function(node) {
+                        return node.geometry.height - 40 + 'px';
+                    })
+                    .on('click', function(node) {
+                        var query = generate_query(graph, node);
+                        console.log('query', query);
+                    });
+
+                node_div.append('div')
+                    .attr('class', 'refresh-button')
+                    .attr('id', node.name)
+                    .style('position', 'absolute')
+                    .style('height', 40 + 'px')
+                    .style('width', 40 + 'px')
+                    .style('background-color', 'black')
+                    .style('left', function(node) {
+                        return node.geometry.width - 40 + 'px';
+                    })
+                    .style('top', function(node) {
+                        return node.geometry.height + 'px';
+                    })
+                    .on('click', function(node) {
+                        //generate_query(graph, node);
+                        
+                        get_table_content(graph, node, node.grid.getSelectedRows(), node.grid);
+                        //console.warn('render', node, node.grid, node['query_param']['selection']);
+                    });
+
+
+
+                var sub_node_div = node_div
+                    .append('div')
+                    .classed('sub', true)
+                    .attr('id', node.name + '1')
+                    .style('width', function(node) {
+                        return node.geometry.width - 40 + 'px';
+                    })
+                    .style('height', function(node) {
+                        return node.geometry.height - 40 + 'px';
+                    });
+               // console.log(this, node);
+
+                var gridContainer = sub_node_div.append('div')
+                    .classed('query-result-redering-container', true)
+                    .style('left', '30px')
+                    .style('top', '30px')
+                    .style('width', function(node) {
+                        return node.geometry.width - 40 + 'px';
+                    })
+                    .style('height', function(node) {
+                        return node.geometry.height - 40 + 'px';
+                    });
+
+                
+                var options = {
+                    enableCellNavigation: true,
+                    enableColumnReorder: false
+                };
+
+
+
+                var data = [];
+                var columns = [
+                    {id: "table", name: node.name, field: "table", width: 330}    
+                  ];
+
+                //console.log(columns, gridContainer);
+
+                var table_grid = new Slick.Grid(gridContainer.node(), data, columns, options);
+
+                node['grid'] = table_grid;
+
+                table_grid.setSelectionModel(new Slick.RowSelectionModel({selectActiveRow: true}));
+
+                table_grid.onSelectedRowsChanged.subscribe(function() { 
+
+
+                    row_ids = table_grid.getSelectedRows();
+
+                
+                    
+                    var table_values = _.map(table_grid.getData(), function(obj) {
+                        return obj.table;
+                    })
+                    //if()
+                    var table_selec_values = _.map(row_ids, function(index) {
+                        return table_values[index];
+                    })
+                   
+                    if(_.difference(table_selec_values, node['query_param']['selection']).length > 0 || 
+                        _.difference(node['query_param']['selection'], table_selec_values).length > 0) {
+                        get_table_content(graph, node, row_ids, table_grid);
+                    }
+
+
+                });
+
+                
+            });
+
+            fill_tables(graph);
+
+        }
+
+        function get_table_content(graph, node, row_ids, grid) {
+            var query = generate_query(graph, node);
+
+            
+
+            var as;
+
+            conn.query({
+                        database: 'myDB3',
+                        query: query, 
+                        limit: 30,
+                        offset: 0
+                    },
+                    function(data) {
+                    
+
+                    var map = _.map(row_ids, function(values) { // need the table object? 
+                        return data.results.bindings[values];
+                    });
+
+                    get_first_data = _.map(map, function(obj) {
+                        //console.log(obj);
+                        return obj[node.name]['value'];
+                    });
+                    //console.log(row_ids, map, get_first_data);
+
+                    //console.log(string);
+                    var cell_arr = _.chain(get_first_data)
+                        .map(function(cell) {
+                            return cell;
+                        })
+                        .value();
+
+                    var query_value_data = cell_arr.join(''); // selected crap
+
+                    node['query_param']['selection'] = cell_arr; // after this we will call a function
+
+                    
+                    //console.log(node['query_param']['selection'], cell_arr);
+                    //console.log('ss');
+                    update_selection(graph, node, cell_arr);
+
+                    //console.log(node['query_param']['selection']);
+
+
+                    var table_ids = _.map(data.results.bindings, function(obj, i) {
+                        //console.log(obj);
+                            return "<" + obj[node.name]['value'] + ">";
+                        });
+
+                    var selec_arr = node['query_param']['selection']
+
+                    var highligth_indexes = [];
+
+
+                    _.each(selec_arr, function(selec) {
+                    //var bool = _.indexOf(table_ids, selec)
+                        var index = _.indexOf(table_ids, selec)
+                        if(index != -1) {
+                            highligth_indexes.push(index);
+                        }
+
+                    })
+
+                    fill_tables(graph);
+
+                    });
+ 
+
+        }
+
+        function fill_tables(graph) {
+
+            _.chain(graph)
+                .filter(function(elem) { return elem['type'] == 'node'; })
+                .each(function(node){ 
+                    //var query = get_table_query(graph, node.name);
+                    //var query_template = _.template("select distinct ?<%= name %> where {{?<%= name %> ?p ?o} UNION {?s ?<%= name %> ?o} UNION {?s ?p ?<%= name %>}}");
+                    //console.log(node.name);
+                    var query = generate_query(graph, node);
+                    conn.query({
+                        database: 'myDB3',
+                        query: query, 
+                        limit: 30,
+                        offset: 0
+                    },
+                    function(data) {
+                        //console.log(data);
+                        var arr = [];
+                       
+                        for (var i = 0; i < data.results.bindings.length; i++) {
+                            var d = (arr[i] = {});
+
+                            d["table"] = data.results.bindings[i][node.name]['value']; //
+                        } 
+
+                        var table_ids = _.map(data.results.bindings, function(obj, i) {
+                        //console.log(obj);
+                            return obj[node.name]['value'];
+                        });
+                        //console.warn(node.name, table_ids, node['query_param']['selection']);
+
+                        node['query_param']['selection'] = _.intersection(node['query_param']['selection'], table_ids);
+
+                        //console.log(node['query_param']['selection']);
+
+                        //table_grid.setSelectionModel(new Slick.RowSelectionModel({selectActiveRow: true}));
+
+                        //table_grid.onSelectedRowsChanged.subscribe(function() { 
+
+                        var selec_arr = node['query_param']['selection']
+
+                        var highligth_indexes = [];
+                        _.each(selec_arr, function(selec) {
+                            //var bool = _.indexOf(table_ids, selec)
+                            var index = _.indexOf(table_ids, selec)
+                            if(index != -1) {
+                                highligth_indexes.push(index);
+                            }
+
+                        })
+                        //console.log(table_ids);
+                        //console.log(highligth_indexes);
+                        node['grid'].setSelectedRows(highligth_indexes);
+
+                        node['grid'].setData(arr);
+                        node['grid'].invalidate();    
+                        
+                    })
+                });
+
+            
+        }
+
+        function generate_query(graph, node) {
+            var query_template = _.template("" + 
+                "select distinct ?<%= name %> \n" +
+                "where {\n" +
+                    "<%= query_body %>\n" +
+                "}");
+
+            var cons = constraint(graph, node, node, [])
+
+            var query = query_template({
+                name: node.name,
+                query_body: cons
+            })
+            //console.log(query);
+            return query;
+        }
+
+
+
+
+        example_graph = {
+            
+                't1': {
+                    'name': 't1',
+                    'query_var_name': 't1',
+                    'type' : 'node',
+                    'incoming_lines': ['l1'],
+                    'outgoing_lines': null,
+                    'query_param': {
+                        'input': null,
+                        'selection': ['http://myvehicledata.com/anna', 'http://myvehicledata.com/jack']
+                    },
+                    'geometry' : {
+                        'x' : 150,
+                        'y' : 125,
+                        'width' : 1010,
+                        'height' : 500
+                    },
+                    'columns' : [
+                        {
+                            // data property
+                            'column_label' : 'label',
+                            'property_name' : 'rdfs:label'
+                        }
+                    ]
+                },
+                't2': {
+                    'name': 't2',
+                    'query_var_name': 't2',
+                    'type' : 'node',
+                    'incoming_lines': [],
+                    'outgoing_lines': ['l1'],
+                    'query_param': {
+                        'input': null,
+                        'selection': []
+                    },
+                    'geometry' : {
+                        'x' : 1750,
+                        'y' : 125,
+                        'width' : 1010,
+                        'height' : 500,
+                    },
+                    'columns' : [
+                        {
+                            // data property
+                            'column_label' : 'label',
+                            'property_name' : 'rdfs:label'
+                        }
+                    ]
+                },
+                't3': {
+                    'name': 't3',
+                    'query_var_name': 'l1',
+                    'type' : 'node',
+                    'incoming_lines': ['hl2'],
+                    'outgoing_lines': null,
+                    'query_param': {
+                        'input': null,
+                        'selection': []
+                    },
+                    'geometry' : {
+                        'x' : 950,
+                        'y' : 885,
+                        'width' : 1010,
+                        'height' : 500,
+                    },
+                    'columns' : [
+                        {
+                            // data property
+                            'column_label' : 'label',
+                            'property_name' : 'rdfs:label'
+                        }
+                    ]
+                },
+            
+                'l1': {
+                    'name': 'l1',
+                    'query_var_name': 'l1',
+                    'incoming_lines': [],
+                    'outgoing_lines': null,
+                    'geometry': {
+                        'x1': 1155,
+                        'y1': 375,
+                        'x2': 1755,
+                        'y2': 375
+                    },
+                    'start': 't1',
+                    'end': 't2',
+                    'type': 'edge'
+                },
+                'hl2': {
+                    'name': 'hl2',
+                    'query_var_name': 'hl2',
+                    'incoming_lines': [],
+                    'outgoing_lines': null,
+                    'geometry': {
+                        'x1': 1440,
+                        'y1': 885,
+                        'x2': 1440,
+                        'y2': 375
+
+                    },
+                    'start': 't3',
+                    'end': 'l1',
+                    'type': 'hyper_edge'
+                }
+            }
+        
+        render_graph(example_graph);
+
+        function highlight(node) {
+
+        }
+
+        function constraint(graph, elem, from_elem, visited) {
+           var patterns = [];
+           switch(elem['type']) {
+               case 'node':
+                   var node = elem;
+                   //console.log(elem.name);
+                   if(elem == from_elem) { // need to ignore local selection
+                        patterns.push(local_filter(node));
+                   } else {
+                        patterns.push(local_constraint(graph, node));
+                   }
+                   
+                   visited.push(node.name);
+                   _.each(node['incoming_lines'], function(line_id) {
+                    //console.log('mm', visited);
+                       if (!_.include(visited, line_id)){
+                           patterns.push(constraint(graph, graph[line_id], node, visited));
+                       }
+                   });
+                   break;
+               case 'edge':
+                   var edge = elem;
+                   //console.log(elem.name);
+                   if(elem == from_elem) {
+                    //console.log('ee', elem.name);
+                        patterns.push(local_filter(edge));
+                   } else {
+                        patterns.push(local_constraint(graph, edge));
+                   }
+
+                   visited.push(edge.name);
+                   if (!_.include(visited, edge.start)){
+                    //console.log('ee', elem.name);
+                       patterns.push(constraint(graph, graph[edge.start], edge, visited));
+                   }
+                   if (!_.include(visited, edge.end)){
+                       patterns.push(constraint(graph, graph[edge.end], edge, visited));
+                   }
+
+                   _.each(edge['incoming_lines'], function(line_id) {
+                    //console.log('hh');
+                       if (!_.include(visited, line_id)){
+                           patterns.push(constraint(graph, graph[line_id], edge, visited));
+                       }
+                   });
+                   break;
+               case 'hyper_edge':
+                   var hyper_edge = elem;
+                   //console.log(elem.name);
+                   visited.push(hyper_edge.name);
+
+                   if (!_.include(visited, hyper_edge.start)){
+                       patterns.push(constraint(graph, graph[hyper_edge.start], hyper_edge, visited));
+                   }
+                   if (!_.include(visited, hyper_edge.end)){
+                       patterns.push(constraint(graph, graph[hyper_edge.end], hyper_edge, visited));
+                   }
+
+                   // from dirrection add filter
+                   var hyp = _.difference([hyper_edge.start, hyper_edge.end], [from_elem.name])[0]
+
+
+
+                   patterns.push('FILTER (' + elem_var_str(from_elem.name) + ' = ' + elem_var_str(hyp) + ') .');
+
+                   break;
+               default:
+                   console.error("unknown elem type!");
+           }
+           return patterns.join('\n');
+        }
+
+
+
+
+        function elem_var_str(elem) {
+            return '?' + elem; // does not work with edges
+        }
+
+        function local_constraint(graph, elem) {
+            var pattern = '';
+            switch(elem['type']) {
+               case 'node':
+                   var node = elem;
+                   //console.log('mm');
+                   
+                   pattern = local_filter(node) + '\n' + local_selection(graph, node);
+                   break;
+               case 'edge':
+                   var edge = elem;
+                   pattern = elem_var_str(edge.start) + ' ' + elem_var_str(edge.name) + ' ' + elem_var_str(edge.end) + ' .'; // undef problem
+                   break;
+               case 'hyper_edge':
+                   // nothing for hyper edge
+                   break;
+               default:
+                   console.error("unknown elem type!");
+            }
+            return pattern;
+        }
+        
+        function local_selection(graph, node) {
+
+            //console.log(node.name, node['query_param']['selection'].length); // ?
+            var selection_arr = node['query_param']['selection'];
+            var new_selection = _.map(selection_arr, function(item) {
+                return '<' + item + '>';
+            })
+
+            var selection = new_selection.join('');
+
+            if(node['query_param']['selection'].length == 0) {
+                var patern = ''
+            } else {
+                var patern = 'values ?' + node.name + ' { ' + selection + ' } .\n';
+            }
+            
+            return patern;
+        }
+
+        function get_type_filter_input(node) {
+            //console.log(node['query_param']);
+            if (_.isString(node['query_param']) 
+            && node['query_param']['input'].lenght > 0) {
+                return node['query_param']['input'];
+            } else {
+                return null;
+            }
+        }
+        function local_filter(node) {
+            var pattern = '';
+            var type_filter_input = get_type_filter_input(node);
+            //console.log(type_filter_input);
+            if (type_filter_input) {
+            pattern = '?' + node.name + ' a <' + type_filter_input + '> .\n';
+            } else {
+            pattern = '{?' + node.name + ' ?p ?o} UNION {?s ?' + node.name + '  ?o} UNION {?s ?p ?' + node.name + ' } .';
+            }
+
+            return pattern;
+        }
+
+
+        function update_selection(graph, node, selection) {
+            
+            graph[node.name]['query_param']['selection'] = selection;
+
+        }
+
+
+        d3.select("body")
+        .on("keydown", function() {
+            if(d3.event.keyCode == 17) {
+                make_edge1(example_graph)
+            } 
+        });
+
+        function make_edge1(graph){
+            var container = d3.select('#query-graph-container');
+            var nodes = container.selectAll('.query-node');
+            var edges = container.select('svg').selectAll('.query-edge');
+
+            edges.on('click', function(edge) {
+                console.log('click_edge', edge.name);
+                make_edge2(graph, edge, edge.type);
+
+            });
+
+            nodes.on('click', function(node) {
+                console.log('click', node.name);
+                make_edge2(graph, node, node.type);
+
+            });
+            console.log(nodes, edges);
+        }
+
+        function make_edge2(graph, elem, type) {
+            console.log(elem);
+            var container = d3.select('#query-graph-container');
+            var nodes = container.selectAll('.query-node');
+            var svg = container.select('svg');
+            var edges = svg.selectAll('.query-edge');
+
+             edges.on('click', function(edge) {
+                console.log('click_edge2', edge.name);
+                if(elem.name == edge.name) {
+                    return;
+                } else if(type == 'edge' || type == 'hyper_edge') {
+                    return
+                }else {
+                    draw_edge(graph, elem, edge);
+                    return;
+                } 
+            });
+            
+            nodes.on('click', function(node2) {
+                console.log('click2', node2.name);
+                if(elem.name == node2.name) {
+                    return;
+                } else if(type == 'edge' || type == 'hyper_edge') {
+                    draw_edge(graph, elem, node2);
+                    return
+                }else {
+                    draw_edge(graph, elem, node2);
+                    return;
+                }         
+            });
+        }
+
+        function draw_edge(graph, elem1, elem2) {
+            //console.log(node, node2);
+
+            var edge_name = 'l' + get_max_element_number(graph, 'edge') // needs better name giving XD
+            var edge = edge_name;
+            if(elem1.type == 'node') {
+                var x1 = elem1['geometry']['x'];
+                var y1 = elem1['geometry']['y'];
+            } else {
+                var elem1_short = elem1['geometry'];
+                var x1 = Math.min(elem1_short.x2, elem1_short.x1) + Math.abs((elem1_short.x2 - elem1_short.x1) / 2);
+                var y1= Math.min(elem1_short.y2, elem1_short.y1) + Math.abs((elem1_short.y2 - elem1_short.y1) / 2);
+            }
+
+            if(elem2.type == 'node') {
+                var x2 = elem2['geometry']['x'];
+                var y2 = elem2['geometry']['y'];
+            } else {
+                var elem2_short = elem2['geometry'];
+                var x2 = Math.min(elem2_short.x2, elem2_short.x1) + Math.abs((elem2_short.x2 - elem2_short.x1) / 2);
+                var y2= Math.min(elem2_short.y2, elem2_short.y1) + Math.abs((elem2_short.y2 - elem2_short.y1) / 2);
+            }
+
+
+  
+
+            edge_template = {
+                    'name': edge_name,
+                    'query_var_name': edge_name,
+                    'incoming_lines': [],
+                    'outgoing_lines': [],
+                    'geometry': {
+                        'x1': x1,
+                        'y1': y1,
+                        'x2': x2,
+                        'y2': y2
+                    },
+                    'start': elem1.name,
+                    'end': elem2.name,
+                    'type': 'edge'
+                }
+            console.log(elem1, elem2)
+            graph[edge_name] = edge_template;
+            makeEdgeBetween(graph, elem1['geometry'], elem2['geometry'], 5, edge_name);
+
+            render_graph(graph);
+
+        }
+
+        function change_node_size(graph, node, x, y) {
+            graph[node.name]['geometry'].width += x;
+            graph[node.name]['geometry'].height += y;
+
+            render_graph(graph);
+
+        }
+        </script>
+    
+    </body>
+</html>
