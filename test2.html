@@ -760,11 +760,11 @@
 
                 var data = [];
                 
-                var columns = _.map(node.columns, function(colum, i) {
+                var columns = _.map(node.columns, function(column, i) {
                     return { 
-                        id: node.name + '_col_' + (i + 1), 
-                        name : colum.column_label, 
-                        field: node.name + '_col_' + (i + 1), 
+                        id: column_name_generator(node, column, i), 
+                        name : column.column_label, 
+                        field: column_name_generator(node, column, i), 
                         formatter: render_cell_data,
                         width: 330
                     };
@@ -889,18 +889,36 @@
 
         function generate_query(graph, node) {
             var query_template = _.template("" + 
-                "select distinct ?<%= name %>  ?<%= columns %> \n" +
+                "select distinct ?<%= name %>  <%= column_vars %> \n" +
                 "where {\n" +
                     "<%= query_body %>\n" +
                 "}");
 
             var cons = constraint(graph, node, node, [])
 
+            // var query = query_template({
+            //     name: node.name,
+            //     columns: node.name + '_col_' + (i + 1),
+            //     query_body: cons
+            // })
+
+            var query_column_names = _.map(node.columns, function(column, i) {
+                return '?' + column_name_generator(node, column, i);
+            })
+            
             var query = query_template({
                 name: node.name,
-                columns: node.name + '_' + node.colomus,
+                column_vars: query_column_names.join(' '),
                 query_body: cons
             })
+            // var que = {};
+            // _map(query_column_name, function(col) {
+            //     que['columns'] = col;
+            // })
+            // que['name'] = node.name;
+            // que['query_body'] = cons;
+
+            // var query = query_template(que);
             console.log(query);
             return query;
         }
@@ -936,7 +954,7 @@
                             // data property
                             'type' : 'direct',
                             'column_label' : 'label2',
-                            'property_name' : 'rdfs:label'
+                            'property_name' : '<http://example.com/ontology1#wife>'
                         }
                     ]
                 },
@@ -1032,6 +1050,7 @@
                    //console.log(elem.name);
                    if(elem == from_elem) { // need to ignore local selection
                         patterns.push(local_filter(node));
+                        patterns.push(local_column_queries(node));
                    } else {
                         patterns.push(local_constraint(graph, node));
                    }
@@ -1293,6 +1312,16 @@
                 return '';
             }
             
+        }
+
+        function local_column_queries(node) {
+            return _.map(node.columns, function(column, i) {
+                return 'OPTIONAL { ?' + node.name + '  ' + column.property_name + '  ?' + column_name_generator(node, column ,i) + ' . } .'; 
+            }).join('\n');
+        }
+
+        function column_name_generator(node, column, i) {
+            return node.name + '_col_' + (i + 1);
         }
         </script>
     
