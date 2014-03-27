@@ -798,7 +798,7 @@
                     })
                     
                     var previous_selected_values = node['query_param']['selection']; // get_selection_values(node['query_param']['selection']);
-
+                    console.log(current_selected_values, previous_selected_values);
                     if(!are_equal_as_sets(current_selected_values, previous_selected_values)) {
                         node['query_param']['selection'] = current_selected_values;
                         fill_tables(graph);
@@ -840,8 +840,8 @@
                         for (var i = 0; i < data.results.bindings.length; i++) {
                             var d = (data_for_grid[i] = {});
 
-                            d["col1"] = data.results.bindings[i][node.name]['value']; // padot objektu un iraut ārā values ar render
-                            d['col2'] = data.results.bindings[i][node.name]['type'];
+                            d["col1"] = data.results.bindings[i][node.name]; // padot objektu un iraut ārā values ar render
+                            //d['col2'] = data.results.bindings[i][node.name];
                         } 
 
                         var table_obj = _.map(data.results.bindings, function(obj, i) {
@@ -850,11 +850,11 @@
                         });
 
                         table_values = get_selection_values(table_obj);
-                        console.log(table_obj, table_values);
+                        //console.log(table_obj, table_values);
                         //console.warn(node.name, table_obj, node['query_param']['selection']);
 
-                        selected_values = _.intersection(get_selection_values(node['query_param']['selection']), table_values);
-                        node['query_param']['selection'] = _.intersection(get_selection_values(node['query_param']['selection']), table_values); // gets those values that were in the graph selection before  need change 
+                        //selected_values = _.intersection(get_selection_values(node['query_param']['selection']), table_values);
+                        //node['query_param']['selection'] = _.intersection(get_selection_values(node['query_param']['selection']), table_values); // gets those values that were in the graph selection before  need change 
 
                         console.log(node['query_param']['selection']);
                     
