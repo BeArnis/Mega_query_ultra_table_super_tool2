@@ -241,8 +241,6 @@
 
             render_graph(graph);
 
-            //console.log(temp, table_name, graph);
-
         }
 
         function exit_box(svg, node) {
@@ -337,7 +335,7 @@
             //console.log(graph, node1_geo, node2_goe, ah);
             var source_center = get_middle_point(node1_geo);
             var target_center = get_middle_point(node2_goe);
-            //console.log(source_center, target_center);  
+ 
 
         var si = rayIntersection(graph, source_center, target_center, node1_geo);
         if (!si) si = { x: source_center.x, y: source_center.y }; //?
@@ -440,11 +438,6 @@
                         console.log('hi', this, d3.event.target);
                     })
 
-
-            //exit_box(svg);
-
-            //console.log(edge_arr);
-            //console.log(node_arr);
             var nodes = container.selectAll('.query-node')
                     .data(node_arr, function(d) {
                         return d.name;
@@ -654,11 +647,6 @@
 
             new_nodes.each(function(node, i) {
                 var node_div = d3.select(this);
-                //console.log(this);
-
-                //console.log(node.geometry['width']);
-
-
 
                 node_div.append('div')
                     .attr('class', 'button-sprite')
@@ -771,9 +759,24 @@
 
 
                 var data = [];
-                var columns = [
-                    {id: "table", name: node.name, field: "table", width: 330}    
-                  ];
+                
+                var columns = _.map(node.columns, function(colum, i) {
+                    return { 
+                        id: node.name + '_col_' + (i + 1), 
+                        name : colum.column_label, 
+                        field: node.name + '_col_' + (i + 1), 
+                        formatter: render_cell_data,
+                        width: 330
+                    };
+                })
+
+                columns.unshift({id:node.name, name: node.name, field: node.name, formatter: render_cell_data, width: 330})
+
+
+                // var columns = [
+                //     {id: node.name, name: , field: "col1", width: 330},
+                //     {id: node.name, name: 'c2', field: "col2", width: 330}   // map 
+                //   ];
 
                 //console.log(columns, gridContainer);
 
@@ -794,7 +797,7 @@
                         return all_table_row_values[index];
                     })
                     
-                    var previous_selected_values = node['query_param']['selection'];
+                    var previous_selected_values = node['query_param']['selection']; // get_selection_values(node['query_param']['selection']);
 
                     if(!are_equal_as_sets(current_selected_values, previous_selected_values)) {
                         node['query_param']['selection'] = current_selected_values;
@@ -837,24 +840,30 @@
                         for (var i = 0; i < data.results.bindings.length; i++) {
                             var d = (data_for_grid[i] = {});
 
-                            d["table"] = data.results.bindings[i][node.name]['value']; //
+                            d["col1"] = data.results.bindings[i][node.name]['value']; // padot objektu un iraut ārā values ar render
+                            d['col2'] = data.results.bindings[i][node.name]['type'];
                         } 
 
-                        var table_ids = _.map(data.results.bindings, function(obj, i) {
+                        var table_obj = _.map(data.results.bindings, function(obj, i) {
                         //console.log(obj);
-                            return obj[node.name]['value'];
+                            return obj[node.name];
                         });
-                        //console.warn(node.name, table_ids, node['query_param']['selection']);
 
-                        node['query_param']['selection'] = _.intersection(node['query_param']['selection'], table_ids);
+                        table_values = get_selection_values(table_obj);
+                        console.log(table_obj, table_values);
+                        //console.warn(node.name, table_obj, node['query_param']['selection']);
 
+                        selected_values = _.intersection(get_selection_values(node['query_param']['selection']), table_values);
+                        node['query_param']['selection'] = _.intersection(get_selection_values(node['query_param']['selection']), table_values); // gets those values that were in the graph selection before  need change 
+
+                        console.log(node['query_param']['selection']);
                     
-                        var selec_arr = node['query_param']['selection']
+                        var selec_arr = node['query_param']['selection'] // change 
 
                         var highligth_indexes = [];
                         _.each(selec_arr, function(selec) {
-                            //var bool = _.indexOf(table_ids, selec)
-                            var index = _.indexOf(table_ids, selec)
+                            //var bool = _.indexOf(table_obj, selec)
+                            var index = _.indexOf(table_obj, selec)
                             if(index != -1) {
                                 highligth_indexes.push(index);
                             }
@@ -864,7 +873,7 @@
                         //console.log(highligth_indexes);
                         
 
-                        node['grid'].setData(data_for_grid);
+                        node['grid'].setData(data.results.bindings);
                         node['grid'].setSelectedRows(highligth_indexes);
                         // unified coloring
                         // ja kaut kas ir selekteets, tad...
@@ -880,7 +889,7 @@
 
         function generate_query(graph, node) {
             var query_template = _.template("" + 
-                "select distinct ?<%= name %> \n" +
+                "select distinct ?<%= name %>  ?<%= columns %> \n" +
                 "where {\n" +
                     "<%= query_body %>\n" +
                 "}");
@@ -889,6 +898,7 @@
 
             var query = query_template({
                 name: node.name,
+                columns: node.name + '_' + node.colomus,
                 query_body: cons
             })
             console.log(query);
@@ -918,7 +928,14 @@
                     'columns' : [
                         {
                             // data property
-                            'column_label' : 'label',
+                            'type' : 'direct',
+                            'column_label' : 'label1',
+                            'property_name' : 'rdfs:label'
+                        },
+                        {
+                            // data property
+                            'type' : 'direct',
+                            'column_label' : 'label2',
                             'property_name' : 'rdfs:label'
                         }
                     ]
@@ -1003,9 +1020,9 @@
         
         render_graph(example_graph);
 
-        function highlight(node) {
+        // function highlight(node) {
 
-        }
+        // }
 
         function constraint(graph, elem, from_elem, visited) {
            var patterns = [];
@@ -1111,14 +1128,14 @@
         function local_selection(graph, node) {
 
             //console.log(node.name, node['query_param']['selection'].length); // ?
-            var selection_arr = node['query_param']['selection'];
+            var selection_arr = node['query_param']['selection']; // change 
             var new_selection = _.map(selection_arr, function(item) {
                 return '<' + item + '>';
             })
 
             var selection = new_selection.join('');
 
-            if(node['query_param']['selection'].length == 0) {
+            if(node['query_param']['selection'].length == 0) { // change
                 var patern = ''
             } else {
                 var patern = 'values ?' + node.name + ' { ' + selection + ' } .\n';
@@ -1127,8 +1144,7 @@
             return patern;
         }
 
-        function get_type_filter_input(node) {
-            //console.log(node['query_param']);
+        function get_type_filter_input(node) { // lot of change
             if (_.isString(node['query_param']) 
             && node['query_param']['input'].lenght > 0) {
                 return node['query_param']['input'];
@@ -1148,14 +1164,6 @@
 
             return pattern;
         }
-
-
-        function update_selection(graph, node, selection) {
-            
-            graph[node.name]['query_param']['selection'] = selection;
-
-        }
-
 
         d3.select("body")
         .on("keydown", function() {
@@ -1270,6 +1278,21 @@
 
             render_graph(graph);
 
+        }
+
+        function get_selection_values(selection_obj) { // selection is an array
+            var selection_value_array = _.pluck(selection_obj, 'value');
+            console.log(selection_obj, selection_value_array);
+            return selection_value_array;
+        }
+
+        function render_cell_data(row, cell, value, columnDef, dataContext) { // selection is an array
+            if(value) {
+                return value.value;
+            } else {
+                return '';
+            }
+            
         }
         </script>
     
