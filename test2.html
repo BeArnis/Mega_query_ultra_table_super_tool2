@@ -192,7 +192,7 @@
         function get_max_element_number(graph, element) {
             var node_num = _.chain(graph)
                     .filter(function(obj) {
-                        console.log(obj)
+                        //console.log(obj)
                         if(obj['type'] == element) {
                             return obj.name;
                         }
@@ -257,10 +257,10 @@
         }
 
         function destroy_node(graph, node) {
-            console.log(node.name, graph);
+            //console.log(node.name, graph);
             delete graph[node.name];
             //graph = _.omit(graph, node.name);
-            console.log(node.name, graph);
+            //console.log(node.name, graph);
             render_graph(graph);
         }
         
@@ -790,20 +790,34 @@
                     var selected_row_indexes = table_grid.getSelectedRows();
 
                     var all_table_row_values = _.map(table_grid.getData(), function(obj) {
-                        return obj.table;
+                        //console.log(obj);
+                        return obj;
                     })
                     
-                    var current_selected_values = _.map(selected_row_indexes, function(index) {
-                        return all_table_row_values[index];
+                    var current_selected_values = _.map(selected_row_indexes, function(index) { // works, gets an object\
+                        //console.log(all_table_row_values[index]);
+                        return all_table_row_values[index][node.name];
                     })
-                    
+                    var arr = [];
+
+                    //current_selected_values = _.pluck(current_selected_values, node.name);
                     var previous_selected_values = node['query_param']['selection']; // get_selection_values(node['query_param']['selection']);
-                    console.log(current_selected_values, previous_selected_values);
-                    if(!are_equal_as_sets(current_selected_values, previous_selected_values)) {
-                        node['query_param']['selection'] = current_selected_values;
+                    // if (!_.isArray(previous_selected_values)) {
+                    //     arr.push(previous_selected_values);
+                    // } else {
+                    //     arr = previous_selected_values;
+                    // }
+                    
+                    //console.log(current_selected_values, previous_selected_values); // curent is nested under
+                    //console.log(current_selected_values, previous_selected_values, arr);
+                    if(!obj_equal(current_selected_values, previous_selected_values)) {
+
+                        //console.log(obj_difference(current_selected_values, previous_selected_values), current_selected_values, );
+
+                        node['query_param']['selection'] = current_selected_values; // need to be an obj
                         fill_tables(graph);
                     }
-
+                    console.log(node['query_param']['selection']); // I dont see the problem here
 
                 });
 
@@ -814,8 +828,19 @@
 
         }
 
-        function are_equal_as_sets(array_1, array_2) {
-            return _.isEmpty(_.difference(array_1, array_2)) && _.isEmpty(_.difference(array_2, array_1));
+        function obj_equal(obj_1, obj_2) { // nedarbojas pareizi
+            var dif1_value_arr = get_selection_values(obj_1);
+            var dif2_value_arr = get_selection_values(obj_2);
+
+            //console.log(dif1_value_arr, dif2_value_arr, ' || ', obj_1, obj_2, _.isEmpty(_.difference(dif1_value_arr, dif2_value_arr)) && _.isEmpty(_.difference(dif2_value_arr, dif1_value_arr)));
+
+            return _.isEmpty(_.difference(dif1_value_arr, dif2_value_arr)) && _.isEmpty(_.difference(dif2_value_arr, dif1_value_arr));
+        }
+
+        function are_equal_as_sets(obj_1, obj_2) {
+
+            return  _.isEqual(obj_1, obj_2);
+            //return _.isEmpty(_.difference(array_1, array_2)) && _.isEmpty(_.difference(array_2, array_1));
         }
 
         function fill_tables(graph) {
@@ -840,7 +865,7 @@
                         for (var i = 0; i < data.results.bindings.length; i++) {
                             var d = (data_for_grid[i] = {});
 
-                            d["col1"] = data.results.bindings[i][node.name]; // padot objektu un iraut ārā values ar render
+                            d["col1"] = data.results.bindings[i][node.name]; // kas šis ir? 
                             //d['col2'] = data.results.bindings[i][node.name];
                         } 
 
@@ -850,27 +875,33 @@
                         });
 
                         table_values = get_selection_values(table_obj);
-                        //console.log(table_obj, table_values);
+                        //console.log(table_obj);
+                        
                         //console.warn(node.name, table_obj, node['query_param']['selection']);
-
+                        //console.log(table_obj);
+                        //console.log(node['query_param']['selection'], table_obj);
+                       // console.log(selection_intersection(node['query_param']['selection'], table_obj));
                         //selected_values = _.intersection(get_selection_values(node['query_param']['selection']), table_values);
-                        //node['query_param']['selection'] = _.intersection(get_selection_values(node['query_param']['selection']), table_values); // gets those values that were in the graph selection before  need change 
+                        node['query_param']['selection'] = selection_intersection(node['query_param']['selection'], table_obj); // gets those values that were in the graph selection before  need change 
 
-                        console.log(node['query_param']['selection']);
-                    
-                        var selec_arr = node['query_param']['selection'] // change 
+                        
+                        console.log(selection_intersection(node['query_param']['selection'], table_obj)); // dont think it works
+                        var selec_arr = get_selection_values(node['query_param']['selection']); // change 
+
+                        //console.log(node['query_param']['selection'], selec_arr);
 
                         var highligth_indexes = [];
                         _.each(selec_arr, function(selec) {
                             //var bool = _.indexOf(table_obj, selec)
-                            var index = _.indexOf(table_obj, selec)
+                            var index = _.indexOf(table_values, selec)
+                            //console.log(_.indexOf(table_values, selec));
                             if(index != -1) {
                                 highligth_indexes.push(index);
                             }
 
                         })
                         //console.log(table_ids);
-                        //console.log(highligth_indexes);
+                        //console.log(highligth_indexes); // it diapears after seconds, why???
                         
 
                         node['grid'].setData(data.results.bindings);
@@ -919,7 +950,7 @@
             // que['query_body'] = cons;
 
             // var query = query_template(que);
-            console.log(query);
+            //console.log(query);
             return query;
         }
 
@@ -935,7 +966,7 @@
                     'incoming_lines': ['l1'],
                     'query_param': {
                         'input': null,
-                        'selection': []
+                        'selection': [{ value: 'http://example.com/ontology1#wife', type: 'uri' }]
                     },
                     'geometry' : {
                         'x' : 150,
@@ -1146,14 +1177,20 @@
         
         function local_selection(graph, node) {
 
-            //console.log(node.name, node['query_param']['selection'].length); // ?
-            var selection_arr = node['query_param']['selection']; // change 
-            var new_selection = _.map(selection_arr, function(item) {
-                return '<' + item + '>';
+            var selection_obj_arr = node['query_param']['selection'];
+
+            var new_selection = _.map(selection_obj_arr, function(item) {
+                if (item.type == 'uri') {
+                    return '<' + item.value + '>';
+                } else {
+                    return '"' + item.value + '"';
+                }
+                
             })
 
             var selection = new_selection.join('');
 
+            //console.log(new_selection, selection);
             if(node['query_param']['selection'].length == 0) { // change
                 var patern = ''
             } else {
@@ -1283,7 +1320,7 @@
                     'end': elem2.name,
                     'type': 'edge'
                 }
-            console.log(elem1, elem2)
+            //console.log(elem1, elem2)
             graph[edge_name] = edge_template;
             makeEdgeBetween(graph, elem1['geometry'], elem2['geometry'], 5, edge_name);
 
@@ -1299,9 +1336,19 @@
 
         }
 
-        function get_selection_values(selection_obj) { // selection is an array
-            var selection_value_array = _.pluck(selection_obj, 'value');
-            console.log(selection_obj, selection_value_array);
+        function get_selection_values(selection_obj, node) { // selection is an array
+            if (!_.isArray(selection_obj)) {
+                var arr = [];
+                arr.push(selection_obj);            
+            } else {
+                var arr = selection_obj;
+            }
+            var selection_value_array = _.pluck(arr, 'value');
+            //console.log(selection_obj, selection_value_array);
+            if (selection_value_array.length == 0) {
+                return [];
+            }
+            //console.log(selection_obj, selection_value_array);
             return selection_value_array;
         }
 
@@ -1322,6 +1369,62 @@
 
         function column_name_generator(node, column, i) {
             return node.name + '_col_' + (i + 1);
+        }
+
+        function selection_intersection(A, B) { // A is first selection obj and B is secong obj
+            //console.log(A, B);
+            if(A.length == 0) {
+                return [];
+            }
+
+            var intersect = _.reduce(A, function(intersection_so_far, a) {
+                if(_.find(B, function(b) {
+                    return _.isEqual(a,b);
+                })) {
+                    intersection_so_far.push(a); // could be not
+                    return intersection_so_far;
+                } else {
+                    return intersection_so_far;
+                }
+            }, []);
+
+            console.log(intersect);
+
+            return intersect;
+
+            // var selection1_value_arr = get_selection_values(sel1);
+            // var selection2_value_arr = get_selection_values(sel2);
+
+            // var intersect = _.intersection(selection1_value_arr, selection2_value_arr)
+
+            // console.log(intersect, selection1_value_arr, selection2_value_arr);
+
+            // var intersection_obj = _.filter(selection2_value_arr, function(obj) {
+            //     return _.contains(intersect, obj)
+            // })
+            // if(intersect.length == 0){
+            //     return [];
+            // } else {
+            //     return intersection_obj;
+            // }
+        }
+
+        function selection_to_obj(selection, obj_arr, node) {
+            var return_value = [];
+            //var selection_values = get_selection_values(selection[node.name]);
+
+            return_value = _.filter(obj_arr, function(obj) {
+                //console.log(selection, obj[node.name]['value']);
+                if(_.contains(selection, obj[node.name]['value'])) {
+                    return;
+                }
+            //console.log(return_value, selection, obj_arr);
+            if(return_value.length == 0) {
+                return [];                
+            } else {
+                return return_value; // need better neme
+            }
+            })
         }
         </script>
     
