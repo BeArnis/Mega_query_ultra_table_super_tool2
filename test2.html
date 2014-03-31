@@ -294,9 +294,59 @@
                     .attr('stroke', 'red'); 
         }
 
+        // function delete_edges_after_nodes(graph, edge_arr) {
+        //     _.each(edge_arr, function(edge) {
+        //         if(graph[edge.start] == undefined && graph[edge.end] != undefined) {
+        //             graph[edge.end]['incoming_lines'] = _.without(graph[edge.end]['incoming_lines'], edge.name);
+        //             delete graph[edge.name];
+        //         } else if(graph[edge.end] == undefined && graph[edge.start] != undefined) {
+        //             graph[edge.start]['incoming_lines'] = _.without(graph[edge.start]['incoming_lines'], edge.name);
+        //             delete graph[edge.name];
+        //         }
+        //     })
+        // }
+
         function destroy_node(graph, node) {
             //console.log(node.name, graph);
+            // 
+            var edges = _.filter(graph, function(obj) {
+                if(obj['type'] == 'edge' || obj['type'] == 'hyper_edge') {
+                    return obj;
+                }
+            });
+
             delete graph[node.name];
+
+            var need_to_delete_these_edges = [];
+            _.each(edges, function(edge) {
+                
+                    var bool = false; // need to remember this edge
+                    if (edge.start == node.name) {
+                        bool = true;
+                        need_to_delete_these_edges.push(edge.name);
+                        //do nothing
+                        graph[edge.end]['incoming_lines'] = _.without(graph[edge.end]['incoming_lines'], edge.name);
+                        delete graph[edge.name];
+                        return;
+                    }
+                    if( edge.end == node.name) {
+                        bool = true;
+                        console.log(edge.start, node.name);
+                        need_to_delete_these_edges.push(edge.name);
+                        graph[edge.start]['incoming_lines'] = _.without(graph[edge.start]['incoming_lines'], edge.name);
+                        delete graph[edge.name];
+                        return;
+                    }
+
+                    // if(!bool) {
+                    //    need_to_delete_these_edges.push(edge.name);
+                    // }          
+                
+            })
+            console.log(need_to_delete_these_edges);
+            //delete_edges_after_nodes(graph, need_to_delete_these_edges);
+
+            console.log(need_to_delete_these_edges);
             //graph = _.omit(graph, node.name);
             //console.log(node.name, graph);
             render_graph(graph);
@@ -474,7 +524,7 @@
                             make_node(graph, x, y);
                         }
                         
-                        console.log('hi', this, d3.event.target);
+                        //console.log('hi', this, d3.event.target);
                     })
 
             var nodes = container.selectAll('.query-node')
@@ -737,7 +787,7 @@
             new_nodes.each(function(node, i) {
                 var node_div = d3.select(this);
 
-                node_div.append('div')
+                var top_div = node_div.append('div')
                     .attr('class', 'top-container')
                     .style('position', 'absolute')
                     .style('height', 40 + 'px')
@@ -865,6 +915,7 @@
                         console.log('query', query, node.query_param);
                     });
 
+
                 node_div.append('div')
                     .attr('class', 'refresh-button')
                     .attr('id', node.name)
@@ -898,7 +949,7 @@
                     .style('left', '30px')
                     .style('top', '30px')
                     .style('width', function(node) {
-                        return node.geometry.width - 40 + 'px';
+                        return node.geometry.width - 60 + 'px';
                     })
                     .style('height', function(node) {
                         return node.geometry.height - 40 + 'px';
@@ -1376,12 +1427,15 @@
             return pattern;
         }
 
-        d3.select("body")
+        d3.select("body") // why here?
         .on("keydown", function() {
+            //console.log('edge', d3.event.keyCode);
             if(d3.event.keyCode == 17) {
                 make_edge1(example_graph)
+                return;
             } 
         });
+        
 
         function make_edge1(graph){
             var container = d3.select('#query-graph-container');
@@ -1389,13 +1443,13 @@
             var edges = container.select('svg').selectAll('.query-edge');
 
             edges.on('click', function(edge) {
-                console.log('click_edge', edge.name);
+                //console.log('click_edge', edge.name);
                 make_edge2(graph, edge, edge.type);
 
             });
 
             nodes.on('click', function(node) {
-                console.log('click', node.name);
+                //console.log('click', node.name, d3.event.keyCode);
                 make_edge2(graph, node, node.type);
 
             });
@@ -1403,36 +1457,42 @@
         }
 
         function make_edge2(graph, elem, type) {
-            console.log(elem);
+            //console.log(elem);
             var container = d3.select('#query-graph-container');
             var nodes = container.selectAll('.query-node');
             var svg = container.select('svg');
             var edges = svg.selectAll('.query-edge');
 
              edges.on('click', function(edge) {
-                console.log('click_edge2', edge.name);
+                //console.log('click_edge2', edge.name, d3.event.keyCode);
                 if(elem.name == edge.name) {
                     return;
                 } else if(type == 'edge' || type == 'hyper_edge') {
                     return
                 }else {
                     draw_edge(graph, elem, edge);
+                    d3.event.stopPropagation();
                     return;
                 } 
-            });
+            })
             
-            nodes.on('click', function(node2) {
-                console.log('click2', node2.name);
+            var finish_making_edge = function(node2) {
+                //console.log('click2', node2.name, d3.event.keyCode);
                 if(elem.name == node2.name) {
                     return;
                 } else if(type == 'edge' || type == 'hyper_edge') {
-                    draw_edge(graph, elem, node2);
-                    return
+                        draw_edge(graph, elem, node2);
+                        d3.event.stopPropagation();
+                        nodes.on('click', null);
                 }else {
-                    draw_edge(graph, elem, node2);
-                    return;
+                        draw_edge(graph, elem, node2);
+                        d3.event.stopPropagation();
+                        nodes.on('click', null);
+                        return;
                 }         
-            });
+            }
+            
+            nodes.on('click', finish_making_edge)
         }
 
         function draw_edge(graph, elem1, elem2) {
@@ -1475,6 +1535,9 @@
                     'end': elem2.name,
                     'type': 'edge'
                 }
+
+            graph[elem1.name]['incoming_lines'].push(edge_name);
+            graph[elem2.name]['incoming_lines'].push(edge_name);
             //console.log(elem1, elem2)
             graph[edge_name] = edge_template;
             makeEdgeBetween(graph, elem1['geometry'], elem2['geometry'], 5, edge_name);
@@ -1484,10 +1547,17 @@
         }
 
         function change_node_size(graph, node, x, y) {
-            graph[node.name]['geometry'].width += x;
-            graph[node.name]['geometry'].height += y;
-
-            render_graph(graph);
+            var X = x.toString();
+            var Y = y.toString();
+            if(graph[node.name]['geometry'].width >= 350 && graph[node.name]['geometry'].height >= 300) {
+                //if(x[0] == '-')
+                graph[node.name]['geometry'].width += x;
+                graph[node.name]['geometry'].height += y;
+            } else if (X[0] != '-' && Y[0] != '-') {
+                graph[node.name]['geometry'].width += x;
+                graph[node.name]['geometry'].height += y;
+            }
+           return;
 
         }
 
