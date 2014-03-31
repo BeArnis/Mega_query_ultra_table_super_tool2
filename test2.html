@@ -65,6 +65,20 @@
               text-align: center;
             }
 
+            .query-button {
+                background: url('glyphicons_195_circle_info.png ') no-repeat; 
+                width: 40px; 
+                height: 40px;
+                background-position:center; 
+            }
+
+            .refresh-button {
+                background: url('glyphicons_081_refresh.png') no-repeat; 
+                width: 50px; 
+                height: 50px;
+                background-position:center; 
+            }
+
             .button-sprite { 
                 background: url('close_button.png') no-repeat; 
                 width: 30px; 
@@ -73,6 +87,30 @@
 
             .button-sprite:hover { 
                 background-position: 0 -30px; 
+            }
+
+            .resize-sprite {
+                background: url('glyphicons_215_resize_full.png') no-repeat; 
+                width: 30px; 
+                height: 30px;
+                -webkit-transform:rotate(90deg);
+                -moz-transform: rotate(90deg);
+
+                background-position:center;                 
+            }
+
+            .table-button {
+                background: url('glyphicons_119_table.png') no-repeat; 
+                width: 40px; 
+                height: 40px;
+                background-position:center; 
+            }
+
+            .chart-button {
+                background: url('glyphicons_079_signal.png') no-repeat; 
+                width: 40px; 
+                height: 40px;
+                background-position:center;
             }
 
 
@@ -377,6 +415,7 @@
                 y = d3.event.dy;
                 change_node_size(graph, node, x, y);
                 console.log(d3.event);
+                render_graph(graph);
               });
 
 
@@ -449,15 +488,65 @@
                     
              
             nodes.exit()
-                .remove();        
+                .remove(); 
+
+            var top = nodes.selectAll('.top-container') // why does not this work
+                .style('height', 40 + 'px')
+                .style('width', function(node) {
+                    return node.geometry.width + 'px';
+                });
+
+            var middle = nodes.selectAll('.middle-container')
+                .style('width', function(node) {
+                    return node.geometry.width + 'px';
+                })
+                .style('height', function(node) {
+                    return node.geometry.height - 80 + 'px';
+                });
+
+            var bottom = nodes.selectAll('.bottom-container')
+                .style('width', function(node) {
+                    return node.geometry.width + 'px';
+                })
+                .style('top', function(node) {
+                    return node.geometry.height - 40 + 'px';
+                });
+
+            var refresh = nodes.selectAll('.refresh-button')
+                .style('left', function(node) {
+                    return node.geometry.width - 320 + 'px';
+                });
+
+            var info = nodes.selectAll('.query-button')
+                .style('left', function(node) {
+                    return node.geometry.width - 280 + 'px';
+                })
+
+
+            var table_button = nodes.selectAll('.table-button')
+                .style('height', 40 + 'px')
+                .style('width', 40 + 'px')
+                .style('background-color', 'pink')
+                .style('left', function(node) {
+                    return node.geometry.width - 150 + 'px';
+                });
+
+            var chart_button =  nodes.selectAll('.chart-button')
+                .style('height', 40 + 'px')
+                .style('width', 40 + 'px')
+                .style('left', function(node) {
+                    return node.geometry.width - 100 + 'px';
+                });
+
+
 
             var sprite = nodes.selectAll('.resize-sprite')
-                        .style('height', 40 + 'px')
-                    .style('width', 40 + 'px')
-                    .style('background-color', 'blue')
-                    .style('left', function(node) {
-                        return node.geometry.width - 40 + 'px';
-                    })
+                .style('height', 40 + 'px')
+                .style('width', 40 + 'px')
+                .style('background-color', 'blue')
+                .style('left', function(node) {
+                    return node.geometry.width - 40 + 'px';
+                })
                     .style('top', function(node) {
                         return node.geometry.height - 40 + 'px';
                     });
@@ -649,6 +738,74 @@
                 var node_div = d3.select(this);
 
                 node_div.append('div')
+                    .attr('class', 'top-container')
+                    .style('position', 'absolute')
+                    .style('height', 40 + 'px')
+                    .style('width', function(node) {
+                        return node.geometry.width + 'px';
+                    });
+
+                var middle_node_div = node_div
+                    .append('div')
+                    .attr('class', 'middle-container')
+                    .attr('id', node.name + '1')
+                    .style('position', 'absolute')
+                    .style('top', '40px')
+                    .style('width', function(node) {
+                        return node.geometry.width+ 'px';
+                    })
+                    .style('height', function(node) {
+                        return node.geometry.height - 80 + 'px';
+                    });
+
+                var bottom_div = node_div.append('div')
+                    .attr('class', 'bottom-container') // wtf why does this lag???
+                    .style('position', 'absolute')
+                    .style('height', 40 + 'px')
+                    .style('top', function(node) {
+                        return node.geometry.height - 40 + 'px';
+                    })
+                    .style('width', function(node) {
+                        return node.geometry.width + 'px';
+                    });
+
+
+                top_div.append('div')
+                    .attr('class', 'name-container')
+                    .style('position', 'absolute')
+                    .style('height', 40 + 'px')
+                    .style('width', 40 + 'px')
+                    .style('background-color', 'white')
+                    .text( function(node) {
+                        return node.name;
+                    })
+                    .style("font-family", "sans-serif")
+                    .style("font-size", '30px');
+
+
+                top_div.append('div')
+                    .attr('class', 'table-button')
+                    .style('position', 'absolute')
+                    .style('height', 40 + 'px')
+                    .style('width', 40 + 'px')
+                    .style('background-color', 'pink')
+                    .style('left', function(node) {
+                        return node.geometry.width - 150 + 'px';
+                    });
+
+                top_div.append('div')
+                    .attr('class', 'chart-button')
+                    .style('position', 'absolute')
+                    .style('height', 40 + 'px')
+                    .style('width', 40 + 'px')
+                    .style('background-color', 'green')
+                    .style('left', function(node) {
+                        return node.geometry.width - 100 + 'px';
+                    });
+
+
+
+                top_div.append('div')
                     .attr('class', 'button-sprite')
                     .style('position', 'absolute')
                     .style('left', function(node) {
@@ -717,9 +874,6 @@
                     .style('background-color', 'black')
                     .style('left', function(node) {
                         return node.geometry.width - 40 + 'px';
-                    })
-                    .style('top', function(node) {
-                        return node.geometry.height + 'px';
                     })
                     .on('click', function(node) {
                         fill_tables(graph);
