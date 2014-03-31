@@ -746,23 +746,23 @@
 
 
 
-            // var labels = svg.selectAll('.text')
-            //         .data(graph_elements)
-            //         .enter()
-            //          .append('text')
-            //          .attr('class', 'text')
-            //          .text( function(d) {
-            //             return d.name;
-            //          })
-            //          .attr('x', function(d) {
-            //             return d.geometry['x'] || (d.geometry['x2'] - 20);
-            //          })
-            //          .attr('y', function(d) {
-            //             return (d.geometry['y'] - 0) || (d.geometry['y2'] + 10);
-            //          })
-            //          .attr("font-family", "sans-serif")
-            //          .attr("font-size", "20px")
-            //          .attr("fill", "balck");
+            var labels = svg.selectAll('.text')
+                    .data(edge_arr)
+                    .enter()
+                     .append('text')
+                     .attr('class', 'text')
+                     .text( function(d) {
+                        return d.name;
+                     })
+                     .attr('x', function(d) {
+                        return d.geometry['x'] || (d.geometry['x2'] - 20);
+                     })
+                     .attr('y', function(d) {
+                        return (d.geometry['y'] - 0) || (d.geometry['y2'] + 10);
+                     })
+                     .attr("font-family", "sans-serif")
+                     .attr("font-size", "20px")
+                     .attr("fill", "balck");
 
             /*var new_edges = svg.selectAll('.query-edges')
                 .data(edges)
