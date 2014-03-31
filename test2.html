@@ -310,7 +310,13 @@
             //console.log(node.name, graph);
             // 
             var edges = _.filter(graph, function(obj) {
-                if(obj['type'] == 'edge' || obj['type'] == 'hyper_edge') {
+                if(obj['type'] == 'edge') {
+                    return obj;
+                }
+            });
+
+            var hyper_edges = _.filter(graph, function(obj) {
+                if(obj['type'] == 'hyper_edge') {
                     return obj;
                 }
             });
@@ -320,29 +326,31 @@
             var need_to_delete_these_edges = [];
             _.each(edges, function(edge) {
                 
-                    var bool = false; // need to remember this edge
                     if (edge.start == node.name) {
-                        bool = true;
-                        need_to_delete_these_edges.push(edge.name);
-                        //do nothing
                         graph[edge.end]['incoming_lines'] = _.without(graph[edge.end]['incoming_lines'], edge.name);
                         delete graph[edge.name];
                         return;
                     }
                     if( edge.end == node.name) {
-                        bool = true;
                         console.log(edge.start, node.name);
-                        need_to_delete_these_edges.push(edge.name);
                         graph[edge.start]['incoming_lines'] = _.without(graph[edge.start]['incoming_lines'], edge.name);
                         delete graph[edge.name];
                         return;
-                    }
-
-                    // if(!bool) {
-                    //    need_to_delete_these_edges.push(edge.name);
-                    // }          
-                
+                    }   
             })
+
+            _.each(hyper_edges, function(hyp) {
+
+                if(graph[hyp.start] == undefined) {
+                    graph[hyp.end]['incoming_lines'] = _.without(graph[hyp.end]['incoming_lines'], hyp.name);
+                    delete graph[hyp.name];
+                } else if(graph[hyp.end] == undefined) {
+                    graph[hyp.start]['incoming_lines'] = _.without(graph[hyp.start]['incoming_lines'], hyp.name);
+                    delete graph[hyp.name];
+                }
+
+            })
+
             console.log(need_to_delete_these_edges);
             //delete_edges_after_nodes(graph, need_to_delete_these_edges);
 
@@ -464,7 +472,7 @@
                 x = d3.event.dx;
                 y = d3.event.dy;
                 change_node_size(graph, node, x, y);
-                console.log(d3.event);
+                console.log(x, y);
                 render_graph(graph);
               });
 
@@ -472,9 +480,6 @@
 
             var container = d3.select('#query-graph-container')
                 .style('position', 'relative')
-                .on('keydown', function(d) {
-                    console.log('ss');
-                })
                 //.on("mousemove", function(d) {
                 //    console.log(d3.mouse(this));
                 //});
@@ -507,9 +512,7 @@
 
 
             var svg = container.selectAll('svg')
-                .data(svg_arr).on('keydown', function(d) {
-                    console.log('ss');
-                })
+                .data(svg_arr)
                 .enter()
                 .append('svg')
                     .attr('width', 7000)
@@ -597,9 +600,6 @@
                 .style('left', function(node) {
                     return node.geometry.width - 40 + 'px';
                 })
-                    .style('top', function(node) {
-                        return node.geometry.height - 40 + 'px';
-                    });
 
             var delete_node = nodes.selectAll('.button-sprite')
                         .style('left', function(node) {
@@ -610,12 +610,11 @@
 
             var grid = nodes.selectAll('.query-result-redering-container')
                         .style('left', '30px')
-                        .style('top', '30px')
                         .style('width', function(node) {
-                            return node.geometry.width - 40 + 'px';
+                            return node.geometry.width - 60 + 'px';
                         })
                         .style('height', function(node) {
-                            return node.geometry.height - 40 + 'px';
+                            return node.geometry.height - 80 + 'px';
                         });
 
             //console.log(nodes);
@@ -747,23 +746,23 @@
 
 
 
-            var labels = svg.selectAll('.text')
-                    .data(graph_elements)
-                    .enter()
-                     .append('text')
-                     .attr('class', 'text')
-                     .text( function(d) {
-                        return d.name;
-                     })
-                     .attr('x', function(d) {
-                        return d.geometry['x'] || (d.geometry['x2'] - 20);
-                     })
-                     .attr('y', function(d) {
-                        return (d.geometry['y'] - 0) || (d.geometry['y2'] + 10);
-                     })
-                     .attr("font-family", "sans-serif")
-                     .attr("font-size", "20px")
-                     .attr("fill", "balck");
+            // var labels = svg.selectAll('.text')
+            //         .data(graph_elements)
+            //         .enter()
+            //          .append('text')
+            //          .attr('class', 'text')
+            //          .text( function(d) {
+            //             return d.name;
+            //          })
+            //          .attr('x', function(d) {
+            //             return d.geometry['x'] || (d.geometry['x2'] - 20);
+            //          })
+            //          .attr('y', function(d) {
+            //             return (d.geometry['y'] - 0) || (d.geometry['y2'] + 10);
+            //          })
+            //          .attr("font-family", "sans-serif")
+            //          .attr("font-size", "20px")
+            //          .attr("fill", "balck");
 
             /*var new_edges = svg.selectAll('.query-edges')
                 .data(edges)
@@ -868,7 +867,7 @@
                         destroy_node(graph, node);
                     })
 
-                node_div.append('div')
+                bottom_div.append('div')
                     .attr('class', 'resize-sprite')
                     .attr('id', node.name)
                     .style('position', 'absolute')
@@ -878,26 +877,12 @@
                     .style('left', function(node) {
                         return node.geometry.width - 40 + 'px';
                     })
-                    .style('top', function(node) {
-                        return node.geometry.height - 40 + 'px';
+                    .on('mousedown', function(node) {
+                        d3.event.stopPropagation();
                     })
-                    // .on('mousedown', function(node) {
-                    //     d3.event.stopPropagation();
-                    // })
                     .call(drag2);
-                    //.on('click', 's')
-                    // .on('drag', function(node) { 
-                    //     d3.event.stopPropagation();
-                    //     var x = d3.event.x - 150;
-                    //     var y = d3.event.y - 125;
-                    //     change_node_size(graph, node, x, y);
-                    //     //drag_node(graph, node);
 
-                    //     console.warn(this); 
-                    // });
-                    
-
-                node_div.append('div')
+                bottom_div.append('div')
                     .attr('class', 'query-button')
                     .attr('id', node.name)
                     .style('position', 'absolute')
@@ -905,10 +890,7 @@
                     .style('width', 40 + 'px')
                     .style('background-color', 'yellow')
                     .style('left', function(node) {
-                        return node.geometry.width + 'px';
-                    })
-                    .style('top', function(node) {
-                        return node.geometry.height - 40 + 'px';
+                        return node.geometry.width - 280 + 'px';
                     })
                     .on('click', function(node) {
                         var query = generate_query(graph, node);
@@ -916,15 +898,15 @@
                     });
 
 
-                node_div.append('div')
+                bottom_div.append('div')
                     .attr('class', 'refresh-button')
                     .attr('id', node.name)
                     .style('position', 'absolute')
                     .style('height', 40 + 'px')
                     .style('width', 40 + 'px')
-                    .style('background-color', 'black')
+                    .style('background-color', 'white')
                     .style('left', function(node) {
-                        return node.geometry.width - 40 + 'px';
+                        return node.geometry.width - 320 + 'px';
                     })
                     .on('click', function(node) {
                         fill_tables(graph);
@@ -932,27 +914,15 @@
 
 
 
-                var sub_node_div = node_div
-                    .append('div')
-                    .classed('sub', true)
-                    .attr('id', node.name + '1')
-                    .style('width', function(node) {
-                        return node.geometry.width - 40 + 'px';
-                    })
-                    .style('height', function(node) {
-                        return node.geometry.height - 40 + 'px';
-                    });
-               // console.log(this, node);
-
-                var gridContainer = sub_node_div.append('div')
+                var gridContainer = middle_node_div.append('div')
                     .classed('query-result-redering-container', true)
                     .style('left', '30px')
-                    .style('top', '30px')
+                    .style('background-color', 'white')
                     .style('width', function(node) {
                         return node.geometry.width - 60 + 'px';
                     })
                     .style('height', function(node) {
-                        return node.geometry.height - 40 + 'px';
+                        return node.geometry.height - 80 + 'px';
                     });
 
                 
@@ -1022,7 +992,7 @@
                         node['query_param']['selection'] = current_selected_values; // need to be an obj
                         fill_tables(graph);
                     }
-                    console.log(node['query_param']['selection']); // I dont see the problem here
+                    //console.log(node['query_param']['selection']); // I dont see the problem here
 
                 });
 
@@ -1089,7 +1059,7 @@
                         node['query_param']['selection'] = selection_intersection(node['query_param']['selection'], table_obj); // gets those values that were in the graph selection before  need change 
 
                         
-                        console.log(selection_intersection(node['query_param']['selection'], table_obj)); // dont think it works
+                        //console.log(selection_intersection(node['query_param']['selection'], table_obj)); // dont think it works
                         var selec_arr = get_selection_values(node['query_param']['selection']); // change 
 
                         //console.log(node['query_param']['selection'], selec_arr);
@@ -1558,7 +1528,6 @@
                 graph[node.name]['geometry'].height += y;
             }
            return;
-
         }
 
         function get_selection_values(selection_obj, node) { // selection is an array
@@ -1613,25 +1582,9 @@
                 }
             }, []);
 
-            console.log(intersect);
+            //console.log(intersect);
 
             return intersect;
-
-            // var selection1_value_arr = get_selection_values(sel1);
-            // var selection2_value_arr = get_selection_values(sel2);
-
-            // var intersect = _.intersection(selection1_value_arr, selection2_value_arr)
-
-            // console.log(intersect, selection1_value_arr, selection2_value_arr);
-
-            // var intersection_obj = _.filter(selection2_value_arr, function(obj) {
-            //     return _.contains(intersect, obj)
-            // })
-            // if(intersect.length == 0){
-            //     return [];
-            // } else {
-            //     return intersection_obj;
-            // }
         }
 
         function selection_to_obj(selection, obj_arr, node) {
