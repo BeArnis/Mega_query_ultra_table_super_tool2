@@ -1183,13 +1183,15 @@
                             // data property
                             'type' : 'direct',
                             'column_label' : 'label1',
-                            'property_name' : 'rdfs:label'
+                            'property_name' : 'rdfs:label',
+                            'sort': 'none' 
                         },
                         {
                             // data property
                             'type' : 'direct',
                             'column_label' : 'label2',
-                            'property_name' : '<http://example.com/ontology1#wife>'
+                            'property_name' : '<http://example.com/ontology1#wife>',
+                            'sort': 'ascending'
                         }
                     ]
                 },
@@ -1213,21 +1215,25 @@
                             // data property
                             'type' : 'direct',
                             'column_label' : 'label',
-                            'property_name' : 'rdfs:label'
+                            'property_name' : 'rdfs:label',
+                            'sort' : 'ascending'
                         },
                         {
                             // data property
                             'type' : 'aggregate',
                             'column_label' : 'count_l1',
                             'aggregation_function': 'count',
-                            'what_to_aggregate': 'l1'
+                            'what_to_aggregate': 'l1',
+                            'sort' : 'descending'
                         },
                         {
                             // data property
                             'type' : 'aggregate',
                             'column_label' : 'count_t1',
                             'aggregation_function': 'count',
-                            'what_to_aggregate': 't1'
+                            'what_to_aggregate': 't1',
+                            'sort' : 'none'
+
                         }
                     ]
                 },
@@ -1251,14 +1257,16 @@
                             // data property
                             'type' : 'direct',
                             'column_label' : 'label',
-                            'property_name' : 'rdfs:label'
+                            'property_name' : 'rdfs:label',
+                            'sort' : 'ascending'
                         },
                         {
                             // data property
                             'type' : 'aggregate',
                             'column_label' : 'count',
                             'aggregation_function': 'count',
-                            'what_to_aggregate': 'hl1'
+                            'what_to_aggregate': 'hl1',
+                            'sort' : 'none'
                         }
                     ]
                 },
