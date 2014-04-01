@@ -945,6 +945,7 @@
                     };
                 })
 
+                console.log(node.name, columns);
                 columns.unshift({id:node.name, name: node.name, field: node.name, formatter: render_cell_data, width: 330})
 
 
@@ -1049,10 +1050,7 @@
                         });
 
                         table_values = get_selection_values(table_obj);
-                        //console.log(table_obj);
                         
-                        //console.warn(node.name, table_obj, node['query_param']['selection']);
-                        //console.log(table_obj);
                         //console.log(node['query_param']['selection'], table_obj);
                        // console.log(selection_intersection(node['query_param']['selection'], table_obj));
                         //selected_values = _.intersection(get_selection_values(node['query_param']['selection']), table_values);
@@ -1077,7 +1075,7 @@
                         //console.log(table_ids);
                         //console.log(highligth_indexes); // it diapears after seconds, why???
                         
-
+                        console.log(node.name, data.results.bindings);
                         node['grid'].setData(data.results.bindings);
                         node['grid'].setSelectedRows(highligth_indexes);
                         // unified coloring
@@ -1093,11 +1091,7 @@
         }
 
         function generate_query(graph, node) {
-            var query_template = _.template("" + 
-                "select distinct ?<%= name %>  <%= column_vars %> \n" +
-                "where {\n" +
-                    "<%= query_body %>\n" +
-                "}");
+            
 
             var cons = constraint(graph, node, node, [])
 
@@ -1106,25 +1100,61 @@
             //     columns: node.name + '_col_' + (i + 1),
             //     query_body: cons
             // })
+            var needs_group_by = false;
+
+
 
             var query_column_names = _.map(node.columns, function(column, i) {
-                return '?' + column_name_generator(node, column, i);
+                //console.log(column.type);
+                if (column.type == 'aggregate') {
+                    needs_group_by = true;
+                    // in 2 places are changes met :(
+                    if (graph[column.what_to_aggregate].type == 'hyper_edge') { // cheks if what to aggr is a hyper edge, if so we need its connected edge name
+                        return '(' + column.aggregation_function + '(?' + get_edge_name_fom_hyper(graph, column.what_to_aggregate) + ') AS ?' + column_name_generator(node, column, i)  +')';
+                    } else {
+                        console.log(column_name_generator(node, column, i)); 
+                        return '(' + column.aggregation_function + '(?' + column.what_to_aggregate + ') AS ?' + column_name_generator(node, column, i)  +')';
+                    }  
+                    
+                } else {
+                    return '?' + column_name_generator(node, column, i);
+                }      
             })
+
+            var group_names = _.map(query_column_names, function(col_names) {
+                //console.log(col_names[0]);
+                if (col_names[0] != '(') {
+                    return '' + col_names;
+                } else return '';
+                
+            })
+
+            if (needs_group_by) {
+                var query_template = _.template("" + 
+                "select distinct ?<%= name %>  <%= column_vars %> \n" +
+                "where {\n" +
+                    "<%= query_body %>\n" +
+                "}" + 'group by ?' + node.name + ' ' + group_names.join(' '));
+
+            } else {
+                var query_template = _.template("" + 
+                "select distinct ?<%= name %>  <%= column_vars %> \n" +
+                "where {\n" +
+                    "<%= query_body %>\n" +
+                "}");
+            }
+
             
+            
+            console.log(query_column_names, group_names);
+            // ?node.name + colum_vars(but not all)  hmmm???
+            //  + 'group by ?' + node.name
             var query = query_template({
                 name: node.name,
                 column_vars: query_column_names.join(' '),
                 query_body: cons
             })
-            // var que = {};
-            // _map(query_column_name, function(col) {
-            //     que['columns'] = col;
-            // })
-            // que['name'] = node.name;
-            // que['query_body'] = cons;
 
-            // var query = query_template(que);
-            //console.log(query);
             return query;
         }
 
@@ -1181,8 +1211,23 @@
                     'columns' : [
                         {
                             // data property
+                            'type' : 'direct',
                             'column_label' : 'label',
                             'property_name' : 'rdfs:label'
+                        },
+                        {
+                            // data property
+                            'type' : 'aggregate',
+                            'column_label' : 'count_l1',
+                            'aggregation_function': 'count',
+                            'what_to_aggregate': 'l1'
+                        },
+                        {
+                            // data property
+                            'type' : 'aggregate',
+                            'column_label' : 'count_t1',
+                            'aggregation_function': 'count',
+                            'what_to_aggregate': 't1'
                         }
                     ]
                 },
@@ -1204,8 +1249,16 @@
                     'columns' : [
                         {
                             // data property
+                            'type' : 'direct',
                             'column_label' : 'label',
                             'property_name' : 'rdfs:label'
+                        },
+                        {
+                            // data property
+                            'type' : 'aggregate',
+                            'column_label' : 'count',
+                            'aggregation_function': 'count',
+                            'what_to_aggregate': 'hl1'
                         }
                     ]
                 },
@@ -1547,6 +1600,7 @@
         }
 
         function render_cell_data(row, cell, value, columnDef, dataContext) { // selection is an array
+
             if(value) {
                 return value.value;
             } else {
@@ -1557,16 +1611,41 @@
 
         function local_column_queries(node) {
             return _.map(node.columns, function(column, i) {
+                if(column.property_name == undefined) {
+                    return;
+                } else { 
+                    console.log(column_name_generator(node, column ,i));
                 return 'OPTIONAL { ?' + node.name + '  ' + column.property_name + '  ?' + column_name_generator(node, column ,i) + ' . } .'; 
+                }
             }).join('\n');
         }
 
-        function column_name_generator(node, column, i) {
+        function get_edge_name_fom_hyper(graph, elem) {
+            //console.log(graph, elem, graph[elem]);
+            if(graph[elem]['start'].type == 'edge') { // one end of a hyper edge is always a an edge
+                console.log(graph[elem]['start'], elem);
+                return graph[elem]['start'];
+            } else {
+                console.log(graph[elem]['end'], elem);
+                return graph[elem]['end'];
+            }
+        }
+
+        function column_name_generator(node, column, i) { // column.what_to_aggregate '(' + column.aggregation_function + '(?' + column.what_to_aggregate + ') AS ?' + xxx  +')'
+            console.log(node)
+            if(column.type == 'aggregate') {
+                //console.log(example_graph[column.what_to_aggregate]);
+                if (example_graph[column.what_to_aggregate].type == 'hyper_edge') {  // cheks if what to aggr is a hyper edge, if so we need its connected edge name
+                    return node.name + '_' + get_edge_name_fom_hyper(example_graph, column.what_to_aggregate);
+
+                }
+                console.log(example_graph[column.what_to_aggregate]);
+                return node.name + '_' + column.what_to_aggregate; // needs groupp by at the end / how?
+            }
             return node.name + '_col_' + (i + 1);
         }
 
         function selection_intersection(A, B) { // A is first selection obj and B is secong obj
-            //console.log(A, B);
             if(A.length == 0) {
                 return [];
             }
