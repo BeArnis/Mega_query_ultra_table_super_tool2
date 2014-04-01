@@ -976,16 +976,10 @@
                     })
                     var arr = [];
 
-                    //current_selected_values = _.pluck(current_selected_values, node.name);
-                    var previous_selected_values = node['query_param']['selection']; // get_selection_values(node['query_param']['selection']);
-                    // if (!_.isArray(previous_selected_values)) {
-                    //     arr.push(previous_selected_values);
-                    // } else {
-                    //     arr = previous_selected_values;
-                    // }
-                    
-                    //console.log(current_selected_values, previous_selected_values); // curent is nested under
-                    //console.log(current_selected_values, previous_selected_values, arr);
+    
+                    var previous_selected_values = node['query_param']['selection']; 
+
+
                     if(!obj_equal(current_selected_values, previous_selected_values)) {
 
                         //console.log(obj_difference(current_selected_values, previous_selected_values), current_selected_values, );
