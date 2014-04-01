@@ -935,18 +935,7 @@
 
                 var data = [];
                 
-                var columns = _.map(node.columns, function(column, i) {
-                    return { 
-                        id: column_name_generator(node, column, i), 
-                        name : column.column_label, 
-                        field: column_name_generator(node, column, i), 
-                        formatter: render_cell_data,
-                        width: 330
-                    };
-                })
-
-                console.log(node.name, columns);
-                columns.unshift({id:node.name, name: node.name, field: node.name, formatter: render_cell_data, width: 330})
+                var columns = [];
 
 
                 // var columns = [
@@ -993,7 +982,41 @@
 
                 
             });
+            
+            nodes.each(function(node) {
 
+                var columns = _.map(node.columns, function(column) {
+                    return { 
+                        id: column_name_generator(node, column), 
+                        name : column.column_label, 
+                        field: column_name_generator(node, column), 
+                        formatter: render_cell_data,
+                        width: 330,
+                        sortable: column.sort == 'ascending' || column.sort == 'descending'
+                    };
+                })
+
+                console.log(node.name, columns);
+                columns.unshift({id:node.name, name: node.name, field: node.name, formatter: render_cell_data, width: 330})
+
+                node['grid'].setColumns(columns);
+
+                var sort_columns = _.chain(node.columns)
+                    .filter(function(column) {
+                        return column.sort == 'ascending' || column.sort == 'descending';
+                    })
+                    .map(function(column) {
+                        return { 
+                            columnId: column_name_generator(node, column), 
+                            sortAsc: column.sort == 'ascending'
+                        }
+                    })
+                    .value();
+
+                node['grid'].setSortColumns(sort_columns);
+
+            })
+              
 
         }
 
@@ -1098,20 +1121,20 @@
 
 
 
-            var query_column_names = _.map(node.columns, function(column, i) {
+            var query_column_names = _.map(node.columns, function(column) {
                 //console.log(column.type);
                 if (column.type == 'aggregate') {
                     needs_group_by = true;
                     // in 2 places are changes met :(
                     if (graph[column.what_to_aggregate].type == 'hyper_edge') { // cheks if what to aggr is a hyper edge, if so we need its connected edge name
-                        return '(' + column.aggregation_function + '(?' + get_edge_name_fom_hyper(graph, column.what_to_aggregate) + ') AS ?' + column_name_generator(node, column, i)  +')';
+                        return '(' + column.aggregation_function + '(?' + get_edge_name_fom_hyper(graph, column.what_to_aggregate) + ') AS ?' + column_name_generator(node, column)  +')';
                     } else {
-                        console.log(column_name_generator(node, column, i)); 
-                        return '(' + column.aggregation_function + '(?' + column.what_to_aggregate + ') AS ?' + column_name_generator(node, column, i)  +')';
+                        console.log(column_name_generator(node, column)); 
+                        return '(' + column.aggregation_function + '(?' + column.what_to_aggregate + ') AS ?' + column_name_generator(node, column)  +')';
                     }  
                     
                 } else {
-                    return '?' + column_name_generator(node, column, i);
+                    return '?' + column_name_generator(node, column);
                 }      
             })
 
@@ -1612,12 +1635,12 @@
         }
 
         function local_column_queries(node) {
-            return _.map(node.columns, function(column, i) {
+            return _.map(node.columns, function(column) {
                 if(column.property_name == undefined) {
                     return;
                 } else { 
-                    console.log(column_name_generator(node, column ,i));
-                return 'OPTIONAL { ?' + node.name + '  ' + column.property_name + '  ?' + column_name_generator(node, column ,i) + ' . } .'; 
+                    console.log(column_name_generator(node, column));
+                return 'OPTIONAL { ?' + node.name + '  ' + column.property_name + '  ?' + column_name_generator(node, column) + ' . } .'; 
                 }
             }).join('\n');
         }
@@ -1633,8 +1656,9 @@
             }
         }
 
-        function column_name_generator(node, column, i) { // column.what_to_aggregate '(' + column.aggregation_function + '(?' + column.what_to_aggregate + ') AS ?' + xxx  +')'
+        function column_name_generator(node, column) { // column.what_to_aggregate '(' + column.aggregation_function + '(?' + column.what_to_aggregate + ') AS ?' + xxx  +')'
             console.log(node)
+            var i = _.indexOf(node.columns, column);
             if(column.type == 'aggregate') {
                 //console.log(example_graph[column.what_to_aggregate]);
                 if (example_graph[column.what_to_aggregate].type == 'hyper_edge') {  // cheks if what to aggr is a hyper edge, if so we need its connected edge name
