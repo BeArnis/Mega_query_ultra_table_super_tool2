@@ -113,6 +113,14 @@
                 background-position:center;
             }
 
+            .delete-selection {
+                background: url('glyphicons_016_bin.png') no-repeat; 
+                width: 40px; 
+                height: 40px;
+                background-position:center; 
+            }
+            
+
 
           </style>
 
@@ -912,6 +920,23 @@
                         fill_tables(graph);
                     });
 
+
+
+                bottom_div.append('div')
+                    .attr('class', 'delete-selection')
+                    .attr('id', node.name)
+                    .style('position', 'absolute')
+                    .style('height', 40 + 'px')
+                    .style('width', 40 + 'px')
+                    .style('background-color', 'red')
+                    .style('left', function(node) {
+                        return node.geometry.width - 390 + 'px';
+                    })
+                    .on('click', function(node) {
+                        // delete selections
+                        node['query_param']['selection'] = [];
+                        fill_tables(graph);
+                    });
 
 
                 var gridContainer = middle_node_div.append('div')
