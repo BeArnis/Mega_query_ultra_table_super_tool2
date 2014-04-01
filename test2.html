@@ -968,11 +968,41 @@
                 //     {id: node.name, name: 'c2', field: "col2", width: 330}   // map 
                 //   ];
 
-                //console.log(columns, gridContainer);
+                
 
                 var table_grid = new Slick.Grid(gridContainer.node(), data, columns, options);
 
                 node['grid'] = table_grid;
+
+                node['grid'].onHeaderClick.subscribe(function(e, args) {
+
+
+                    var columnID = args.column.name;
+                    
+                    var column_change_index = _.chain(node.columns)
+                        .map(function(column) {
+                            return column.column_label;
+                        })
+                        .indexOf(args.column.name)
+                        .value();
+
+
+                    if( node.columns[column_change_index].sort == 'ascending') {
+                        node.columns[column_change_index].sort = 'descending';
+                    } else if (node.columns[column_change_index].sort == 'descending') {
+                        node.columns[column_change_index].sort = 'none';
+                    } else {
+                        node.columns[column_change_index].sort = 'ascending';
+                    }
+
+                    //render_graph(graph);
+                    _.defer(render_graph, graph);
+
+                    //console.log(node.columns[column_change_index]);
+                    console.log('sort');
+                    return;
+       
+                })
 
                 table_grid.setSelectionModel(new Slick.RowSelectionModel({selectActiveRow: true}));
 
@@ -980,12 +1010,12 @@
                     var selected_row_indexes = table_grid.getSelectedRows();
 
                     var all_table_row_values = _.map(table_grid.getData(), function(obj) {
-                        //console.log(obj);
+                        
                         return obj;
                     })
                     
                     var current_selected_values = _.map(selected_row_indexes, function(index) { // works, gets an object\
-                        //console.log(all_table_row_values[index]);
+                        
                         return all_table_row_values[index][node.name];
                     })
                     var arr = [];
@@ -996,12 +1026,12 @@
 
                     if(!obj_equal(current_selected_values, previous_selected_values)) {
 
-                        //console.log(obj_difference(current_selected_values, previous_selected_values), current_selected_values, );
-
+                        
                         node['query_param']['selection'] = current_selected_values; // need to be an obj
                         fill_tables(graph);
                     }
-                    //console.log(node['query_param']['selection']); // I dont see the problem here
+                    
+
 
                 });
 
@@ -1021,7 +1051,7 @@
                     };
                 })
 
-                console.log(node.name, columns);
+                
                 columns.unshift({id:node.name, name: node.name, field: node.name, formatter: render_cell_data, width: 330})
 
                 node['grid'].setColumns(columns);
@@ -1040,6 +1070,8 @@
 
                 node['grid'].setSortColumns(sort_columns);
 
+
+                
             })
               
 
@@ -1093,13 +1125,9 @@
 
                         table_values = get_selection_values(table_obj);
                         
-                        //console.log(node['query_param']['selection'], table_obj);
-                       // console.log(selection_intersection(node['query_param']['selection'], table_obj));
-                        //selected_values = _.intersection(get_selection_values(node['query_param']['selection']), table_values);
                         node['query_param']['selection'] = selection_intersection(node['query_param']['selection'], table_obj); // gets those values that were in the graph selection before  need change 
 
                         
-                        //console.log(selection_intersection(node['query_param']['selection'], table_obj)); // dont think it works
                         var selec_arr = get_selection_values(node['query_param']['selection']); // change 
 
                         //console.log(node['query_param']['selection'], selec_arr);
@@ -1114,8 +1142,10 @@
                             }
 
                         })
-                        //console.log(table_ids);
-                        //console.log(highligth_indexes); // it diapears after seconds, why???
+                        
+                        // node['grid'].onClick.subscribe(function(cell) {
+                        //     console.log(cell);
+                        // });
                         
                         console.log(node.name, data.results.bindings);
                         node['grid'].setData(data.results.bindings);
@@ -1694,7 +1724,7 @@
                 if(column.property_name == undefined) {
                     return;
                 } else { 
-                    console.log(column_name_generator(node, column));
+                    
                 return 'OPTIONAL { ?' + node.name + '  ' + column.property_name + '  ?' + column_name_generator(node, column) + ' . } .'; 
                 }
             }).join('\n');
@@ -1703,24 +1733,24 @@
         function get_edge_name_fom_hyper(graph, elem) {
             //console.log(graph, elem, graph[elem]);
             if(graph[elem]['start'].type == 'edge') { // one end of a hyper edge is always a an edge
-                console.log(graph[elem]['start'], elem);
+                
                 return graph[elem]['start'];
             } else {
-                console.log(graph[elem]['end'], elem);
+                //console.log(graph[elem]['end'], elem);
                 return graph[elem]['end'];
             }
         }
 
         function column_name_generator(node, column) { // column.what_to_aggregate '(' + column.aggregation_function + '(?' + column.what_to_aggregate + ') AS ?' + xxx  +')'
-            console.log(node)
+            
             var i = _.indexOf(node.columns, column);
             if(column.type == 'aggregate') {
-                //console.log(example_graph[column.what_to_aggregate]);
+                
                 if (example_graph[column.what_to_aggregate].type == 'hyper_edge') {  // cheks if what to aggr is a hyper edge, if so we need its connected edge name
                     return node.name + '_' + get_edge_name_fom_hyper(example_graph, column.what_to_aggregate);
 
                 }
-                console.log(example_graph[column.what_to_aggregate]);
+                
                 return node.name + '_' + column.what_to_aggregate; // needs groupp by at the end / how?
             }
             return node.name + '_col_' + (i + 1);
@@ -1756,7 +1786,7 @@
                 if(_.contains(selection, obj[node.name]['value'])) {
                     return;
                 }
-            //console.log(return_value, selection, obj_arr);
+            
             if(return_value.length == 0) {
                 return [];                
             } else {
