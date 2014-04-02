@@ -996,7 +996,10 @@
                     }
 
                     //render_graph(graph);
-                    _.defer(render_graph, graph);
+                    _.defer(function () {
+                        render_graph(graph);
+                        fill_tables(graph);
+                    });
 
                     //console.log(node.columns[column_change_index]);
                     console.log('sort');
