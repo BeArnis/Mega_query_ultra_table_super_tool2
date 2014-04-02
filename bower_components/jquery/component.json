@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
   "name": "jquery",
   "repo": "components/jquery",
@@ -13,3 +14,20 @@
   ],
   "license": "MIT"
 }
+=======
+{
+  "name": "jquery",
+  "repo": "components/jquery",
+  "version": "1.10.1",
+  "description": "jQuery component",
+  "keywords": [
+    "jquery",
+    "component"
+  ],
+  "main": "jquery.js",
+  "scripts": [
+    "jquery.js"
+  ],
+  "license": "MIT"
+}
+>>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
