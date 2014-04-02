@@ -38,7 +38,7 @@
         <script src="./lib/jquery.event.drag-2.2.js"></script>
 
 
-
+        <script src="./TableView.js"></script>
 
 
         <script src="./slick.core.js"></script>
@@ -949,133 +949,31 @@
                     .style('height', function(node) {
                         return node.geometry.height - 80 + 'px';
                     });
-
-                
-                var options = {
-                    enableCellNavigation: true,
-                    enableColumnReorder: false
-                };
-
-
-
-                var data = [];
-                
-                var columns = [];
-
-
-                // var columns = [
-                //     {id: node.name, name: , field: "col1", width: 330},
-                //     {id: node.name, name: 'c2', field: "col2", width: 330}   // map 
-                //   ];
-
-                
-
-                var table_grid = new Slick.Grid(gridContainer.node(), data, columns, options);
-
-                node['grid'] = table_grid;
-
-                node['grid'].onHeaderClick.subscribe(function(e, args) {
-
-
-                    var columnID = args.column.name;
-                    
-                    var column_change_index = _.chain(node.columns)
-                        .map(function(column) {
-                            return column.column_label;
-                        })
-                        .indexOf(args.column.name)
-                        .value();
-
-
-                    if( node.columns[column_change_index].sort == 'ascending') {
-                        node.columns[column_change_index].sort = 'descending';
-                    } else if (node.columns[column_change_index].sort == 'descending') {
-                        node.columns[column_change_index].sort = 'none';
-                    } else {
-                        node.columns[column_change_index].sort = 'ascending';
-                    }
-
-                    //render_graph(graph);
-                    _.defer(function () {
-                        render_graph(graph);
-                        fill_tables(graph);
-                    });
-
-                    //console.log(node.columns[column_change_index]);
-                    console.log('sort');
-                    return;
-       
-                })
-
-                table_grid.setSelectionModel(new Slick.RowSelectionModel({selectActiveRow: true}));
-
-                table_grid.onSelectedRowsChanged.subscribe(function() { 
-                    var selected_row_indexes = table_grid.getSelectedRows();
-
-                    var all_table_row_values = _.map(table_grid.getData(), function(obj) {
-                        
-                        return obj;
-                    })
-                    
-                    var current_selected_values = _.map(selected_row_indexes, function(index) { // works, gets an object\
-                        
-                        return all_table_row_values[index][node.name];
-                    })
-                    var arr = [];
-
-    
-                    var previous_selected_values = node['query_param']['selection']; 
-
-
-                    if(!obj_equal(current_selected_values, previous_selected_values)) {
-
-                        
-                        node['query_param']['selection'] = current_selected_values; // need to be an obj
-                        fill_tables(graph);
-                    }
-                    
-
-
-                });
-
-                
             });
-            
+
+
+
             nodes.each(function(node) {
 
-                var columns = _.map(node.columns, function(column) {
-                    return { 
-                        id: column_name_generator(node, column), 
-                        name : column.column_label, 
-                        field: column_name_generator(node, column), 
-                        formatter: render_cell_data,
-                        width: 330,
-                        sortable: column.sort == 'ascending' || column.sort == 'descending'
-                    };
-                })
+                var node_div = d3.select(this);
 
-                
-                columns.unshift({id:node.name, name: node.name, field: node.name, formatter: render_cell_data, width: 330})
+                var gridContainer = node_div.select('.query-result-redering-container');
+               // te vajag if kur paskatamies kāds ir aktīvais tips
+               if (!node.current_visualization_view) { // ja vispār nav, ta jāizveido un jārefrešo  
+                   node.current_visualization_view = TableView().init(gridContainer.node(), node, graph);
 
-                node['grid'].setColumns(columns);
+               } else if (node.current_visualization_view.type == node.active_visualization_type) {
+                   // jau eksistē pareizais, vajag tikai refreshot
+                   node.current_visualization_view.refresh_view_from_node();
 
-                var sort_columns = _.chain(node.columns)
-                    .filter(function(column) {
-                        return column.sort == 'ascending' || column.sort == 'descending';
-                    })
-                    .map(function(column) {
-                        return { 
-                            columnId: column_name_generator(node, column), 
-                            sortAsc: column.sort == 'ascending'
-                        }
-                    })
-                    .value();
-
-                node['grid'].setSortColumns(sort_columns);
-
-
-                
-            })
+               } else { // eksistē cits tips, to vajag aizvākt, izveidot jaunu un refreshot
+                   node.current_visualization_view.destroy();
+                   node.current_visualization_view = TableView().init(gridContainer.node(), node, graph);
+                   
+               }
+            });
+            
+            
               
 
         }
@@ -1150,14 +1048,8 @@
                         //     console.log(cell);
                         // });
                         
-                        console.log(node.name, data.results.bindings);
-                        node['grid'].setData(data.results.bindings);
-                        node['grid'].setSelectedRows(highligth_indexes);
-                        // unified coloring
-                        // ja kaut kas ir selekteets, tad...
-                        // selekciju atziimeet baltu
-                        // paareejam uzlikt setCellCssStyle uz peleeku
-                        node['grid'].invalidate();    
+                        console.log(node.name, data.results.bindings, node, node.current_visualization_view);
+                        node.current_visualization_view.set_data(data.results.bindings) 
                         
                     })
                 });
@@ -1283,6 +1175,17 @@
                         'width' : 1010,
                         'height' : 500
                     },
+                    'active_visualization_type' : 'TableView', // must be one of keys in visualization_defs
+                    'visualization_defs' : {
+                        'TableView' : {
+
+                        },
+                        'BarChartView' : {
+                            'properties':{
+                                'y_axis_column' : '??'
+                            }
+                        }
+                    },
                     'columns' : [
                         {
                             // data property
@@ -1314,6 +1217,17 @@
                         'y' : 125,
                         'width' : 1010,
                         'height' : 500,
+                    },
+                    'active_visualization_type' : 'TableView', // must be one of keys in visualization_defs
+                    'visualization_defs' : {
+                        'TableView' : {
+
+                        },
+                        'BarChartView' : {
+                            'properties':{
+                                'y_axis_column' : '??'
+                            }
+                        }
                     },
                     'columns' : [
                         {
@@ -1356,6 +1270,17 @@
                         'y' : 885,
                         'width' : 1010,
                         'height' : 500,
+                    },
+                    'active_visualization_type' : 'TableView', // must be one of keys in visualization_defs
+                    'visualization_defs' : {
+                        'TableView' : {
+
+                        },
+                        'BarChartView' : {
+                            'properties':{
+                                'y_axis_column' : '??'
+                            }
+                        }
                     },
                     'columns' : [
                         {
