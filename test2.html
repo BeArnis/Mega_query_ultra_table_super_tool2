@@ -65,7 +65,6 @@
               text-align: center;
             }
 
-<<<<<<< HEAD
             .query-button {
                 background: url('glyphicons_195_circle_info.png ') no-repeat; 
                 width: 40px; 
@@ -80,8 +79,6 @@
                 background-position:center; 
             }
 
-=======
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
             .button-sprite { 
                 background: url('close_button.png') no-repeat; 
                 width: 30px; 
@@ -92,7 +89,6 @@
                 background-position: 0 -30px; 
             }
 
-<<<<<<< HEAD
             .resize-sprite {
                 background: url('glyphicons_215_resize_full.png') no-repeat; 
                 width: 30px; 
@@ -125,8 +121,6 @@
             }
             
 
-=======
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
 
           </style>
 
@@ -244,11 +238,7 @@
         function get_max_element_number(graph, element) {
             var node_num = _.chain(graph)
                     .filter(function(obj) {
-<<<<<<< HEAD
                         //console.log(obj)
-=======
-                        console.log(obj)
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
                         if(obj['type'] == element) {
                             return obj.name;
                         }
@@ -312,7 +302,6 @@
                     .attr('stroke', 'red'); 
         }
 
-<<<<<<< HEAD
         // function delete_edges_after_nodes(graph, edge_arr) {
         //     _.each(edge_arr, function(edge) {
         //         if(graph[edge.start] == undefined && graph[edge.end] != undefined) {
@@ -376,13 +365,6 @@
             console.log(need_to_delete_these_edges);
             //graph = _.omit(graph, node.name);
             //console.log(node.name, graph);
-=======
-        function destroy_node(graph, node) {
-            console.log(node.name, graph);
-            delete graph[node.name];
-            //graph = _.omit(graph, node.name);
-            console.log(node.name, graph);
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
             render_graph(graph);
         }
         
@@ -498,24 +480,14 @@
                 x = d3.event.dx;
                 y = d3.event.dy;
                 change_node_size(graph, node, x, y);
-<<<<<<< HEAD
                 console.log(x, y);
                 render_graph(graph);
-=======
-                console.log(d3.event);
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
               });
 
 
 
             var container = d3.select('#query-graph-container')
                 .style('position', 'relative')
-<<<<<<< HEAD
-=======
-                .on('keydown', function(d) {
-                    console.log('ss');
-                })
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
                 //.on("mousemove", function(d) {
                 //    console.log(d3.mouse(this));
                 //});
@@ -548,13 +520,7 @@
 
 
             var svg = container.selectAll('svg')
-<<<<<<< HEAD
                 .data(svg_arr)
-=======
-                .data(svg_arr).on('keydown', function(d) {
-                    console.log('ss');
-                })
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
                 .enter()
                 .append('svg')
                     .attr('width', 7000)
@@ -569,11 +535,7 @@
                             make_node(graph, x, y);
                         }
                         
-<<<<<<< HEAD
                         //console.log('hi', this, d3.event.target);
-=======
-                        console.log('hi', this, d3.event.target);
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
                     })
 
             var nodes = container.selectAll('.query-node')
@@ -587,7 +549,6 @@
                     
              
             nodes.exit()
-<<<<<<< HEAD
                 .remove(); 
 
             var top = nodes.selectAll('.top-container') // why does not this work
@@ -647,20 +608,6 @@
                 .style('left', function(node) {
                     return node.geometry.width - 40 + 'px';
                 })
-=======
-                .remove();        
-
-            var sprite = nodes.selectAll('.resize-sprite')
-                        .style('height', 40 + 'px')
-                    .style('width', 40 + 'px')
-                    .style('background-color', 'blue')
-                    .style('left', function(node) {
-                        return node.geometry.width - 40 + 'px';
-                    })
-                    .style('top', function(node) {
-                        return node.geometry.height - 40 + 'px';
-                    });
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
 
             var delete_node = nodes.selectAll('.button-sprite')
                         .style('left', function(node) {
@@ -671,20 +618,11 @@
 
             var grid = nodes.selectAll('.query-result-redering-container')
                         .style('left', '30px')
-<<<<<<< HEAD
                         .style('width', function(node) {
                             return node.geometry.width - 60 + 'px';
                         })
                         .style('height', function(node) {
                             return node.geometry.height - 80 + 'px';
-=======
-                        .style('top', '30px')
-                        .style('width', function(node) {
-                            return node.geometry.width - 40 + 'px';
-                        })
-                        .style('height', function(node) {
-                            return node.geometry.height - 40 + 'px';
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
                         });
 
             //console.log(nodes);
@@ -817,11 +755,7 @@
 
 
             var labels = svg.selectAll('.text')
-<<<<<<< HEAD
                     .data(edge_arr)
-=======
-                    .data(graph_elements)
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
                     .enter()
                      .append('text')
                      .attr('class', 'text')
@@ -860,7 +794,6 @@
             new_nodes.each(function(node, i) {
                 var node_div = d3.select(this);
 
-<<<<<<< HEAD
                 var top_div = node_div.append('div')
                     .attr('class', 'top-container')
                     .style('position', 'absolute')
@@ -930,9 +863,6 @@
 
 
                 top_div.append('div')
-=======
-                node_div.append('div')
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
                     .attr('class', 'button-sprite')
                     .style('position', 'absolute')
                     .style('left', function(node) {
@@ -945,11 +875,7 @@
                         destroy_node(graph, node);
                     })
 
-<<<<<<< HEAD
                 bottom_div.append('div')
-=======
-                node_div.append('div')
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
                     .attr('class', 'resize-sprite')
                     .attr('id', node.name)
                     .style('position', 'absolute')
@@ -959,35 +885,12 @@
                     .style('left', function(node) {
                         return node.geometry.width - 40 + 'px';
                     })
-<<<<<<< HEAD
                     .on('mousedown', function(node) {
                         d3.event.stopPropagation();
                     })
                     .call(drag2);
 
                 bottom_div.append('div')
-=======
-                    .style('top', function(node) {
-                        return node.geometry.height - 40 + 'px';
-                    })
-                    // .on('mousedown', function(node) {
-                    //     d3.event.stopPropagation();
-                    // })
-                    .call(drag2);
-                    //.on('click', 's')
-                    // .on('drag', function(node) { 
-                    //     d3.event.stopPropagation();
-                    //     var x = d3.event.x - 150;
-                    //     var y = d3.event.y - 125;
-                    //     change_node_size(graph, node, x, y);
-                    //     //drag_node(graph, node);
-
-                    //     console.warn(this); 
-                    // });
-                    
-
-                node_div.append('div')
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
                     .attr('class', 'query-button')
                     .attr('id', node.name)
                     .style('position', 'absolute')
@@ -995,43 +898,23 @@
                     .style('width', 40 + 'px')
                     .style('background-color', 'yellow')
                     .style('left', function(node) {
-<<<<<<< HEAD
                         return node.geometry.width - 280 + 'px';
-=======
-                        return node.geometry.width + 'px';
-                    })
-                    .style('top', function(node) {
-                        return node.geometry.height - 40 + 'px';
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
                     })
                     .on('click', function(node) {
                         var query = generate_query(graph, node);
                         console.log('query', query, node.query_param);
                     });
 
-<<<<<<< HEAD
 
                 bottom_div.append('div')
-=======
-                node_div.append('div')
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
                     .attr('class', 'refresh-button')
                     .attr('id', node.name)
                     .style('position', 'absolute')
                     .style('height', 40 + 'px')
                     .style('width', 40 + 'px')
-<<<<<<< HEAD
                     .style('background-color', 'white')
                     .style('left', function(node) {
                         return node.geometry.width - 320 + 'px';
-=======
-                    .style('background-color', 'black')
-                    .style('left', function(node) {
-                        return node.geometry.width - 40 + 'px';
-                    })
-                    .style('top', function(node) {
-                        return node.geometry.height + 'px';
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
                     })
                     .on('click', function(node) {
                         fill_tables(graph);
@@ -1039,7 +922,6 @@
 
 
 
-<<<<<<< HEAD
                 bottom_div.append('div')
                     .attr('class', 'delete-selection')
                     .attr('id', node.name)
@@ -1066,29 +948,6 @@
                     })
                     .style('height', function(node) {
                         return node.geometry.height - 80 + 'px';
-=======
-                var sub_node_div = node_div
-                    .append('div')
-                    .classed('sub', true)
-                    .attr('id', node.name + '1')
-                    .style('width', function(node) {
-                        return node.geometry.width - 40 + 'px';
-                    })
-                    .style('height', function(node) {
-                        return node.geometry.height - 40 + 'px';
-                    });
-               // console.log(this, node);
-
-                var gridContainer = sub_node_div.append('div')
-                    .classed('query-result-redering-container', true)
-                    .style('left', '30px')
-                    .style('top', '30px')
-                    .style('width', function(node) {
-                        return node.geometry.width - 40 + 'px';
-                    })
-                    .style('height', function(node) {
-                        return node.geometry.height - 40 + 'px';
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
                     });
 
                 
@@ -1101,21 +960,7 @@
 
                 var data = [];
                 
-<<<<<<< HEAD
                 var columns = [];
-=======
-                var columns = _.map(node.columns, function(column, i) {
-                    return { 
-                        id: column_name_generator(node, column, i), 
-                        name : column.column_label, 
-                        field: column_name_generator(node, column, i), 
-                        formatter: render_cell_data,
-                        width: 330
-                    };
-                })
-
-                columns.unshift({id:node.name, name: node.name, field: node.name, formatter: render_cell_data, width: 330})
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
 
 
                 // var columns = [
@@ -1123,17 +968,12 @@
                 //     {id: node.name, name: 'c2', field: "col2", width: 330}   // map 
                 //   ];
 
-<<<<<<< HEAD
                 
-=======
-                //console.log(columns, gridContainer);
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
 
                 var table_grid = new Slick.Grid(gridContainer.node(), data, columns, options);
 
                 node['grid'] = table_grid;
 
-<<<<<<< HEAD
                 node['grid'].onHeaderClick.subscribe(function(e, args) {
 
 
@@ -1167,15 +1007,12 @@
        
                 })
 
-=======
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
                 table_grid.setSelectionModel(new Slick.RowSelectionModel({selectActiveRow: true}));
 
                 table_grid.onSelectedRowsChanged.subscribe(function() { 
                     var selected_row_indexes = table_grid.getSelectedRows();
 
                     var all_table_row_values = _.map(table_grid.getData(), function(obj) {
-<<<<<<< HEAD
                         
                         return obj;
                     })
@@ -1197,28 +1034,12 @@
                         fill_tables(graph);
                     }
                     
-=======
-                        return obj.table;
-                    })
-                    
-                    var current_selected_values = _.map(selected_row_indexes, function(index) {
-                        return all_table_row_values[index];
-                    })
-                    
-                    var previous_selected_values = node['query_param']['selection']; // get_selection_values(node['query_param']['selection']);
-                    console.log(current_selected_values, previous_selected_values);
-                    if(!are_equal_as_sets(current_selected_values, previous_selected_values)) {
-                        node['query_param']['selection'] = current_selected_values;
-                        fill_tables(graph);
-                    }
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
 
 
                 });
 
                 
             });
-<<<<<<< HEAD
             
             nodes.each(function(node) {
 
@@ -1272,15 +1093,6 @@
 
             return  _.isEqual(obj_1, obj_2);
             //return _.isEmpty(_.difference(array_1, array_2)) && _.isEmpty(_.difference(array_2, array_1));
-=======
-
-            fill_tables(graph);
-
-        }
-
-        function are_equal_as_sets(array_1, array_2) {
-            return _.isEmpty(_.difference(array_1, array_2)) && _.isEmpty(_.difference(array_2, array_1));
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
         }
 
         function fill_tables(graph) {
@@ -1305,11 +1117,7 @@
                         for (var i = 0; i < data.results.bindings.length; i++) {
                             var d = (data_for_grid[i] = {});
 
-<<<<<<< HEAD
                             d["col1"] = data.results.bindings[i][node.name]; // kas šis ir? 
-=======
-                            d["col1"] = data.results.bindings[i][node.name]; // padot objektu un iraut ārā values ar render
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
                             //d['col2'] = data.results.bindings[i][node.name];
                         } 
 
@@ -1319,7 +1127,6 @@
                         });
 
                         table_values = get_selection_values(table_obj);
-<<<<<<< HEAD
                         
                         node['query_param']['selection'] = selection_intersection(node['query_param']['selection'], table_obj); // gets those values that were in the graph selection before  need change 
 
@@ -1327,45 +1134,23 @@
                         var selec_arr = get_selection_values(node['query_param']['selection']); // change 
 
                         //console.log(node['query_param']['selection'], selec_arr);
-=======
-                        //console.log(table_obj, table_values);
-                        //console.warn(node.name, table_obj, node['query_param']['selection']);
-
-                        //selected_values = _.intersection(get_selection_values(node['query_param']['selection']), table_values);
-                        //node['query_param']['selection'] = _.intersection(get_selection_values(node['query_param']['selection']), table_values); // gets those values that were in the graph selection before  need change 
-
-                        console.log(node['query_param']['selection']);
-                    
-                        var selec_arr = node['query_param']['selection'] // change 
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
 
                         var highligth_indexes = [];
                         _.each(selec_arr, function(selec) {
                             //var bool = _.indexOf(table_obj, selec)
-<<<<<<< HEAD
                             var index = _.indexOf(table_values, selec)
                             //console.log(_.indexOf(table_values, selec));
-=======
-                            var index = _.indexOf(table_obj, selec)
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
                             if(index != -1) {
                                 highligth_indexes.push(index);
                             }
 
                         })
-<<<<<<< HEAD
                         
                         // node['grid'].onClick.subscribe(function(cell) {
                         //     console.log(cell);
                         // });
                         
                         console.log(node.name, data.results.bindings);
-=======
-                        //console.log(table_ids);
-                        //console.log(highligth_indexes);
-                        
-
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
                         node['grid'].setData(data.results.bindings);
                         node['grid'].setSelectedRows(highligth_indexes);
                         // unified coloring
@@ -1381,15 +1166,11 @@
         }
 
         function generate_query(graph, node) {
-<<<<<<< HEAD
 
-=======
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
             var query_template = _.template("" + 
                 "select distinct ?<%= name %>  <%= column_vars %> \n" +
                 "where {\n" +
                     "<%= query_body %>\n" +
-<<<<<<< HEAD
                 "} <%= group_by %> \n" + 
                 "<%= sort %>");
 
@@ -1479,36 +1260,6 @@
                 sort : add_order_by(query_sort_array)
             })
 
-=======
-                "}");
-
-            var cons = constraint(graph, node, node, [])
-
-            // var query = query_template({
-            //     name: node.name,
-            //     columns: node.name + '_col_' + (i + 1),
-            //     query_body: cons
-            // })
-
-            var query_column_names = _.map(node.columns, function(column, i) {
-                return '?' + column_name_generator(node, column, i);
-            })
-            
-            var query = query_template({
-                name: node.name,
-                column_vars: query_column_names.join(' '),
-                query_body: cons
-            })
-            // var que = {};
-            // _map(query_column_name, function(col) {
-            //     que['columns'] = col;
-            // })
-            // que['name'] = node.name;
-            // que['query_body'] = cons;
-
-            // var query = query_template(que);
-            console.log(query);
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
             return query;
         }
 
@@ -1524,11 +1275,7 @@
                     'incoming_lines': ['l1'],
                     'query_param': {
                         'input': null,
-<<<<<<< HEAD
                         'selection': [{ value: 'http://example.com/ontology1#wife', type: 'uri' }]
-=======
-                        'selection': []
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
                     },
                     'geometry' : {
                         'x' : 150,
@@ -1541,23 +1288,15 @@
                             // data property
                             'type' : 'direct',
                             'column_label' : 'label1',
-<<<<<<< HEAD
                             'property_name' : 'rdfs:label',
                             'sort': 'none' 
-=======
-                            'property_name' : 'rdfs:label'
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
                         },
                         {
                             // data property
                             'type' : 'direct',
                             'column_label' : 'label2',
-<<<<<<< HEAD
                             'property_name' : '<http://example.com/ontology1#wife>',
                             'sort': 'ascending'
-=======
-                            'property_name' : '<http://example.com/ontology1#wife>'
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
                         }
                     ]
                 },
@@ -1579,7 +1318,6 @@
                     'columns' : [
                         {
                             // data property
-<<<<<<< HEAD
                             'type' : 'direct',
                             'column_label' : 'label',
                             'property_name' : 'rdfs:label',
@@ -1601,10 +1339,6 @@
                             'what_to_aggregate': 't1',
                             'sort' : 'none'
 
-=======
-                            'column_label' : 'label',
-                            'property_name' : 'rdfs:label'
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
                         }
                     ]
                 },
@@ -1626,7 +1360,6 @@
                     'columns' : [
                         {
                             // data property
-<<<<<<< HEAD
                             'type' : 'direct',
                             'column_label' : 'label',
                             'property_name' : 'rdfs:label',
@@ -1639,10 +1372,6 @@
                             'aggregation_function': 'count',
                             'what_to_aggregate': 'hl1',
                             'sort' : 'none'
-=======
-                            'column_label' : 'label',
-                            'property_name' : 'rdfs:label'
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
                         }
                     ]
                 },
@@ -1679,11 +1408,8 @@
             }
         
         render_graph(example_graph);
-<<<<<<< HEAD
         fill_tables(example_graph);
 
-=======
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
 
         // function highlight(node) {
 
@@ -1793,7 +1519,6 @@
         
         function local_selection(graph, node) {
 
-<<<<<<< HEAD
             var selection_obj_arr = node['query_param']['selection'];
 
             var new_selection = _.map(selection_obj_arr, function(item) {
@@ -1803,20 +1528,11 @@
                     return '"' + item.value + '"';
                 }
                 
-=======
-            //console.log(node.name, node['query_param']['selection'].length); // ?
-            var selection_arr = node['query_param']['selection']; // change 
-            var new_selection = _.map(selection_arr, function(item) {
-                return '<' + item + '>';
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
             })
 
             var selection = new_selection.join('');
 
-<<<<<<< HEAD
             //console.log(new_selection, selection);
-=======
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
             if(node['query_param']['selection'].length == 0) { // change
                 var patern = ''
             } else {
@@ -1847,7 +1563,6 @@
             return pattern;
         }
 
-<<<<<<< HEAD
         d3.select("body") // why here?
         .on("keydown", function() {
             //console.log('edge', d3.event.keyCode);
@@ -1857,14 +1572,6 @@
             } 
         });
         
-=======
-        d3.select("body")
-        .on("keydown", function() {
-            if(d3.event.keyCode == 17) {
-                make_edge1(example_graph)
-            } 
-        });
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
 
         function make_edge1(graph){
             var container = d3.select('#query-graph-container');
@@ -1872,21 +1579,13 @@
             var edges = container.select('svg').selectAll('.query-edge');
 
             edges.on('click', function(edge) {
-<<<<<<< HEAD
                 //console.log('click_edge', edge.name);
-=======
-                console.log('click_edge', edge.name);
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
                 make_edge2(graph, edge, edge.type);
 
             });
 
             nodes.on('click', function(node) {
-<<<<<<< HEAD
                 //console.log('click', node.name, d3.event.keyCode);
-=======
-                console.log('click', node.name);
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
                 make_edge2(graph, node, node.type);
 
             });
@@ -1894,29 +1593,20 @@
         }
 
         function make_edge2(graph, elem, type) {
-<<<<<<< HEAD
             //console.log(elem);
-=======
-            console.log(elem);
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
             var container = d3.select('#query-graph-container');
             var nodes = container.selectAll('.query-node');
             var svg = container.select('svg');
             var edges = svg.selectAll('.query-edge');
 
              edges.on('click', function(edge) {
-<<<<<<< HEAD
                 //console.log('click_edge2', edge.name, d3.event.keyCode);
-=======
-                console.log('click_edge2', edge.name);
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
                 if(elem.name == edge.name) {
                     return;
                 } else if(type == 'edge' || type == 'hyper_edge') {
                     return
                 }else {
                     draw_edge(graph, elem, edge);
-<<<<<<< HEAD
                     d3.event.stopPropagation();
                     return;
                 } 
@@ -1939,24 +1629,6 @@
             }
             
             nodes.on('click', finish_making_edge)
-=======
-                    return;
-                } 
-            });
-            
-            nodes.on('click', function(node2) {
-                console.log('click2', node2.name);
-                if(elem.name == node2.name) {
-                    return;
-                } else if(type == 'edge' || type == 'hyper_edge') {
-                    draw_edge(graph, elem, node2);
-                    return
-                }else {
-                    draw_edge(graph, elem, node2);
-                    return;
-                }         
-            });
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
         }
 
         function draw_edge(graph, elem1, elem2) {
@@ -1999,14 +1671,10 @@
                     'end': elem2.name,
                     'type': 'edge'
                 }
-<<<<<<< HEAD
 
             graph[elem1.name]['incoming_lines'].push(edge_name);
             graph[elem2.name]['incoming_lines'].push(edge_name);
             //console.log(elem1, elem2)
-=======
-            console.log(elem1, elem2)
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
             graph[edge_name] = edge_template;
             makeEdgeBetween(graph, elem1['geometry'], elem2['geometry'], 5, edge_name);
 
@@ -2015,7 +1683,6 @@
         }
 
         function change_node_size(graph, node, x, y) {
-<<<<<<< HEAD
             var X = x.toString();
             var Y = y.toString();
             if(graph[node.name]['geometry'].width >= 350 && graph[node.name]['geometry'].height >= 300) {
@@ -2042,26 +1709,11 @@
                 return [];
             }
             //console.log(selection_obj, selection_value_array);
-=======
-            graph[node.name]['geometry'].width += x;
-            graph[node.name]['geometry'].height += y;
-
-            render_graph(graph);
-
-        }
-
-        function get_selection_values(selection_obj) { // selection is an array
-            var selection_value_array = _.pluck(selection_obj, 'value');
-            console.log(selection_obj, selection_value_array);
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
             return selection_value_array;
         }
 
         function render_cell_data(row, cell, value, columnDef, dataContext) { // selection is an array
-<<<<<<< HEAD
 
-=======
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
             if(value) {
                 return value.value;
             } else {
@@ -2071,7 +1723,6 @@
         }
 
         function local_column_queries(node) {
-<<<<<<< HEAD
             return _.map(node.columns, function(column) {
                 if(column.property_name == undefined) {
                     return;
@@ -2146,16 +1797,6 @@
             }
             })
         }
-=======
-            return _.map(node.columns, function(column, i) {
-                return 'OPTIONAL { ?' + node.name + '  ' + column.property_name + '  ?' + column_name_generator(node, column ,i) + ' . } .'; 
-            }).join('\n');
-        }
-
-        function column_name_generator(node, column, i) {
-            return node.name + '_col_' + (i + 1);
-        }
->>>>>>> dcd1ce17c11ab9832fa098a2def4ff6ab11b8ca2
         </script>
     
     </body>
