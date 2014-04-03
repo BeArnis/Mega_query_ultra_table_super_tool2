@@ -120,7 +120,29 @@
                 background-position:center; 
             }
             
+            /* chart styles*/
+            .bar { 
+              fill: steelblue;
+            }
 
+            .bar:hover {
+              fill: brown;
+            }
+
+            .axis {
+              font: 10px sans-serif;
+            }
+
+            .axis path,
+            .axis line {
+              fill: none;
+              stroke: #000;
+              shape-rendering: crispEdges;
+            }
+
+            .x.axis path {
+              display: none;
+            }
 
           </style>
 
@@ -134,12 +156,33 @@
 
 
 
-        <script type='text/javascript'>
+<script type='text/javascript'>
 
         var conn = new Stardog.Connection();
             conn.setEndpoint('http://localhost:5820/'); 
             conn.setCredentials('admin', 'admin');
             conn.setReasoning('QL');
+
+
+        var container = d3.select('#query-graph-container')
+            .style('position', 'relative');
+
+
+        var edge_canvas = container.append('svg')
+            .attr('width', 7000)
+            .attr('height',7000)
+            .call(make_marker)
+            .on('click', function(d) {
+               // mousemove
+                //console.log(d3.mouse(this));
+                var x = d3.mouse(this)[0];
+                var y = d3.mouse(this)[1];
+                if(this == d3.event.target) {
+                    make_node(graph, x, y);
+                }
+                
+                //console.log('hi', this, d3.event.target);
+            });
 
 
         function toggleWay(graph, edge) {
@@ -180,22 +223,13 @@
         }
 
         function make_marker() {
-            var container = d3.select('#query-graph-container')
-                .style('position', 'relative');
-
-            var svg = container
-            .select('svg')
-            var marker_destoy = [];
-
-
-            svg.selectAll('marker')
-                .data(marker_destoy)
-                .exit()
-                    .remove();
-
+            console.log(this)
+            var edge_canvas = this;
+            edge_canvas.selectAll('marker')
+                .remove();
            
 
-            var end_marker = svg.append('marker')
+            var end_marker = edge_canvas.append('marker')
                 //.attr('style', ' markerWidth="6" markerHeight="6" orient="auto"')
                 .attr('id', 'link_path_end')
                 .attr('viewBox', '-10 -5 10 10')
@@ -208,7 +242,7 @@
                     .attr('d', 'M-10,-5L0,0L-10,5')
                     .attr('fill', 'steelblue');
 
-            var end_red_marker = svg.append('marker')
+            var end_red_marker = edge_canvas.append('marker')
                 .attr('id', 'link_path_end_red')
                 .attr('viewBox', '-10 -5 10 10')
                 .attr('refX', -2)
@@ -220,7 +254,7 @@
                     .attr('d', 'M-10,-5L0,0L-10,5')
                     .attr('fill', 'red');
 
-            var start_marker = svg.append('marker')
+            var start_marker = edge_canvas.append('marker')
                 .attr('id', 'link_path_start')
                 .attr('viewBox', '0 -5 10 10')
                 .attr('refX', 2)
@@ -237,20 +271,20 @@
 
         function get_max_element_number(graph, element) {
             var node_num = _.chain(graph)
-                    .filter(function(obj) {
-                        //console.log(obj)
-                        if(obj['type'] == element) {
-                            return obj.name;
-                        }
-                    })
-                    .map(function(node_name) {
-                        var patt = /(\d)+/g;
-                        var s = patt.exec(node_name.name)[0];
-                        s = parseInt(s);
-                        return s;
-                    })
-                    .max()
-                    .value();
+                .filter(function(obj) {
+                    //console.log(obj)
+                    if(obj['type'] == element) {
+                        return obj.name;
+                    }
+                })
+                .map(function(node_name) {
+                    var patt = /(\d)+/g;
+                    var s = patt.exec(node_name.name)[0];
+                    s = parseInt(s);
+                    return s;
+                })
+                .max()
+                .value();
             node_num = parseInt(node_num);
             node_num = node_num + 1;        
             return node_num;   
@@ -289,30 +323,6 @@
 
         }
 
-        function exit_box(svg, node) {
-            svg.append('rect')
-                .attr("x", (node.geometry['x'] - 30))
-                .attr("y", (node.geometry['y'] - 30))
-                //.attr('fill', 'white')
-                .attr('stroke', 'black')
-                .attr("width", 30)
-                .attr("height", 30)
-                .append('path')
-                    .attr('d', 'M0,0L30,30')
-                    .attr('stroke', 'red'); 
-        }
-
-        // function delete_edges_after_nodes(graph, edge_arr) {
-        //     _.each(edge_arr, function(edge) {
-        //         if(graph[edge.start] == undefined && graph[edge.end] != undefined) {
-        //             graph[edge.end]['incoming_lines'] = _.without(graph[edge.end]['incoming_lines'], edge.name);
-        //             delete graph[edge.name];
-        //         } else if(graph[edge.end] == undefined && graph[edge.start] != undefined) {
-        //             graph[edge.start]['incoming_lines'] = _.without(graph[edge.start]['incoming_lines'], edge.name);
-        //             delete graph[edge.name];
-        //         }
-        //     })
-        // }
 
         function destroy_node(graph, node) {
             //console.log(node.name, graph);
@@ -485,65 +495,25 @@
               });
 
 
-
-            var container = d3.select('#query-graph-container')
-                .style('position', 'relative')
-                //.on("mousemove", function(d) {
-                //    console.log(d3.mouse(this));
-                //});
-          
-
             var node_arr = _.filter(graph, function(obj) {
-                if(obj['type'] == 'node') {
-                    return obj;
-                }
+                return obj['type'] == 'node';
             });
 
             var edge_arr = _.filter(graph, function(obj) {
-                if(obj['type'] == 'edge' || obj['type'] == 'hyper_edge') {
-                    return obj;
-                }
+                return obj['type'] == 'edge' || obj['type'] == 'hyper_edge';
             });
 
-            var graph_elements = _.filter(graph, function(obj) {
-                return obj;
-            });
-
-            var svg_arr = ['1'];
-            var svg_des = [];
-
-            container.selectAll('svg')
-                .data(svg_des)
-                .exit()
-                    .remove();
+            var graph_elements = graph;
 
 
-
-            var svg = container.selectAll('svg')
-                .data(svg_arr)
-                .enter()
-                .append('svg')
-                    .attr('width', 7000)
-                    .attr('height',7000)
-                    .call(make_marker)
-                    .on('click', function(d) {
-                       // mousemove
-                        //console.log(d3.mouse(this));
-                        var x = d3.mouse(this)[0];
-                        var y = d3.mouse(this)[1];
-                        if(this == d3.event.target) {
-                            make_node(graph, x, y);
-                        }
-                        
-                        //console.log('hi', this, d3.event.target);
-                    })
+           
 
             var nodes = container.selectAll('.query-node')
-                    .data(node_arr, function(d) {
-                        return d.name;
-                    })
-                    .style('x', function(node) {return node.geometry.x;})
-                    .style('y', function(node) {return node.geometry.y;});
+                .data(node_arr, function(d) {
+                    return d.name;
+                })
+                .style('x', function(node) {return node.geometry.x;})
+                .style('y', function(node) {return node.geometry.y;});
 
 
                     
@@ -620,120 +590,129 @@
                 })
 
             var delete_node = nodes.selectAll('.button-sprite')
-                        .style('left', function(node) {
-                        return node.geometry.width - 15 + 'px';
-                        })
-                        .style('top', '-15px')
+                .style('left', function(node) {
+                    return node.geometry.width - 15 + 'px';
+                })
+                .style('top', '-15px')
 
 
             var grid = nodes.selectAll('.query-result-redering-container')
-                        .style('left', '30px')
-                        .style('width', function(node) {
-                            return node.geometry.width - 60 + 'px';
-                        })
-                        .style('height', function(node) {
-                            return node.geometry.height - 80 + 'px';
-                        });
+                .style('left', '30px')
+                .style('width', function(node) {
+                    return node.geometry.width - 60 + 'px';
+                })
+                .style('height', function(node) {
+                    return node.geometry.height - 80 + 'px';
+                });
 
             //console.log(nodes);
 
+            // bind
+            var edges = edge_canvas.selectAll('.query-edge')
+                .data(edge_arr, function(d) {return d.name;});
 
-            var edges = svg.selectAll('.query-edges')
-                      .data(edge_arr)
-                    .enter()
+            //create added
+            edges.enter()
                  .append('path')
                     .classed('query-edge', true)
                     .attr('stroke', "steelblue")
                     .attr('stroke-width', "2px")
                     .attr('marker-end', "url(#link_path_end)")
-                    .attr('d', function(d) {
-                        var path = 'M' + d.geometry.x1 + ',' + d.geometry.y1 + 'L' + d.geometry.x2 + ',' + d.geometry.y2;
-                        //console.log(path);  
-                        return path;
-                    })
                     .attr('id', function(node) {return node['name']; })
-                    .each(function(d){
-                        //console.log(d);
 
-                        
-                    });
+            // update all
+            edges.attr('d', function(d) {
+                var path = 'M' + d.geometry.x1 + ',' + d.geometry.y1 + 'L' + d.geometry.x2 + ',' + d.geometry.y2;
+                //console.log(path);  
+                return path;
+            })
 
+            // delete removed
+            edges.exit().remove()
 
-            var red_edges = svg.selectAll('.query-edges_red')
-                    .data(edge_arr)
-                    .attr('marker-end', function(edge) {
-                        //console.log(edge, graph);
-                        if(_.contains(graph[edge.end]['incoming_lines'], edge.name)) {
-                            return 'url(#link_path_end_red)';
-                        }
-                        else return '';
-                    })
-                    .attr('marker-start', function(edge) {
-                        //console.log(edge, graph);
-                        if(_.contains(graph[edge.start]['incoming_lines'], edge.name)) {
-                            return 'url(#link_path_start)';
-                        }
-                        else return '';
-                    })
-                    .enter()
-                 .append('path')
-                    .classed('query-edge', true)
+            // NOW the same for red
+            // bind data
+            var red_edges = edge_canvas.selectAll('.query-edges_red')
+                .data(edge_arr, function(d) {return d.name;})
+
+            // create new
+            red_edges.enter()
+                .append('path')
+                    .classed('query-edges_red', true)
                     .attr('stroke', "red")
                     .attr('stroke-width', "6px")
-                    .attr('marker-end', function(edge) {
-                        //console.log(edge, graph);
-                        if(_.contains(graph[edge.end]['incoming_lines'], edge.name)) {
-                            return 'url(#link_path_end_red)';
-                        }
-                        else return '';
-                    })
-                    .attr('marker-start', function(edge) {
-                        //console.log(edge, graph);
-                        if(_.contains(graph[edge.start]['incoming_lines'], edge.name)) {
-                            return 'url(#link_path_start)';
-                        }
-                        else return '';
-                    })
-                    .attr('d', function(d) {
-                        //console.log(d);
-                        if(d.geometry.x1 == d.geometry.x2) {
-                            var path = 'M' + (d.geometry.x1 + 20) + ',' + d.geometry.y1 + 'L' + (d.geometry.x2 + 20) + ',' + d.geometry.y2;
-                        }else {
-                            var path = 'M' + d.geometry.x1 + ',' + (d.geometry.y1 - 20) + 'L' + d.geometry.x2 + ',' + (d.geometry.y2 - 20);
-                        }
-                        
-                        //console.log(d);  
-                        return path;
-                    })
                     .attr('id', function(node) {return node['name']; })
                     .on('click', function(d) {
                         toggleWay(graph, d);
                         return;
                     });
 
+            // update all
+            red_edges
+                .attr('d', function(d) {
+                    //console.log(d);
+                    if(d.geometry.x1 == d.geometry.x2) {
+                        var path = 'M' + (d.geometry.x1 + 20) + ',' + d.geometry.y1 + 'L' + (d.geometry.x2 + 20) + ',' + d.geometry.y2;
+                    }else {
+                        var path = 'M' + d.geometry.x1 + ',' + (d.geometry.y1 - 20) + 'L' + d.geometry.x2 + ',' + (d.geometry.y2 - 20);
+                    }
+                    
+                    //console.log(d);  
+                    return path;
+                })
+                .attr('marker-end', function(edge) {
+                    //console.log(edge, graph);
+                    if(_.contains(graph[edge.end]['incoming_lines'], edge.name)) {
+                        return 'url(#link_path_end_red)';
+                    }
+                    else return '';
+                })
+                .attr('marker-start', function(edge) {
+                    //console.log(edge, graph);
+                    if(_.contains(graph[edge.start]['incoming_lines'], edge.name)) {
+                        return 'url(#link_path_start)';
+                    }
+                    else return '';
+                });
+                 
+            // remove deleted
+            red_edges.exit().remove();
 
-            svg.selectAll('.query-edges_red').selectAll('.path')
-                    .attr('marker-end', function(edge) {
-                        //console.log(edge, graph);
-                        if(_.contains(graph[edge.end]['incoming_lines'], edge.name)) {
-                            return 'url(#link_path_end_red)';
-                        }
-                        else return '';
-                    })
-                    .attr('marker-start', function(edge) {
-                        //console.log(edge, graph);
-                        if(_.contains(graph[edge.start]['incoming_lines'], edge.name)) {
-                            return 'url(#link_path_start)';
-                        }
-                        else return '';
-                    });
 
-                    //.on('click', redraw());
+            // bind lable 
+            var lables = edge_canvas.selectAll('.text')
+                .data(edge_arr, function(d) {return d.name;});
+
+            //create new labels
+            lables.enter()
+                .append('text')
+                .attr('class', 'text')
+                .text( function(d) {
+                    return d.name;
+                })
+                .attr("font-family", "sans-serif")
+                .attr("font-size", "20px")
+                .attr("fill", "balck");
+
+            // update labels
+            lables
+                .attr('x', function(d) {
+                    return d.geometry['x'] || (d.geometry['x2'] - 20);
+                })
+                .attr('y', function(d) {
+                    return (d.geometry['y'] - 0) || (d.geometry['y2'] + 10);
+                })
+
+            // remove lables
+
+            lables.exit().remove();
+                    
+
             var margin = 20;
 
             var new_nodes = nodes
-                   .enter()
-                    .append('div')
+                .enter()
+                .append('div')
                     .classed('query-node', true) // if type node than node is needed
                     .style('position', 'absolute')
                     .style('left', function(node) {return node.geometry.x + 'px';})
@@ -764,39 +743,7 @@
 
 
 
-            var labels = svg.selectAll('.text')
-                    .data(edge_arr)
-                    .enter()
-                     .append('text')
-                     .attr('class', 'text')
-                     .text( function(d) {
-                        return d.name;
-                     })
-                     .attr('x', function(d) {
-                        return d.geometry['x'] || (d.geometry['x2'] - 20);
-                     })
-                     .attr('y', function(d) {
-                        return (d.geometry['y'] - 0) || (d.geometry['y2'] + 10);
-                     })
-                     .attr("font-family", "sans-serif")
-                     .attr("font-size", "20px")
-                     .attr("fill", "balck");
 
-            /*var new_edges = svg.selectAll('.query-edges')
-                .data(edges)
-                .enter()
-                 .append('path')
-                    .classed('query-edge', true)
-                    .attr('stroke', "steelblue")
-                    .attr('stroke-width', "2px")
-                    .attr('marker-end', "url(#link_path_end)")
-                    .attr('d', function(d) {
-                        console.log(d);
-                        var path = 'M' + d.geometry.x1 + ',' + d.geometry.y1 + 'L' + d.geometry.x2 + ',' + d.geometry.y2;
-                        console.log(path);  
-                        return path;
-                    })
-                    .attr('id', function(node) {return node['name']; });*/
 
 
 
@@ -1524,7 +1471,7 @@
         function make_edge1(graph){
             var container = d3.select('#query-graph-container');
             var nodes = container.selectAll('.query-node');
-            var edges = container.select('svg').selectAll('.query-edge');
+            var edges = edge_canvas.selectAll('.query-edge');
 
             edges.on('click', function(edge) {
                 //console.log('click_edge', edge.name);
@@ -1544,8 +1491,7 @@
             //console.log(elem);
             var container = d3.select('#query-graph-container');
             var nodes = container.selectAll('.query-node');
-            var svg = container.select('svg');
-            var edges = svg.selectAll('.query-edge');
+            var edges = edge_canvas.selectAll('.query-edge');
 
              edges.on('click', function(edge) {
                 //console.log('click_edge2', edge.name, d3.event.keyCode);
