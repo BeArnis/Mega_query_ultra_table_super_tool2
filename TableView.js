@@ -13,6 +13,8 @@ var that;
 
 var table_grid;
 
+var gridContainer;
+
 function init(init_div, init_node, init_graph) {
     div = init_div;
     node = init_node;
@@ -20,16 +22,10 @@ function init(init_div, init_node, init_graph) {
     var data = [];
     var columns = [];
     console.log(div);
-    var gridContainer = d3.select(div).append('div')   // make in table selection
+    gridContainer = d3.select(div).append('div')   // make in table selection
         .classed('query-result-redering-container', true)
         .style('left', '30px')
-        .style('background-color', 'white')
-        .style('width', function(node) {
-            return node.geometry.width - 60 + 'px';
-        })
-        .style('height', function(node) {
-            return node.geometry.height - 80 + 'px';
-        });
+        .style('background-color', 'white');
 
     table_grid = new Slick.Grid(gridContainer.node(), data, columns, options);
 
@@ -84,11 +80,11 @@ function init(init_div, init_node, init_graph) {
 
 
         if(!obj_equal(current_selected_values, previous_selected_values)) {
-            node['query_param']['selection'] = current_selected_values; // need to be an obj
+            node['query_param']['selection'] = current_selected_values; 
             fill_tables(graph);
         }
     });
-    
+
     refresh_view_from_node();
     return that;
 }
@@ -96,6 +92,14 @@ function init(init_div, init_node, init_graph) {
     
 
 function refresh_view_from_node() {
+    gridContainer
+        .style('width', function(node) {
+            return node.geometry.width - 60 + 'px';
+        })
+        .style('height', function(node) {
+            return node.geometry.height - 80 + 'px';
+        });
+        
     var columns = _.map(node.columns, function(column) {
         return { 
             id: column_name_generator(node, column), 

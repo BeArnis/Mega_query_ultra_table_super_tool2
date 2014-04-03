@@ -445,27 +445,30 @@
             return null;
         }
 
-        function makeEdgeBetween(graph, node1_geo, node2_goe, ah, link_name) { //????????
+        function updateEdgeCoordinates(graph, node1_geo, node2_goe, ah, link_name) { //????????
             //console.log(graph, node1_geo, node2_goe, ah);
             var source_center = get_middle_point(node1_geo);
             var target_center = get_middle_point(node2_goe);
  
 
-        var si = rayIntersection(graph, source_center, target_center, node1_geo);
-        if (!si) si = { x: source_center.x, y: source_center.y }; //?
-        var ti = rayIntersection(graph, target_center, source_center, node2_goe);
-        if (!ti) ti = { x: target_center.x, y: target_center.y }; // ?
-        var dx = ti.x - si.x,
+            var si = rayIntersection(graph, source_center, target_center, node1_geo);
+            if (!si)
+                si = { x: source_center.x, y: source_center.y }; //?
+
+            var ti = rayIntersection(graph, target_center, source_center, node2_goe);
+            if (!ti)
+                ti = { x: target_center.x, y: target_center.y }; // ?
+
+            var dx = ti.x - si.x,
             dy = ti.y - si.y,
             l = Math.sqrt(dx * dx + dy * dy);
             var al = l - ah;
             
-           var arrowstart = { x: si.x + al * dx / l, y: si.y + al * dy / l };
-           graph[link_name]['geometry']['x1'] = si.x;
-           graph[link_name]['geometry']['y1'] = si.y;
-           graph[link_name]['geometry']['x2'] = ti.x;
-           graph[link_name]['geometry']['y2'] = ti.y;   
-
+            var arrowstart = { x: si.x + al * dx / l, y: si.y + al * dy / l };
+            graph[link_name]['geometry']['x1'] = si.x;
+            graph[link_name]['geometry']['y1'] = si.y;
+            graph[link_name]['geometry']['x2'] = ti.x;
+            graph[link_name]['geometry']['y2'] = ti.y;   
         }
 
         function render_graph(graph) {
@@ -475,7 +478,8 @@
                 //console.log(d);
                 return d.geometry;
               })
-              .on("drag", function(d) {                  
+              .on("drag", function(d) {
+                console.warn('move node', d.name)                 
                 d.geometry.x = d3.event.x;
                 d.geometry.y = d3.event.y;  
                 render_graph(graph);
@@ -486,7 +490,8 @@
               .origin(function(node) {
                 return node.geometry;
               })
-              .on("drag", function(node) {              
+              .on("drag", function(node) {
+                console.warn('resize node', node.name)                
                 x = d3.event.dx;
                 y = d3.event.dy;
                 change_node_size(graph, node, x, y);
@@ -506,96 +511,271 @@
             var graph_elements = graph;
 
 
+            //
+            // DRAW NODES
+            //
            
-
+            // bind
             var nodes = container.selectAll('.query-node')
                 .data(node_arr, function(d) {
                     return d.name;
+                });
+
+            // create
+            nodes.enter()
+                .append('div')
+                    .classed('query-node', true) // if type node than node is needed
+                    .style('position', 'absolute')
+                    .style('background-color', 'indianred')
+                    .attr('id', function(node) {return node['name']; })
+                    .call(drag)
+                    .call(function(node) {
+                        var node_div = this;
+
+                        var top_div = node_div.append('div')
+                            .attr('class', 'top-container')
+                            .style('position', 'absolute')
+                            .style('height', 40 + 'px')
+
+                        var middle_node_div = node_div
+                            .append('div')
+                            .attr('class', 'middle-container')
+                            .attr('id', node.name + '1')
+                            .style('position', 'absolute')
+                            .style('top', '40px')
+
+
+                        var bottom_div = node_div.append('div')
+                            .attr('class', 'bottom-container') // wtf why does this lag???
+                            .style('position', 'absolute')
+                            .style('height', 40 + 'px')
+
+
+
+                        top_div.append('div')
+                            .attr('class', 'name-container')
+                            .style('position', 'absolute')
+                            .style('height', 40 + 'px')
+                            .style('width', 40 + 'px')
+                            .style('background-color', 'white')
+                            .text( function(node) {
+                                return node.name;
+                            })
+                            .style("font-family", "sans-serif")
+                            .style("font-size", '30px');
+
+
+                        top_div.append('div')
+                            .attr('class', 'table-button')
+                            .style('position', 'absolute')
+                            .style('height', 40 + 'px')
+                            .style('width', 40 + 'px')
+                            .style('background-color', 'pink')
+
+
+                        top_div.append('div')
+                            .attr('class', 'chart-button')
+                            .style('position', 'absolute')
+                            .style('height', 40 + 'px')
+                            .style('width', 40 + 'px')
+                            .style('background-color', 'green')
+                            .on('click', function(node) {
+                                if (node['active_visualization_type'] == 'TableView') {
+                                    node['active_visualization_type'] = 'BarChartView';
+                                } else {
+                                    node['active_visualization_type'] = 'TableView';
+                                }
+                                console.log(node['active_visualization_type']);
+                                render_graph(graph);
+                                fill_tables(graph);
+                            });
+
+
+
+                        top_div.append('div')
+                            .attr('class', 'button-sprite')
+                            .style('position', 'absolute')
+                            .style('top', '-15px')
+                            .on('click', function(node) {
+                                destroy_node(graph, node);
+                            })
+
+                        bottom_div.append('div')
+                            .attr('class', 'resize-sprite')
+                            .attr('id', node.name)
+                            .style('position', 'absolute')
+                            .style('height', 40 + 'px')
+                            .style('width', 40 + 'px')
+                            .style('background-color', 'blue')
+                            .on('mousedown', function(node) {
+                                d3.event.stopPropagation();
+                            })
+                            .call(drag2);
+
+                        bottom_div.append('div')
+                            .attr('class', 'query-button')
+                            .attr('id', node.name)
+                            .style('position', 'absolute')
+                            .style('height', 40 + 'px')
+                            .style('width', 40 + 'px')
+                            .style('background-color', 'yellow')
+                            .on('click', function(node) {
+                                var query = generate_query(graph, node);
+                                console.log('query', query, node.query_param);
+                            });
+
+
+                        bottom_div.append('div')
+                            .attr('class', 'refresh-button')
+                            .attr('id', node.name)
+                            .style('position', 'absolute')
+                            .style('height', 40 + 'px')
+                            .style('width', 40 + 'px')
+                            .style('background-color', 'white')
+                            .on('click', function(node) {
+                                fill_tables(graph);
+                            });
+
+
+
+                        bottom_div.append('div')
+                            .attr('class', 'delete-selection')
+                            .attr('id', node.name)
+                            .style('position', 'absolute')
+                            .style('height', 40 + 'px')
+                            .style('width', 40 + 'px')
+                            .style('background-color', 'red')
+                            .on('click', function(node) {
+                                // delete selections
+                                node['query_param']['selection'] = [];
+                                fill_tables(graph);
+                            });
+      
+                    });
+
+
+
+            // update
+            nodes
+                .style('left', function(node) {return node.geometry.x + 'px';})
+                .style('top', function(node) {return node.geometry.y  +'px';})
+                .style('width', function(node) {return node.geometry.width +'px';})
+                .style('height', function(node) {return node.geometry.height + 'px';})
+                .call(function(node){ // updating sizes and positions
+
+                    var node_div = this;
+
+
+
+                    var top_div = node_div.select('.top-container')
+                        .style('width', function(node) {
+                            return node.geometry.width + 'px';
+                        });
+
+                    var middle_node_div = node_div.select('.middle-container')
+                        .style('width', function(node) {
+                            return node.geometry.width+ 'px';
+                        })
+                        .style('height', function(node) {
+                            return node.geometry.height - 80 + 'px';
+                        });
+
+                    var bottom_div = node_div.select('.bottom-container')
+                        .style('top', function(node) {
+                            return node.geometry.height - 40 + 'px';
+                        })
+                        .style('width', function(node) {
+                            return node.geometry.width + 'px';
+                        });
+
+
+
+                    top_div.select('.table-button')
+                        .style('left', function(node) {
+                            return node.geometry.width - 150 + 'px';
+                        });
+
+                    top_div.select('.chart-button')
+                        .style('left', function(node) {
+                            return node.geometry.width - 100 + 'px';
+                        });
+
+
+
+                    top_div.select('.button-sprite')
+                        .style('left', function(node) {
+                            return node.geometry.width - 15 + 'px';
+                        });
+
+
+                    bottom_div.select('.resize-sprite')
+                        .style('left', function(node) {
+                            return node.geometry.width - 40 + 'px';
+                        });
+
+
+                    bottom_div.select('query-button')
+                        .style('left', function(node) {
+                            return node.geometry.width - 280 + 'px';
+                        });
+
+
+                    bottom_div.select('.refresh-button')
+                        .style('left', function(node) {
+                            return node.geometry.width - 320 + 'px';
+                        });
+
+
+                    bottom_div.select('.delete-selection')
+                        .style('left', function(node) {
+                            return node.geometry.width - 390 + 'px';
+                        });
+
+
                 })
-                .style('x', function(node) {return node.geometry.x;})
-                .style('y', function(node) {return node.geometry.y;});
+                .each(function(node) { // updating container visualization
 
-
+                    var view_construct_for_view_type = {
+                        'TableView': TableView,
+                        'BarChartView': BarChartView
+                    }
                     
-             
+
+                    var node_div = d3.select(this);
+
+                    var gridContainer = node_div.select('.middle-container');
+                   // te vajag if kur paskatamies kāds ir aktīvais tips
+                    if (!node.current_visualization_view) { // ja vispār nav, ta jāizveido un jārefrešo  
+                        console.log(node.name, 'nav view string');
+                        var view_constructor = view_construct_for_view_type[node.active_visualization_type];
+                        console.log(view_constructor, view_construct_for_view_type, node.active_visualization_type, node);
+                        node.current_visualization_view = view_constructor().init(gridContainer.node(), node, graph);
+
+
+                    } else if (node.current_visualization_view.type == node.active_visualization_type) {
+                        console.log(node.name, 'refrešo eksistējošu');
+                        // jau eksistē pareizais, vajag tikai refreshot
+                        node.current_visualization_view.refresh_view_from_node();
+
+                    } else { // eksistē cits tips, to vajag aizvākt, izveidot jaunu un refreshot
+                        console.log(node.name, 'maina vizualiz');
+                        node.current_visualization_view.destroy();
+
+                        var view_constructor = view_construct_for_view_type[node.active_visualization_type];
+                        node.current_visualization_view = view_constructor().init(gridContainer.node(), node, graph);
+                       
+                    }
+                });
+
+
+            // remove
             nodes.exit()
                 .remove(); 
 
-            var top = nodes.selectAll('.top-container') // why does not this work
-                .style('height', 40 + 'px')
-                .style('width', function(node) {
-                    return node.geometry.width + 'px';
-                });
 
-            var middle = nodes.selectAll('.middle-container')
-                .style('width', function(node) {
-                    return node.geometry.width + 'px';
-                })
-                .style('height', function(node) {
-                    return node.geometry.height - 80 + 'px';
-                });
-
-            var bottom = nodes.selectAll('.bottom-container')
-                .style('width', function(node) {
-                    return node.geometry.width + 'px';
-                })
-                .style('top', function(node) {
-                    return node.geometry.height - 40 + 'px';
-                });
-
-            var refresh = nodes.selectAll('.refresh-button')
-                .style('left', function(node) {
-                    return node.geometry.width - 320 + 'px';
-                });
-
-            var info = nodes.selectAll('.query-button')
-                .style('left', function(node) {
-                    return node.geometry.width - 280 + 'px';
-                })
-
-
-            var table_button = nodes.selectAll('.table-button')
-                .style('height', 40 + 'px')
-                .style('width', 40 + 'px')
-                .style('background-color', 'pink')
-                .style('left', function(node) {
-                    return node.geometry.width - 150 + 'px';
-                });
-
-            var chart_button =  nodes.selectAll('.chart-button')
-                .style('height', 40 + 'px')
-                .style('width', 40 + 'px')
-                .style('left', function(node) {
-                    return node.geometry.width - 100 + 'px';
-                });
-
-
-
-            var sprite = nodes.selectAll('.resize-sprite')
-                .style('height', 40 + 'px')
-                .style('width', 40 + 'px')
-                .style('background-color', 'blue')
-                .style('left', function(node) {
-                    return node.geometry.width - 40 + 'px';
-                })
-
-            var delete_node = nodes.selectAll('.button-sprite')
-                .style('left', function(node) {
-                    return node.geometry.width - 15 + 'px';
-                })
-                .style('top', '-15px')
-
-
-            var grid = nodes.selectAll('.query-result-redering-container')
-                .style('left', '30px')
-                .style('width', function(node) {
-                    return node.geometry.width - 60 + 'px';
-                })
-                .style('height', function(node) {
-                    return node.geometry.height - 80 + 'px';
-                });
-
-            //console.log(nodes);
+            //
+            // DRAW EDGES
+            //
 
             // bind
             var edges = edge_canvas.selectAll('.query-edge')
@@ -611,11 +791,16 @@
                     .attr('id', function(node) {return node['name']; })
 
             // update all
-            edges.attr('d', function(d) {
-                var path = 'M' + d.geometry.x1 + ',' + d.geometry.y1 + 'L' + d.geometry.x2 + ',' + d.geometry.y2;
+            edges
+                edges.each(function(edge) {
+                    //console.log(edge.start, edge.end);
+                    updateEdgeCoordinates(graph, graph[edge.start]['geometry'], graph[edge.end]['geometry'], 5, edge.name);
+                })
+                .attr('d', function(d) {
+                    var path = 'M' + d.geometry.x1 + ',' + d.geometry.y1 + 'L' + d.geometry.x2 + ',' + d.geometry.y2;
                 //console.log(path);  
-                return path;
-            })
+                    return path;
+                })
 
             // delete removed
             edges.exit().remove()
@@ -696,247 +881,6 @@
             // remove lables
 
             lables.exit().remove();
-                    
-
-            var margin = 20;
-
-            var new_nodes = nodes
-                .enter()
-                .append('div')
-                    .classed('query-node', true) // if type node than node is needed
-                    .style('position', 'absolute')
-                    .style('left', function(node) {return node.geometry.x + 'px';})
-                    .style('top', function(node) {return node.geometry.y  +'px';})
-                    .style('width', function(node) {return node.geometry.width +'px';})
-                    .style('height', function(node) {return node.geometry.height + 'px';})
-                    .style('color', 'black')
-                    .style('background-color', 'indianred')
-                    .attr('id', function(node) {return node['name']; })
-                    .on('click', function(d) {
-                        //console.log('hi', this);
-                    })
-                    .call(drag);
-                    
-
-            nodes.classed('query-node', true)
-            .style('position', 'absolute')
-                .style('left', function(node) {return node.geometry.x + 'px';})
-                .style('top', function(node) {return node.geometry.y  +'px';})
-                .style('width', function(node) {return node.geometry.width +'px';})
-                .style('height', function(node) {return node.geometry.height + 'px';});
-
-            edges.each(function(edge) {
-                //console.log(edge.start, edge.end);
-                makeEdgeBetween(graph, graph[edge.start]['geometry'], graph[edge.end]['geometry'], 5, edge.name);
-                
-            });
-
-
-
-
-
-
-
-
-            new_nodes.each(function(node, i) {
-                var node_div = d3.select(this);
-
-                var top_div = node_div.append('div')
-                    .attr('class', 'top-container')
-                    .style('position', 'absolute')
-                    .style('height', 40 + 'px')
-                    .style('width', function(node) {
-                        return node.geometry.width + 'px';
-                    });
-
-                var middle_node_div = node_div
-                    .append('div')
-                    .attr('class', 'middle-container')
-                    .attr('id', node.name + '1')
-                    .style('position', 'absolute')
-                    .style('top', '40px')
-                    .style('width', function(node) {
-                        return node.geometry.width+ 'px';
-                    })
-                    .style('height', function(node) {
-                        return node.geometry.height - 80 + 'px';
-                    });
-
-                var bottom_div = node_div.append('div')
-                    .attr('class', 'bottom-container') // wtf why does this lag???
-                    .style('position', 'absolute')
-                    .style('height', 40 + 'px')
-                    .style('top', function(node) {
-                        return node.geometry.height - 40 + 'px';
-                    })
-                    .style('width', function(node) {
-                        return node.geometry.width + 'px';
-                    });
-
-
-                top_div.append('div')
-                    .attr('class', 'name-container')
-                    .style('position', 'absolute')
-                    .style('height', 40 + 'px')
-                    .style('width', 40 + 'px')
-                    .style('background-color', 'white')
-                    .text( function(node) {
-                        return node.name;
-                    })
-                    .style("font-family", "sans-serif")
-                    .style("font-size", '30px');
-
-
-                top_div.append('div')
-                    .attr('class', 'table-button')
-                    .style('position', 'absolute')
-                    .style('height', 40 + 'px')
-                    .style('width', 40 + 'px')
-                    .style('background-color', 'pink')
-                    .style('left', function(node) {
-                        return node.geometry.width - 150 + 'px';
-                    });
-
-                top_div.append('div')
-                    .attr('class', 'chart-button')
-                    .style('position', 'absolute')
-                    .style('height', 40 + 'px')
-                    .style('width', 40 + 'px')
-                    .style('background-color', 'green')
-                    .style('left', function(node) {
-                        return node.geometry.width - 100 + 'px';
-                    })
-                    .on('click', function(node) {
-                        if (node['active_visualization_type'] == 'TableView') {
-                            node['active_visualization_type'] = 'BarChartView';
-                        } else {
-                            node['active_visualization_type'] = 'TableView';
-                        }
-                        console.log(node['active_visualization_type']);
-                        render_graph(graph);
-                        fill_tables(graph);
-                    });
-
-
-
-                top_div.append('div')
-                    .attr('class', 'button-sprite')
-                    .style('position', 'absolute')
-                    .style('left', function(node) {
-                        return node.geometry.width - 15 + 'px';
-                    })
-                    .style('top', '-15px')
-                    .on('click', function(node) {
-
-                        //console.log(node)
-                        destroy_node(graph, node);
-                    })
-
-                bottom_div.append('div')
-                    .attr('class', 'resize-sprite')
-                    .attr('id', node.name)
-                    .style('position', 'absolute')
-                    .style('height', 40 + 'px')
-                    .style('width', 40 + 'px')
-                    .style('background-color', 'blue')
-                    .style('left', function(node) {
-                        return node.geometry.width - 40 + 'px';
-                    })
-                    .on('mousedown', function(node) {
-                        d3.event.stopPropagation();
-                    })
-                    .call(drag2);
-
-                bottom_div.append('div')
-                    .attr('class', 'query-button')
-                    .attr('id', node.name)
-                    .style('position', 'absolute')
-                    .style('height', 40 + 'px')
-                    .style('width', 40 + 'px')
-                    .style('background-color', 'yellow')
-                    .style('left', function(node) {
-                        return node.geometry.width - 280 + 'px';
-                    })
-                    .on('click', function(node) {
-                        var query = generate_query(graph, node);
-                        console.log('query', query, node.query_param);
-                    });
-
-
-                bottom_div.append('div')
-                    .attr('class', 'refresh-button')
-                    .attr('id', node.name)
-                    .style('position', 'absolute')
-                    .style('height', 40 + 'px')
-                    .style('width', 40 + 'px')
-                    .style('background-color', 'white')
-                    .style('left', function(node) {
-                        return node.geometry.width - 320 + 'px';
-                    })
-                    .on('click', function(node) {
-                        fill_tables(graph);
-                    });
-
-
-
-                bottom_div.append('div')
-                    .attr('class', 'delete-selection')
-                    .attr('id', node.name)
-                    .style('position', 'absolute')
-                    .style('height', 40 + 'px')
-                    .style('width', 40 + 'px')
-                    .style('background-color', 'red')
-                    .style('left', function(node) {
-                        return node.geometry.width - 390 + 'px';
-                    })
-                    .on('click', function(node) {
-                        // delete selections
-                        node['query_param']['selection'] = [];
-                        fill_tables(graph);
-                    });
-
-
-                
-            });
-
-
-
-            nodes.each(function(node) {
-
-                var view_construct_for_view_type = {
-                    'TableView': TableView,
-                    'BarChartView': BarChartView
-                }
-                
-
-                var node_div = d3.select(this);
-
-                var gridContainer = node_div.select('.middle-container');
-               // te vajag if kur paskatamies kāds ir aktīvais tips
-                if (!node.current_visualization_view) { // ja vispār nav, ta jāizveido un jārefrešo  
-                    console.log(node.name, 'nav view string');
-                    var view_contructor = view_construct_for_view_type[node.active_visualization_type];
-                    node.current_visualization_view = view_contructor().init(gridContainer.node(), node, graph);
-
-
-                } else if (node.current_visualization_view.type == node.active_visualization_type) {
-                    console.log(node.name, 'refrešo eksistējošu');
-                    // jau eksistē pareizais, vajag tikai refreshot
-                    node.current_visualization_view.refresh_view_from_node();
-
-                } else { // eksistē cits tips, to vajag aizvākt, izveidot jaunu un refreshot
-                    console.log(node.name, 'maina vizualiz');
-                    node.current_visualization_view.destroy();
-
-                    var view_contructor = view_construct_for_view_type[node.active_visualization_type];
-                    node.current_visualization_view = view_contructor().init(gridContainer.node(), node, graph);
-                   
-                }
-            });
-            
-            
-              
-
         }
 
         function obj_equal(obj_1, obj_2) { // nedarbojas pareizi
@@ -1549,24 +1493,18 @@
             graph[elem2.name]['incoming_lines'].push(edge_name);
             //console.log(elem1, elem2)
             graph[edge_name] = edge_template;
-            makeEdgeBetween(graph, elem1['geometry'], elem2['geometry'], 5, edge_name);
+            updateEdgeCoordinates(graph, elem1['geometry'], elem2['geometry'], 5, edge_name);
 
             render_graph(graph);
 
         }
 
-        function change_node_size(graph, node, x, y) {
-            var X = x.toString();
-            var Y = y.toString();
-            if(graph[node.name]['geometry'].width >= 350 && graph[node.name]['geometry'].height >= 300) {
-                //if(x[0] == '-')
-                graph[node.name]['geometry'].width += x;
-                graph[node.name]['geometry'].height += y;
-            } else if (X[0] != '-' && Y[0] != '-') {
-                graph[node.name]['geometry'].width += x;
-                graph[node.name]['geometry'].height += y;
-            }
-           return;
+        function change_node_size(graph, node, dx, dy) {
+            var new_width = node.geometry.width + dx;
+            var new_height = node.geometry.height + dy;
+
+            node.geometry.width =  _.max([new_width, 350]);
+            node.geometry.height =  _.max([new_height, 400]);
         }
 
         function get_selection_values(selection_obj, node) { // selection is an array
