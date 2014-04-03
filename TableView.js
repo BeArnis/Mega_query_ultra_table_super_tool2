@@ -32,42 +32,6 @@ function init(init_div, init_node, init_graph) {
         });
 
     table_grid = new Slick.Grid(gridContainer.node(), data, columns, options);
-    refresh_view_from_node();
-    return that;
-}
-
-    
-
-function refresh_view_from_node() {
-    var columns = _.map(node.columns, function(column) {
-        return { 
-            id: column_name_generator(node, column), 
-            name : column.column_label, 
-            field: column_name_generator(node, column), 
-            formatter: render_cell_data,
-            width: 330,
-            sortable: column.sort == 'ascending' || column.sort == 'descending'
-        };
-    });
-
-    
-    columns.unshift({id:node.name, name: node.name, field: node.name, formatter: render_cell_data, width: 330})
-
-    table_grid.setColumns(columns);
-
-    var sort_columns = _.chain(node.columns)
-        .filter(function(column) {
-            return column.sort == 'ascending' || column.sort == 'descending';
-        })
-        .map(function(column) {
-            return { 
-                columnId: column_name_generator(node, column), 
-                sortAsc: column.sort == 'ascending'
-            }
-        })
-        .value();
-
-    table_grid.setSortColumns(sort_columns);
 
     table_grid.onHeaderClick.subscribe(function(e, args) {
         var columnID = args.column.name;
@@ -124,6 +88,45 @@ function refresh_view_from_node() {
             fill_tables(graph);
         }
     });
+    
+    refresh_view_from_node();
+    return that;
+}
+
+    
+
+function refresh_view_from_node() {
+    var columns = _.map(node.columns, function(column) {
+        return { 
+            id: column_name_generator(node, column), 
+            name : column.column_label, 
+            field: column_name_generator(node, column), 
+            formatter: render_cell_data,
+            width: 330,
+            sortable: column.sort == 'ascending' || column.sort == 'descending'
+        };
+    });
+
+    
+    columns.unshift({id:node.name, name: node.name, field: node.name, formatter: render_cell_data, width: 330})
+
+    table_grid.setColumns(columns);
+
+    var sort_columns = _.chain(node.columns)
+        .filter(function(column) {
+            return column.sort == 'ascending' || column.sort == 'descending';
+        })
+        .map(function(column) {
+            return { 
+                columnId: column_name_generator(node, column), 
+                sortAsc: column.sort == 'ascending'
+            }
+        })
+        .value();
+
+    table_grid.setSortColumns(sort_columns);
+
+    
 }
 
 function set_data(data) { // highlight_ids

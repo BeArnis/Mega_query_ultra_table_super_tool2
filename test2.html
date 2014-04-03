@@ -976,15 +976,20 @@
                 var gridContainer = node_div.select('.middle-container');
                // te vajag if kur paskatamies kāds ir aktīvais tips
                 if (!node.current_visualization_view) { // ja vispār nav, ta jāizveido un jārefrešo  
+                    console.log(node.name, 'nav view string');
                     var view_contructor = view_construct_for_view_type[node.active_visualization_type];
                     node.current_visualization_view = view_contructor().init(gridContainer.node(), node, graph);
 
+
                 } else if (node.current_visualization_view.type == node.active_visualization_type) {
+                    console.log(node.name, 'refrešo eksistējošu');
                     // jau eksistē pareizais, vajag tikai refreshot
                     node.current_visualization_view.refresh_view_from_node();
 
                 } else { // eksistē cits tips, to vajag aizvākt, izveidot jaunu un refreshot
+                    console.log(node.name, 'maina vizualiz');
                     node.current_visualization_view.destroy();
+
                     var view_contructor = view_construct_for_view_type[node.active_visualization_type];
                     node.current_visualization_view = view_contructor().init(gridContainer.node(), node, graph);
                    
