@@ -19,12 +19,24 @@ function init(init_div, init_node, init_graph) {
     graph = init_graph;
     var data = [];
     var columns = [];
-    table_grid = new Slick.Grid(div, data, columns, options);
+    console.log(div);
+    var gridContainer = d3.select(div).append('div')   // make in table selection
+        .classed('query-result-redering-container', true)
+        .style('left', '30px')
+        .style('background-color', 'white')
+        .style('width', function(node) {
+            return node.geometry.width - 60 + 'px';
+        })
+        .style('height', function(node) {
+            return node.geometry.height - 80 + 'px';
+        });
+
+    table_grid = new Slick.Grid(gridContainer.node(), data, columns, options);
     refresh_view_from_node();
     return that;
 }
 
-
+    
 
 function refresh_view_from_node() {
     var columns = _.map(node.columns, function(column) {
@@ -125,7 +137,13 @@ function set_data(data) { // highlight_ids
 }
 
 function destroy() {
-    console.warn('destroy grid is not implemented');
+    var element = d3.select(div).select('.query-result-redering-container')
+    .remove();
+    // console.log(element);
+
+
+    // element.removeChild(element);
+    //console.warn('destroy grid is not implemented');
 }
 
 

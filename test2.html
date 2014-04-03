@@ -39,7 +39,7 @@
 
 
         <script src="./TableView.js"></script>
-
+        <script src="./BarChartView.js"></script>
 
         <script src="./slick.core.js"></script>
         <script src="./slick.formatters.js"></script>
@@ -597,6 +597,16 @@
                 .style('width', 40 + 'px')
                 .style('left', function(node) {
                     return node.geometry.width - 100 + 'px';
+                })
+                .on('click', function(node) {
+                    if (node['active_visualization_type'] == 'TableView') {
+                        node['active_visualization_type'] = 'BarChartView';
+                    } else {
+                        node['active_visualization_type'] = 'TableView';
+                    }
+                    console.log(node['active_visualization_type']);
+                    render_graph(graph);
+                    fill_tables(graph);
                 });
 
 
@@ -858,6 +868,15 @@
                     .style('background-color', 'green')
                     .style('left', function(node) {
                         return node.geometry.width - 100 + 'px';
+                    })
+                    .on('click', function(node) {
+                        if (node['active_visualization_type'] == 'TableView') {
+                            node['active_visualization_type'] = 'BarChartView';
+                        } else {
+                            node['active_visualization_type'] = 'TableView';
+                        }
+                        console.log(node['active_visualization_type']);
+                        render_graph(graph);
                     });
 
 
@@ -939,38 +958,37 @@
                     });
 
 
-                var gridContainer = middle_node_div.append('div')
-                    .classed('query-result-redering-container', true)
-                    .style('left', '30px')
-                    .style('background-color', 'white')
-                    .style('width', function(node) {
-                        return node.geometry.width - 60 + 'px';
-                    })
-                    .style('height', function(node) {
-                        return node.geometry.height - 80 + 'px';
-                    });
+                
             });
 
 
 
             nodes.each(function(node) {
 
+                var view_construct_for_view_type = {
+                    'TableView': TableView,
+                    'BarChartView': BarChartView
+                }
+                
+
                 var node_div = d3.select(this);
 
-                var gridContainer = node_div.select('.query-result-redering-container');
+                var gridContainer = node_div.select('.middle-container');
                // te vajag if kur paskatamies kāds ir aktīvais tips
-               if (!node.current_visualization_view) { // ja vispār nav, ta jāizveido un jārefrešo  
-                   node.current_visualization_view = TableView().init(gridContainer.node(), node, graph);
+                if (!node.current_visualization_view) { // ja vispār nav, ta jāizveido un jārefrešo  
+                    var view_contructor = view_construct_for_view_type[node.active_visualization_type];
+                    node.current_visualization_view = view_contructor().init(gridContainer.node(), node, graph);
 
-               } else if (node.current_visualization_view.type == node.active_visualization_type) {
-                   // jau eksistē pareizais, vajag tikai refreshot
-                   node.current_visualization_view.refresh_view_from_node();
+                } else if (node.current_visualization_view.type == node.active_visualization_type) {
+                    // jau eksistē pareizais, vajag tikai refreshot
+                    node.current_visualization_view.refresh_view_from_node();
 
-               } else { // eksistē cits tips, to vajag aizvākt, izveidot jaunu un refreshot
-                   node.current_visualization_view.destroy();
-                   node.current_visualization_view = TableView().init(gridContainer.node(), node, graph);
+                } else { // eksistē cits tips, to vajag aizvākt, izveidot jaunu un refreshot
+                    node.current_visualization_view.destroy();
+                    var view_contructor = view_construct_for_view_type[node.active_visualization_type];
+                    node.current_visualization_view = view_contructor().init(gridContainer.node(), node, graph);
                    
-               }
+                }
             });
             
             
