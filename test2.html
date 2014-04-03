@@ -567,16 +567,6 @@
                 .style('width', 40 + 'px')
                 .style('left', function(node) {
                     return node.geometry.width - 100 + 'px';
-                })
-                .on('click', function(node) {
-                    if (node['active_visualization_type'] == 'TableView') {
-                        node['active_visualization_type'] = 'BarChartView';
-                    } else {
-                        node['active_visualization_type'] = 'TableView';
-                    }
-                    console.log(node['active_visualization_type']);
-                    render_graph(graph);
-                    fill_tables(graph);
                 });
 
 
@@ -684,7 +674,7 @@
                 .data(edge_arr, function(d) {return d.name;});
 
             //create new labels
-            lables.enter()
+            lables.enter() // no need for changing values
                 .append('text')
                 .attr('class', 'text')
                 .text( function(d) {
@@ -695,7 +685,7 @@
                 .attr("fill", "balck");
 
             // update labels
-            lables
+            lables // only changing values, dont append a secong time what is in the create section
                 .attr('x', function(d) {
                     return d.geometry['x'] || (d.geometry['x2'] - 20);
                 })
@@ -824,6 +814,7 @@
                         }
                         console.log(node['active_visualization_type']);
                         render_graph(graph);
+                        fill_tables(graph);
                     });
 
 
@@ -979,47 +970,35 @@
                         offset: 0
                     },
                     function(data) {
-                        //console.log(data);
-                        var data_for_grid = [];
-                        //console.log(node.name, data);
-                        for (var i = 0; i < data.results.bindings.length; i++) {
-                            var d = (data_for_grid[i] = {});
+                        var actual_results = data.results.bindings;
+                        if (actual_results.length == 1) {
+                            // jo ja ir agregaacijs, tad pat ja ir tuksh rezultaats,
+                            // tad buus viens ieraksts kur agregaacijas kolonaas ir 0es
+                            actual_results = _.filter(actual_results, function(obj){return obj[node.name]});
+                        }
 
-                            d["col1"] = data.results.bindings[i][node.name]; // kas šis ir? 
-                            //d['col2'] = data.results.bindings[i][node.name];
-                        } 
+                        var table_objects = _.pluck(actual_results, node.name);
+                        var table_values = get_selection_values(table_objects);
+                        // var table_values = _.chain(data.results.bindings).pluck(node.name).pluck('value').value();
 
-                        var table_obj = _.map(data.results.bindings, function(obj, i) {
-                        //console.log(obj);
-                            return obj[node.name];
-                        });
 
-                        table_values = get_selection_values(table_obj);
-                        
-                        node['query_param']['selection'] = selection_intersection(node['query_param']['selection'], table_obj); // gets those values that were in the graph selection before  need change 
+                        node['query_param']['selection'] = selection_intersection(node['query_param']['selection'], table_objects); // gets those values that were in the graph selection before  need change 
 
                         
                         var selec_arr = get_selection_values(node['query_param']['selection']); // change 
 
-                        //console.log(node['query_param']['selection'], selec_arr);
 
-                        var highligth_indexes = [];
-                        _.each(selec_arr, function(selec) {
-                            //var bool = _.indexOf(table_obj, selec)
-                            var index = _.indexOf(table_values, selec)
-                            //console.log(_.indexOf(table_values, selec));
+                        var highligth_indexes = _.reduce(selec_arr, function( highligth_indexes_so_far, selected_value) {
+                            var index = _.indexOf(table_values, selected_value)
                             if(index != -1) {
-                                highligth_indexes.push(index);
+                                highligth_indexes_so_far.push(index);
                             }
-
-                        })
+                            return highligth_indexes_so_far;
+                        }, []);
                         
-                        // node['grid'].onClick.subscribe(function(cell) {
-                        //     console.log(cell);
-                        // });
                         
-                        console.log(node.name, data.results.bindings, node, node.current_visualization_view);
-                        node.current_visualization_view.set_data(data.results.bindings) 
+                        console.log(node.name, actual_results, node, node.current_visualization_view);
+                        node.current_visualization_view.set_data(actual_results) 
                         
                     })
                 });
@@ -1592,12 +1571,11 @@
 
         function get_selection_values(selection_obj, node) { // selection is an array
             if (!_.isArray(selection_obj)) {
-                var arr = [];
-                arr.push(selection_obj);            
+                var arr = [selection_obj];         
             } else {
                 var arr = selection_obj;
             }
-            var selection_value_array = _.pluck(arr, 'value');
+            var selection_value_array = _.pluck(arr, 'value'); // XXXXX
             //console.log(selection_obj, selection_value_array);
             if (selection_value_array.length == 0) {
                 return [];
@@ -1659,10 +1637,8 @@
             }
 
             var intersect = _.reduce(A, function(intersection_so_far, a) {
-                if(_.find(B, function(b) {
-                    return _.isEqual(a,b);
-                })) {
-                    intersection_so_far.push(a); // could be not
+                if(_.find(B, function(b){return _.isEqual(a,b);})) {
+                    intersection_so_far.push(a);
                     return intersection_so_far;
                 } else {
                     return intersection_so_far;
@@ -1676,7 +1652,6 @@
 
         function selection_to_obj(selection, obj_arr, node) {
             var return_value = [];
-            //var selection_values = get_selection_values(selection[node.name]);
 
             return_value = _.filter(obj_arr, function(obj) {
                 //console.log(selection, obj[node.name]['value']);
