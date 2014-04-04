@@ -38,7 +38,7 @@ function init(init_div, init_node, init_graph) {
 	yAxis = d3.svg.axis()
 	    .scale(y)
 	    .orient("left")
-	    .ticks(10, "%");
+	    .ticks(10);
 
 
 
@@ -107,12 +107,34 @@ function refresh_view_from_node() {
 
 function set_data(data) { // highlight_ids
 
-	var data = [{name: 'A', value: .10 },
-	{name: 'B', value: .30 },
-	{name: 'C', value: .60 },
-	{name: 'D', value: .90 },
-	{name: 'E', value: .39 },
-	{name: 'F', value: .15 }];
+	//console.log(data);
+
+	var data2nd = _.chain(data)
+		.map(function(obj) {
+		return obj['t2_l1']; // dirty hack, only works for t2 for now
+		})
+		.pluck('value')
+		.value();	
+
+	//var numbers = _.pluck(data2nd, 'value');
+	//console.log(data2nd);
+
+	var data = _.map(data2nd, function(str_num, i) {
+		var obj = {
+			name: 'A' + i,
+			value: parseInt(str_num)
+		}
+		return obj;
+	});
+
+	//console.log(data3rd);
+
+	// var data = [{name: 'A', value: .10 },
+	// {name: 'B', value: .30 },
+	// {name: 'C', value: .60 },
+	// {name: 'D', value: .90 },
+	// {name: 'E', value: .39 },
+	// {name: 'F', value: .15 }];
 
 
     x.domain(data.map(function(d) { return d.name; }));
@@ -123,21 +145,30 @@ function set_data(data) { // highlight_ids
 	yAxis_g
 		.call(yAxis);
 
-
-	svg.selectAll(".bar")
+	// bind
+	var chart = svg.selectAll(".bar")
 	      .data(data)
-	    .enter().append("rect")
+
+	//create
+	chart.enter()
+		.append("rect")
 	      .attr("class", "bar")
-	      .attr("x", function(d) { return x(d.name); })
+	      
+
+	//update
+	chart.attr("x", function(d) { return x(d.name); })
 	      .attr("width", x.rangeBand())
 	      .attr("y", function(d) { return y(d.value); })
 	      .attr("height", function(d) { return height - y(d.value); });
+
+	//remove
+	chart.exit().remove();
+
 }
 
 function destroy() { // 
 	var element = d3.select(div).select('.chart-container')
     .remove();
-    //console.warn('destroy grid is not implemented');
 }
 
 
