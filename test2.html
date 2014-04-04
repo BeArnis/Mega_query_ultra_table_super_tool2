@@ -189,7 +189,7 @@
             var start_node = edge['start'];
             var end_node = edge['end'];
 
-            console.log('swap', edge.name, graph[start_node], graph[end_node]);
+            //console.log('swap', edge.name, graph[start_node], graph[end_node]);
             
             if((_.contains(graph[start_node]['incoming_lines'], edge.name)) && !(_.contains(graph[end_node]['incoming_lines'], edge.name))) {
                 graph[start_node]['incoming_lines'] = _.without(graph[start_node]['incoming_lines'], edge.name);
@@ -223,7 +223,7 @@
         }
 
         function make_marker() {
-            console.log(this)
+            //console.log(this)
             var edge_canvas = this;
             edge_canvas.selectAll('marker')
                 .remove();
@@ -350,7 +350,7 @@
                         return;
                     }
                     if( edge.end == node.name) {
-                        console.log(edge.start, node.name);
+                        //console.log(edge.start, node.name);
                         graph[edge.start]['incoming_lines'] = _.without(graph[edge.start]['incoming_lines'], edge.name);
                         delete graph[edge.name];
                         return;
@@ -369,10 +369,10 @@
 
             })
 
-            console.log(need_to_delete_these_edges);
+            //console.log(need_to_delete_these_edges);
             //delete_edges_after_nodes(graph, need_to_delete_these_edges);
 
-            console.log(need_to_delete_these_edges);
+            //console.log(need_to_delete_these_edges);
             //graph = _.omit(graph, node.name);
             //console.log(node.name, graph);
             render_graph(graph);
@@ -471,33 +471,43 @@
             graph[link_name]['geometry']['y2'] = ti.y;   
         }
 
-        function render_graph(graph) {
-
-            drag = d3.behavior.drag()
+        var drag = d3.behavior.drag()
               .origin(function(d) {
                 //console.log(d);
                 return d.geometry;
               })
               .on("drag", function(d) {
-                console.warn('move node', d.name)                 
+                // console.warn('move node', d.name)                 
                 d.geometry.x = d3.event.x;
                 d.geometry.y = d3.event.y;  
-                render_graph(graph);
+                render_graph(example_graph);
               });
 
-
-            drag2 = d3.behavior.drag()
+        counter = 1;
+        var resize = d3.behavior.drag()
               .origin(function(node) {
-                return node.geometry;
+                console.log(node.geometry)
+                // return node.geometry;
+                return {
+                    x: node.geometry.width,
+                    y: node.geometry.height
+                }
               })
               .on("drag", function(node) {
-                console.warn('resize node', node.name)                
-                x = d3.event.dx;
-                y = d3.event.dy;
-                change_node_size(graph, node, x, y);
-                console.log(x, y);
-                render_graph(graph);
+                counter = counter + 1;
+                console.warn('resize node', counter)                
+                new_width = d3.event.x;
+                new_height = d3.event.y;
+
+                node.geometry.width = Math.max(new_width, 350);
+                node.geometry.height = Math.max(new_height, 350);
+
+                render_graph(example_graph);
               });
+
+        function render_graph(graph) {
+
+
 
 
             var node_arr = _.filter(graph, function(obj) {
@@ -610,7 +620,7 @@
                             .on('mousedown', function(node) {
                                 d3.event.stopPropagation();
                             })
-                            .call(drag2);
+                            .call(resize);
 
                         bottom_div.append('div')
                             .attr('class', 'query-button')
@@ -746,19 +756,19 @@
                     var gridContainer = node_div.select('.middle-container');
                    // te vajag if kur paskatamies kāds ir aktīvais tips
                     if (!node.current_visualization_view) { // ja vispār nav, ta jāizveido un jārefrešo  
-                        console.log(node.name, 'nav view string');
+                        //onsole.log(node.name, 'nav view string');
                         var view_constructor = view_construct_for_view_type[node.active_visualization_type];
-                        console.log(view_constructor, view_construct_for_view_type, node.active_visualization_type, node);
+                        
                         node.current_visualization_view = view_constructor().init(gridContainer.node(), node, graph);
 
 
                     } else if (node.current_visualization_view.type == node.active_visualization_type) {
-                        console.log(node.name, 'refrešo eksistējošu');
+                        //console.log(node.name, 'refrešo eksistējošu');
                         // jau eksistē pareizais, vajag tikai refreshot
                         node.current_visualization_view.refresh_view_from_node();
 
                     } else { // eksistē cits tips, to vajag aizvākt, izveidot jaunu un refreshot
-                        console.log(node.name, 'maina vizualiz');
+                        //console.log(node.name, 'maina vizualiz');
                         node.current_visualization_view.destroy();
 
                         var view_constructor = view_construct_for_view_type[node.active_visualization_type];
@@ -793,12 +803,12 @@
             // update all
             edges
                 edges.each(function(edge) {
-                    //console.log(edge.start, edge.end);
+                
                     updateEdgeCoordinates(graph, graph[edge.start]['geometry'], graph[edge.end]['geometry'], 5, edge.name);
                 })
                 .attr('d', function(d) {
                     var path = 'M' + d.geometry.x1 + ',' + d.geometry.y1 + 'L' + d.geometry.x2 + ',' + d.geometry.y2;
-                //console.log(path);  
+                
                     return path;
                 })
 
@@ -825,25 +835,24 @@
             // update all
             red_edges
                 .attr('d', function(d) {
-                    //console.log(d);
+                    
                     if(d.geometry.x1 == d.geometry.x2) {
                         var path = 'M' + (d.geometry.x1 + 20) + ',' + d.geometry.y1 + 'L' + (d.geometry.x2 + 20) + ',' + d.geometry.y2;
                     }else {
                         var path = 'M' + d.geometry.x1 + ',' + (d.geometry.y1 - 20) + 'L' + d.geometry.x2 + ',' + (d.geometry.y2 - 20);
                     }
                     
-                    //console.log(d);  
+                    
                     return path;
                 })
                 .attr('marker-end', function(edge) {
-                    //console.log(edge, graph);
+                    
                     if(_.contains(graph[edge.end]['incoming_lines'], edge.name)) {
                         return 'url(#link_path_end_red)';
                     }
                     else return '';
                 })
                 .attr('marker-start', function(edge) {
-                    //console.log(edge, graph);
                     if(_.contains(graph[edge.start]['incoming_lines'], edge.name)) {
                         return 'url(#link_path_start)';
                     }
