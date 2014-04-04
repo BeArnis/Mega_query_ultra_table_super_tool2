@@ -109,23 +109,27 @@ function set_data(data) { // highlight_ids
 
 	//console.log(data);
 
-	var data2nd = _.chain(data)
-		.map(function(obj) {
-		return obj['t2_l1']; // dirty hack, only works for t2 for now
-		})
-		.pluck('value')
-		.value();	
+	var column = _.find(node.columns, function(column) {
+		return column.id == node.visualization_defs.BarChartView.properties.y_axis_column;
+	})
+	var column_name = column_name_generator(node, column);
+	console.log(column_name, column);
 
-	//var numbers = _.pluck(data2nd, 'value');
-	//console.log(data2nd);
+	// var data2nd = _.chain(data)
+	// 	.pluck(column_name)
+	// 	.pluck('value')
+	// 	.value();	
 
-	var data = _.map(data2nd, function(str_num, i) {
-		var obj = {
-			name: 'A' + i,
-			value: parseInt(str_num)
-		}
-		return obj;
-	});
+	// //var numbers = _.pluck(data2nd, 'value');
+	// //console.log(data2nd);
+
+	// var data = _.map(data2nd, function(str_num, i) {
+	// 	var obj = {
+	// 		name: 'A' + i,
+	// 		value: parseInt(str_num)
+	// 	}
+	// 	return obj;
+	// });
 
 	//console.log(data3rd);
 
@@ -136,9 +140,17 @@ function set_data(data) { // highlight_ids
 	// {name: 'E', value: .39 },
 	// {name: 'F', value: .15 }];
 
+	function get_x_value(d) {
+		return d[node.name].value;
+	}
 
-    x.domain(data.map(function(d) { return d.name; }));
-    y.domain([0, d3.max(data, function(d) { return d.value;})]);
+	function get_y_value(d) {
+		return parseInt(d[column_name].value);
+	}
+
+
+    x.domain(data.map(get_x_value));
+    y.domain([0, d3.max(data, get_y_value)]);
 
 	xAxis_g
 		.call(xAxis);
@@ -146,30 +158,54 @@ function set_data(data) { // highlight_ids
 		.call(yAxis);
 
 	// bind
-	var chart = svg.selectAll(".bar")
+	var bars = svg.selectAll(".bar")
 	      .data(data)
 
 	//create
-	chart.enter()
+	bars.enter()
 		.append("rect")
 	      .attr("class", "bar")
 	      
 
 	//update
-	chart.attr("x", function(d) { return x(d.name); })
+	bars.attr("x", function(d) { return x(get_x_value(d)); })
 	      .attr("width", x.rangeBand())
-	      .attr("y", function(d) { return y(d.value); })
-	      .attr("height", function(d) { return height - y(d.value); });
+	      .attr("y", function(d) { return y(get_y_value(d)); })
+	      .attr("height", function(d) { return height - y(get_y_value(d)); });
 
 	//remove
-	chart.exit().remove();
+	bars.exit().remove();
 
-}
 
-function destroy() { // 
-	var element = d3.select(div).select('.chart-container')
-    .remove();
-}
+
+
+	svg.append("g")
+	    .attr("class", "brush")
+	    .call(d3.svg.brush().x(x)
+	    .on("brushstart", brushstart)
+	    .on("brush", brushmove)
+	    .on("brushend", brushend))
+	  .selectAll("rect")
+	    .attr("height", height);
+
+	function brushstart() {
+	  svg.classed("selecting", true);
+	}
+
+	function brushmove() {
+	  var s = d3.event.target.extent();
+	  symbol.classed("selected", function(d) { return s[0] <= (d = x(d)) && d <= s[1]; });
+	}
+
+	function brushend() {
+	  svg.classed("selecting", !d3.event.target.empty());
+	}
+	}
+
+	function destroy() { // 
+		var element = d3.select(div).select('.chart-container')
+	    .remove();
+	}
 
 
 that = {

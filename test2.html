@@ -144,6 +144,21 @@
               display: none;
             }
 
+            .brush .extent {
+              stroke: #fff;
+              fill-opacity: .125;
+              shape-rendering: crispEdges;
+            }
+
+            .selecting path {
+  fill-opacity: .2;
+}
+
+.selecting path.selected {
+  stroke: #f00;
+  stroke-width: 2px;
+}
+
           </style>
 
     </head>
@@ -157,6 +172,7 @@
 
 
 <script type='text/javascript'>
+
 
         var conn = new Stardog.Connection();
             conn.setEndpoint('http://localhost:5820/'); 
@@ -538,7 +554,8 @@
                     .style('position', 'absolute')
                     .style('background-color', 'indianred')
                     .attr('id', function(node) {return node['name']; })
-                    .call(drag)
+                    //.call(drag)
+
                     .call(function(node) {
                         var node_div = this;
 
@@ -546,6 +563,7 @@
                             .attr('class', 'top-container')
                             .style('position', 'absolute')
                             .style('height', 40 + 'px')
+                            .call(drag);
 
                         var middle_node_div = node_div
                             .append('div')
@@ -559,6 +577,7 @@
                             .attr('class', 'bottom-container') // wtf why does this lag???
                             .style('position', 'absolute')
                             .style('height', 40 + 'px')
+                            
 
 
 
@@ -1091,6 +1110,7 @@
                     'columns' : [
                         {
                             // data property
+                            'id' : '86ee15e2-2415-4b01-93f9-1fd9b8656d6f',
                             'type' : 'direct',
                             'column_label' : 'label1',
                             'property_name' : 'rdfs:label',
@@ -1098,6 +1118,7 @@
                         },
                         {
                             // data property
+                            'id' : 'aeac50f1-7173-4330-80d3-2afb0f991726',
                             'type' : 'direct',
                             'column_label' : 'label2',
                             'property_name' : '<http://example.com/ontology1#wife>',
@@ -1127,13 +1148,14 @@
                         },
                         'BarChartView' : {
                             'properties':{
-                                'y_axis_column' : '??'
+                                'y_axis_column' : '01ca3ae0-b85c-409b-97a7-6dca85860f88'
                             }
                         }
                     },
                     'columns' : [
                         {
                             // data property
+                            'id' : 'e11a9728-47a6-4e58-a9e8-5f897ab8223d',
                             'type' : 'direct',
                             'column_label' : 'label',
                             'property_name' : 'rdfs:label',
@@ -1141,6 +1163,7 @@
                         },
                         {
                             // data property
+                            'id' : 'e8727bc7-1279-4fb0-897a-84c6f73abce8',
                             'type' : 'aggregate',
                             'column_label' : 'count_l1',
                             'aggregation_function': 'count',
@@ -1149,6 +1172,7 @@
                         },
                         {
                             // data property
+                            'id' : '01ca3ae0-b85c-409b-97a7-6dca85860f88',
                             'type' : 'aggregate',
                             'column_label' : 'count_t1',
                             'aggregation_function': 'count',
@@ -1187,6 +1211,7 @@
                     'columns' : [
                         {
                             // data property
+                            'id' : 'b67cd1b3-fce5-4461-9d4e-d798cda96c60',
                             'type' : 'direct',
                             'column_label' : 'label',
                             'property_name' : 'rdfs:label',
@@ -1194,6 +1219,7 @@
                         },
                         {
                             // data property
+                            'id' : 'c3bb4b62-cd8b-4125-87d2-1409a01039e9',
                             'type' : 'aggregate',
                             'column_label' : 'count',
                             'aggregation_function': 'count',
@@ -1612,6 +1638,13 @@
                 return return_value; // need better neme
             }
             })
+        }
+
+        function guid() { // taken from http://stackoverflow.com/a/2117523
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+               var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+               return v.toString(16);
+            });
         }
         </script>
     
