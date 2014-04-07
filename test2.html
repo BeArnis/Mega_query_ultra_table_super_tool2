@@ -150,14 +150,9 @@
               shape-rendering: crispEdges;
             }
 
-            .selecting path {
-  fill-opacity: .2;
-}
-
-.selecting path.selected {
-  stroke: #f00;
-  stroke-width: 2px;
-}
+            .selected {
+              fill: red;
+            }
 
           </style>
 
@@ -194,7 +189,7 @@
                 var x = d3.mouse(this)[0];
                 var y = d3.mouse(this)[1];
                 if(this == d3.event.target) {
-                    make_node(graph, x, y);
+                    make_node(example_graph, x, y);
                 }
                 
                 //console.log('hi', this, d3.event.target);
@@ -487,39 +482,79 @@
             graph[link_name]['geometry']['y2'] = ti.y;   
         }
 
-        var drag = d3.behavior.drag()
-              .origin(function(d) {
-                //console.log(d);
-                return d.geometry;
-              })
-              .on("drag", function(d) {
-                // console.warn('move node', d.name)                 
-                d.geometry.x = d3.event.x;
-                d.geometry.y = d3.event.y;  
-                render_graph(example_graph);
-              });
+        // var drag = d3.behavior.drag()
+        //       .origin(function(d) {
+        //         //console.log(d);
+        //         return d.geometry;
+        //       })
+        //       .on("drag", function(d) {
+        //         // console.warn('move node', d.name)                 
+        //         d.geometry.x = d3.event.x;
+        //         d.geometry.y = d3.event.y;  
+        //         render_graph(example_graph);
+        //       });
 
-        counter = 1;
-        var resize = d3.behavior.drag()
-              .origin(function(node) {
-                console.log(node.geometry)
-                // return node.geometry;
-                return {
-                    x: node.geometry.width,
-                    y: node.geometry.height
-                }
-              })
-              .on("drag", function(node) {
-                counter = counter + 1;
-                console.warn('resize node', counter)                
-                new_width = d3.event.x;
-                new_height = d3.event.y;
+        // counter = 1;
+        // var resize = d3.behavior.drag()
+        //       .origin(function(node) {
+        //         console.log(node.geometry)
+        //         // return node.geometry;
+        //         return {
+        //             x: node.geometry.width,
+        //             y: node.geometry.height
+        //         }
+        //       })
 
-                node.geometry.width = Math.max(new_width, 350);
-                node.geometry.height = Math.max(new_height, 350);
+        //       .on("drag", function(node) {
+        //         counter = counter + 1;
+        //         console.warn('resize node', counter)                
+        //         new_width = d3.event.x;
+        //         new_height = d3.event.y;
 
-                render_graph(example_graph);
-              });
+        //         node.geometry.width = Math.max(new_width, 350);
+        //         node.geometry.height = Math.max(new_height, 350);
+
+        //         render_graph(example_graph);
+        //       });
+
+        var drag_type
+        var ultimate_drag = d3.behavior.drag()
+          .origin(function(d){
+            // console.log("ultimate_drag start", d3.event)
+            var srcElement = d3.select(d3.event.srcElement)
+            if (srcElement.classed('resize-sprite')) {
+              drag_type = 'resize';
+              console.log(drag_type);
+              return {
+                x:d.geometry.width,
+                y:d.geometry.height
+              };
+            } else if (srcElement.classed('top-container')) {
+              drag_type = 'move';
+              //console.log(drag_type, d);
+              return d.geometry;
+            } else {
+                console.log(drag_type);
+              console.error("unknown src class")
+            }
+          })
+          .on("drag", function(d){
+            // console.log("ultimate_drag", this, d3.event)
+            if (drag_type == 'resize') {
+                
+              d.geometry.width = Math.max(d3.event.x, 500);
+              d.geometry.height = Math.max(d3.event.y, 300);
+            } else if (drag_type == 'move') {
+                console.log(d.geometry, d3.event);
+              d.geometry.x = d3.event.x;
+              d.geometry.y = d3.event.y;
+            } else {
+              console.error("unknown src class")
+            }
+            // sleep(100)
+            render_graph(example_graph);
+          })
+
 
         function render_graph(graph) {
 
@@ -554,6 +589,7 @@
                     .style('position', 'absolute')
                     .style('background-color', 'indianred')
                     .attr('id', function(node) {return node['name']; })
+                    .call(ultimate_drag)
                     //.call(drag)
 
                     .call(function(node) {
@@ -563,7 +599,7 @@
                             .attr('class', 'top-container')
                             .style('position', 'absolute')
                             .style('height', 40 + 'px')
-                            .call(drag);
+                            
 
                         var middle_node_div = node_div
                             .append('div')
@@ -636,10 +672,10 @@
                             .style('height', 40 + 'px')
                             .style('width', 40 + 'px')
                             .style('background-color', 'blue')
-                            .on('mousedown', function(node) {
-                                d3.event.stopPropagation();
-                            })
-                            .call(resize);
+                            // .on('mousedown', function(node) {
+                            //     d3.event.stopPropagation();
+                            // })
+                            .call(ultimate_drag);
 
                         bottom_div.append('div')
                             .attr('class', 'query-button')
@@ -1026,7 +1062,7 @@
                         return column.sort == 'ascending' || column.sort == 'descending';
                     })// visus kam ir asc desc
                     .map(function(column) {
-                        console.log(column);
+                        //console.log(column);
                         if(column.sort == 'ascending' && column.type == 'aggregate') { // only if type == aggregate
                             return 'ASC(?' + node.name + '_' + column.what_to_aggregate + ')';
                         }else if(column.type == 'aggregate'){
@@ -1039,7 +1075,7 @@
                     })
                     .value();
 
-            console.log(query_sort_array);
+            //console.log(query_sort_array);
 
 
             function add_order_by (query_sort_array) {
