@@ -211,30 +211,27 @@
 
                 graph[end_node]['incoming_lines'].push(edge.name);
             
-                render_graph(graph)
-
-                return;
 
             } else if(!(_.contains(graph[start_node]['incoming_lines'], edge.name)) && (_.contains(graph[end_node]['incoming_lines'], edge.name))) {
                 graph[start_node]['incoming_lines'].push(edge.name);
 
-                render_graph(graph)
 
-                return;
             }else if((_.contains(graph[start_node]['incoming_lines'], edge.name)) && (_.contains(graph[end_node]['incoming_lines'], edge.name))) {
                 graph[start_node]['incoming_lines'] = _.without(graph[start_node]['incoming_lines'], edge.name);
                 graph[end_node]['incoming_lines'] = _.without(graph[end_node]['incoming_lines'], edge.name);
 
-                render_graph(graph)
 
-                return;
+
+                
             }else if(!(_.contains(graph[start_node]['incoming_lines'], edge.name)) && !(_.contains(graph[end_node]['incoming_lines'], edge.name))) {
                 graph[start_node]['incoming_lines'].push(edge.name);
 
-                render_graph(graph)
 
-                return;
-            }   
+
+                
+            }  
+            render_graph(graph)
+            fill_tables(graph);
         }
 
         function make_marker() {
@@ -307,6 +304,8 @@
 
         function make_node(graph, x, y) {
 
+            //guid()
+
             var table_name = 't' + get_max_element_number(graph, 'node');
             //table_name
             var temp = {
@@ -324,17 +323,29 @@
                         'width' : 1010,
                         'height' : 500,
                     },
-                    'columns' : [
-                        {
-                            // data property
-                            'column_label' : 'label',
-                            'property_name' : 'rdfs:label'
+                    'active_visualization_type' : 'TableView', // must be one of keys in visualization_defs
+                    'visualization_defs' : {
+                        'TableView' : {
+
+                        },
+                        'BarChartView' : {
+                            'properties':{
+                                'y_axis_column' : '??'
+                            }
                         }
+                    },
+                    'columns' : [
+                        // {
+                        //     // data property
+                        //     'column_label' : 'label',
+                        //     'property_name' : 'rdfs:label'
+                        // }
                     ]
                 }
             graph[table_name] = temp;
 
             render_graph(graph);
+            fill_tables(graph);
 
         }
 
@@ -673,6 +684,16 @@
                                 destroy_node(graph, node);
                             })
 
+                        top_div.append('div')
+                            .attr('class', 'input-window')
+                            .style('position', 'absolute')
+                            .style('height', 40 + 'px')
+                            .style('width', 40 + 'px')
+                            .style('background-color', 'blue')
+                            .on('click', function(node) {
+                               input_info();
+                            })
+
                         bottom_div.append('div')
                             .attr('class', 'resize-sprite')
                             .attr('id', node.name)
@@ -694,7 +715,7 @@
                             .style('background-color', 'yellow')
                             .on('click', function(node) {
                                 var query = generate_query(graph, node);
-                                console.log('query', query, node.query_param);
+                                console.log('query: \n', query, '\n', node.query_param);
                             });
 
 
@@ -780,6 +801,11 @@
                             return node.geometry.width - 15 + 'px';
                         });
 
+                     top_div.select('.input-window')
+                        .style('left', function(node) {
+                            return node.geometry.width - 50 + 'px';
+                        });    
+                        
 
                     bottom_div.select('.resize-sprite')
                         .style('left', function(node) {
@@ -1446,9 +1472,16 @@
             var type_filter_input = get_type_filter_input(node);
             //console.log(type_filter_input);
             if (type_filter_input) {
-            pattern = '?' + node.name + ' a <' + type_filter_input + '> .\n';
+
+                pattern = '?' + node.name + ' a <' + type_filter_input + '> .\n';
+
             } else {
-            pattern = '{?' + node.name + ' ?p ?o} UNION {?s ?' + node.name + '  ?o} UNION {?s ?p ?' + node.name + ' } .';
+                patter_template = _.template('{ ?<%= name %> ?p ?o } UNION { ?s' 
+                    + ' ?<%= name %>  ?o } UNION {?s ?p ?<%= name %> } .');
+                    
+                pattern = patter_template({
+                    name: node.name
+                });               
             }
 
             return pattern;
@@ -1569,6 +1602,7 @@
             updateEdgeCoordinates(graph, elem1['geometry'], elem2['geometry'], 5, edge_name);
 
             render_graph(graph);
+            fill_tables(graph);
 
         }
 
@@ -1683,6 +1717,19 @@
                var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
                return v.toString(16);
             });
+        }
+
+        function input_info()
+        {
+            var name=prompt("Please enter your name","")
+            var Age=prompt("Please enter your Age","")
+            if (name!=null && name!="")
+            {
+                if (Age != null && Age != "")
+                {
+                    document.write("Hello " + name + "! Your age is "+ Age);
+                }
+            }
         }
         </script>
     
