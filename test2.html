@@ -154,6 +154,10 @@
               fill: red;
             }
 
+            .selected_bar {
+                fill:red;
+            }
+
           </style>
 
     </head>
@@ -517,7 +521,7 @@
         //         render_graph(example_graph);
         //       });
 
-        var drag_type
+        var drag_type;
         var ultimate_drag = d3.behavior.drag()
           .origin(function(d){
             // console.log("ultimate_drag start", d3.event)
@@ -534,8 +538,11 @@
               //console.log(drag_type, d);
               return d.geometry;
             } else {
-                console.log(drag_type);
-              console.error("unknown src class")
+                
+              return {
+                x: 0,
+                y: 0
+              };
             }
           })
           .on("drag", function(d){
@@ -549,7 +556,8 @@
               d.geometry.x = d3.event.x;
               d.geometry.y = d3.event.y;
             } else {
-              console.error("unknown src class")
+              //console.error("unknown src class")
+              return; // we end to avoide render_graph
             }
             // sleep(100)
             render_graph(example_graph);
@@ -978,6 +986,7 @@
                         offset: 0
                     },
                     function(data) {
+                        console.log(node['query_param']['selection']);
                         var actual_results = data.results.bindings;
                         if (actual_results.length == 1) {
                             // jo ja ir agregaacijs, tad pat ja ir tuksh rezultaats,
@@ -985,27 +994,20 @@
                             actual_results = _.filter(actual_results, function(obj){return obj[node.name]});
                         }
 
-                        var table_objects = _.pluck(actual_results, node.name);
-                        var table_values = get_selection_values(table_objects);
+                        var first_collum_obj = _.pluck(actual_results, node.name);
+                        var table_values = get_selection_values(first_collum_obj);
                         // var table_values = _.chain(data.results.bindings).pluck(node.name).pluck('value').value();
 
 
-                        node['query_param']['selection'] = selection_intersection(node['query_param']['selection'], table_objects); // gets those values that were in the graph selection before  need change 
+                        node['query_param']['selection'] = selection_intersection(node['query_param']['selection'], first_collum_obj); // gets those values that were in the graph selection before  need change 
 
                         
-                        var selec_arr = get_selection_values(node['query_param']['selection']); // change 
+                        
 
 
-                        var highligth_indexes = _.reduce(selec_arr, function( highligth_indexes_so_far, selected_value) {
-                            var index = _.indexOf(table_values, selected_value)
-                            if(index != -1) {
-                                highligth_indexes_so_far.push(index);
-                            }
-                            return highligth_indexes_so_far;
-                        }, []);
                         
                         
-                        console.log(node.name, actual_results, node, node.current_visualization_view);
+                        //console.log(node.name, actual_results, node, node.current_visualization_view);
                         node.current_visualization_view.set_data(actual_results) 
                         
                     })

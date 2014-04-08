@@ -19,6 +19,13 @@ var xAxis_g, yAxis_g;
 var height, width;
 var margin = {top: 40, right: 40, bottom: 40, left: 40}
 
+var brush, brush_g;
+
+var bar_start_and_end_coord_x;
+
+var data;
+
+
 function init(init_div, init_node, init_graph) {
     div = init_div;
     node = init_node;
@@ -72,16 +79,75 @@ function init(init_div, init_node, init_graph) {
 	  .attr("class", "y axis");
 
 
+	brush = d3.svg.brush()
+		.on("brushend", brushend)
+	    .on("brushstart", brushstart)
+	    .on("brush", brushmove);
 
+
+
+
+	//create
+	brush_g = svg.append("g")
+		.attr("class", "brush");
+
+	brush_g
+		.append('rect');
 
 	  
-
+	
 
     refresh_view_from_node();
     return that;
 }
 
 
+function brushstart() {
+}
+
+function brushmove() {
+	
+}
+
+function brushend() {
+
+	console.log(brush.extent());
+	//svg.classed("selecting", !d3.event.target.empty());
+	if (!d3.event.sourceEvent) return; // only transition after input
+	var extent0 = brush.extent(),
+		extent1 = [];
+
+	// if empty when rounded, use floor & ceil instead
+
+	var selected =  x.domain().filter(function(d){ 
+		return (brush.extent()[0] - x.rangeBand() <= x(d)) && (x(d) <= (brush.extent()[1]))
+	});
+
+	var bar_obj_selection = _.chain(data)
+		.filter(function(d) {
+			return _.indexOf(selected, d[node.name].value) != -1;
+		})
+		.pluck(node.name)
+		.value();
+
+	console.log('d', bar_obj_selection);
+	extent1[0] = x(selected[0]);
+	extent1[1] = x(selected[selected.length - 1]) + x.rangeBand();
+
+	//console.log(node.query_param.selected);
+	//console.log(selected, node.query_param['selected']);
+		
+	d3.select(this).transition()
+		.call(brush.extent(extent1))
+		.call(brush.event)
+
+
+	if(!obj_equal(bar_obj_selection, node.query_param['selection'])) {
+        node.query_param['selection'] = bar_obj_selection; // add selected to node
+        // rect.remove();
+        fill_tables(graph);
+    };
+}	
 
 function refresh_view_from_node() {
 
@@ -105,7 +171,8 @@ function refresh_view_from_node() {
     //console.warn('refresh_view_from_node is not implemented');
 }
 
-function set_data(data) { // highlight_ids
+function set_data(new_data) { // highlight_ids
+	data = new_data;
 
 	//console.log(data);
 
@@ -115,30 +182,6 @@ function set_data(data) { // highlight_ids
 	var column_name = column_name_generator(node, column);
 	console.log(column_name, column);
 
-	// var data2nd = _.chain(data)
-	// 	.pluck(column_name)
-	// 	.pluck('value')
-	// 	.value();	
-
-	// //var numbers = _.pluck(data2nd, 'value');
-	// //console.log(data2nd);
-
-	// var data = _.map(data2nd, function(str_num, i) {
-	// 	var obj = {
-	// 		name: 'A' + i,
-	// 		value: parseInt(str_num)
-	// 	}
-	// 	return obj;
-	// });
-
-	//console.log(data3rd);
-
-	// var data = [{name: 'A', value: .10 },
-	// {name: 'B', value: .30 },
-	// {name: 'C', value: .60 },
-	// {name: 'D', value: .90 },
-	// {name: 'E', value: .39 },
-	// {name: 'F', value: .15 }];
 
 	function get_x_value(d) {
 		return d[node.name].value;
@@ -149,8 +192,8 @@ function set_data(data) { // highlight_ids
 	}
 
 
-    x.domain(data.map(get_x_value));
-    y.domain([0, d3.max(data, get_y_value)]);
+    var xmap = x.domain(data.map(get_x_value));
+    var ymap = y.domain([0, d3.max(data, get_y_value)]);
 
 	xAxis_g
 		.call(xAxis);
@@ -159,53 +202,72 @@ function set_data(data) { // highlight_ids
 
 	// bind
 	var bars = svg.selectAll(".bar")
-	      .data(data)
+		.data(data)
 
 	//create
 	bars.enter()
 		.append("rect")
-	      .attr("class", "bar")
+	    	.classed('bar', true)
+	      
+
 	      
 
 	//update
 	bars.attr("x", function(d) { return x(get_x_value(d)); })
-	      .attr("width", x.rangeBand())
-	      .attr("y", function(d) { return y(get_y_value(d)); })
-	      .attr("height", function(d) { return height - y(get_y_value(d)); });
+		.attr("width", x.rangeBand())
+		.attr("y", function(d) { return y(get_y_value(d)); })
+		.attr("height", function(d) { return height - y(get_y_value(d)); })
+		.classed('selected_bar', function(bar) {
+			//console.log(_.pluck(node.query_param.selection, 'value'), bar[node.name].value)
+			return _.contains(_.pluck(node.query_param.selection, 'value'), bar[node.name].value)
+		});
 
 	//remove
 	bars.exit().remove();
 
 
+	//
+	// BRUSH UPDATE
+
+	
+	var values = _.chain(data)
+		.pluck(node.name)
+		.pluck('value')
+		.value();
+
+	var selected = _.chain(node['query_param']['selection'])
+		.pluck('value')
+		.sortBy(function(val) {
+			return _.indexOf(values, val);
+		})
+		.value();
 
 
-	svg.append("g")
-	    .attr("class", "brush")
-	    .call(d3.svg.brush().x(x)
-	    .on("brushstart", brushstart)
-	    .on("brush", brushmove)
-	    .on("brushend", brushend))
-	  .selectAll("rect")
-	    .attr("height", height);
+	console.log('selected', selected, [
+		x(selected[0]),
+		x(selected[selected.length - 1])
+	]);
 
-	function brushstart() {
-	  svg.classed("selecting", true);
-	}
+	var extent = [
+		x(selected[0]),
+		x(selected[selected.length - 1])  + x.rangeBand()
+	];
 
-	function brushmove() {
-	  var s = d3.event.target.extent();
-	  symbol.classed("selected", function(d) { return s[0] <= (d = x(d)) && d <= s[1]; });
-	}
 
-	function brushend() {
-	  svg.classed("selecting", !d3.event.target.empty());
-	}
-	}
+    brush.x(x)
+	    .extent(extent);
+	   	
+	brush_g
+		.call(brush)
+		.selectAll("rect")
+			.attr("height", height);
 
-	function destroy() { // 
-		var element = d3.select(div).select('.chart-container')
+}
+
+function destroy() { // 
+	var element = d3.select(div).select('.chart-container')
 	    .remove();
-	}
+}
 
 
 that = {
