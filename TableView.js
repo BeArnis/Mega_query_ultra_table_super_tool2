@@ -21,7 +21,7 @@ function init(init_div, init_node, init_graph) {
     graph = init_graph;
     var data = [];
     var columns = [];
-    console.log(div);
+    //console.log(div);
     gridContainer = d3.select(div).append('div')   // make in table selection
         .classed('query-result-redering-container', true)
         .style('left', '30px')
@@ -135,7 +135,20 @@ function refresh_view_from_node() {
 
 function set_data(data) { // highlight_ids
     table_grid.setData(data);
-    //table_grid.setSelectedRows(highligth_indexes);
+
+    var selec_arr = get_selection_values(node['query_param']['selection']); // change 
+
+    var first_collum_obj = _.pluck(data, node.name);
+    var table_values = get_selection_values(first_collum_obj);
+
+    var highligth_indexes = _.reduce(selec_arr, function( highligth_indexes_so_far, selected_value) {
+        var index = _.indexOf(table_values, selected_value)
+        if(index != -1) {
+            highligth_indexes_so_far.push(index);
+        }
+        return highligth_indexes_so_far;
+    }, []);
+    table_grid.setSelectedRows(highligth_indexes);
     // unified coloring
     // ja kaut kas ir selekteets, tad...
     // selekciju atziimeet baltu
