@@ -40,6 +40,7 @@
 
         <script src="./TableView.js"></script>
         <script src="./BarChartView.js"></script>
+        <script src="./render_column.js"></script>
 
         <script src="./slick.core.js"></script>
         <script src="./slick.formatters.js"></script>
@@ -158,6 +159,16 @@
                 fill:red;
             }
 
+            .delete-button { 
+                background: url('close_button.png') no-repeat; 
+                width: 30px; 
+                height: 30px; 
+            }
+
+        .delete-button:hover { 
+            background-position: 0 -30px; 
+        }
+
           </style>
 
     </head>
@@ -168,7 +179,31 @@
 
 <div id='query-graph-container'></div>
 
+<div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      
+        <ul class="nav nav-tabs" id='MyTab'>
+          <li class="active"><a href="#tab" data-toggle="tab">Table</a></li>
+          <li><a href="#bar" data-toggle="tab">BarChart</a></li>
+        </ul>
 
+        <!-- Tab panes -->
+        <div class="tab-content">
+        
+          <div class="tab-pane active" id="table">
+            <!-- Tab -->
+          <!-- Table content -->
+          
+          </div>
+          <div class="tab-pane" id="bar">
+          <!-- barchart content -->
+          bar
+          </div>
+        </div>
+    </div>
+  </div>
+</div>
 
 <script type='text/javascript'>
 
@@ -199,7 +234,7 @@
                 //console.log('hi', this, d3.event.target);
             });
 
-
+        init_column_make_container();
         function toggleWay(graph, edge) {
             var start_node = edge['start'];
             var end_node = edge['end'];
@@ -686,12 +721,19 @@
 
                         top_div.append('div')
                             .attr('class', 'input-window')
+                            .classed('btn btn-primary', true)
+                            .attr('data-toggle', 'modal')
+                            .attr('data-target', '.bs-example-modal-lg')
                             .style('position', 'absolute')
                             .style('height', 40 + 'px')
                             .style('width', 40 + 'px')
                             .style('background-color', 'blue')
                             .on('click', function(node) {
-                               input_info();
+                                render_columns(graph, node);
+                                
+                               // input_info();
+                               // <button class="btn btn-primary" data-toggle="modal" data-target=".bs-example-modal-lg">Large modal</button>
+
                             })
 
                         bottom_div.append('div')

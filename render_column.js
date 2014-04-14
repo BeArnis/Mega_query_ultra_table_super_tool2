@@ -1,186 +1,28 @@
-<!DOCTYPE HTML>
-<html>
-    <head>
-    <meta charset='utf-8'>
-        <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-        <title></title>
-        <meta name='description' content=''>
-        <meta name='viewport' content='width=device-width, initial-scale=1'>
-
-        <script src='bower_components/jquery/jquery.min.js' type='text/javascript'></script>
-        <script src='bower_components/jquery-migrate/jquery-migrate.js' type='text/javascript'></script>  <!-- needed for slick grid, because uses features removed from jquery 1.9 -->
-        <script src='bower_components/underscore/underscore.js' type='text/javascript'></script>
-        <script src='bower_components/stardog/js/stardog.js' type='text/javascript'></script>
-        <script src='bower_components/d3/d3.js' type='text/javascript'></script>
-        <script src='bower_components/vega/vega.js' type='text/javascript'></script>
-
-        <!-- bootstrap -->
-        <link rel='stylesheet' href='bower_components/bootstrap/dist/css/bootstrap.min.css' type='text/css'/>
-        <script src='bower_components/bootstrap/dist/js/bootstrap.min.js'></script>
-        
-
-        <!-- SlickGrid -->
-        <script src='bower_components/slickgrid/lib/jquery.event.drag-2.0.min.js'></script>
-        <script src='bower_components/slickgrid/slick.core.js'></script>
-        <script src='bower_components/slickgrid/slick.grid.js'></script>
-        <script src="bower_components/slickgrid/plugins/slick.rowselectionmodel.js"></script>
 
 
-        <link rel='stylesheet' href='bower_components/slickgrid/slick.grid.css' type='text/css'/>
-        <link rel='stylesheet' href='bower_components/slickgrid/css/smoothness/jquery-ui-1.8.16.custom.css' type='text/css'/>
-        <link rel='stylesheet' href='bower_components/slickgrid/examples/examples.css' type='text/css'/>
+    
 
-
-        <script src="./lib/firebugx.js"></script>
-
-        <script src="./lib/jquery-1.7.min.js"></script>
-        <script src="./lib/jquery-ui-1.8.16.custom.min.js"></script>
-        <script src="./lib/jquery.event.drag-2.2.js"></script>
-
-
-        <script src="./TableView.js"></script>
-        <script src="./BarChartView.js"></script>
-
-        <script src="./slick.core.js"></script>
-        <script src="./slick.formatters.js"></script>
-        <script src="./slick.grid.js"></script>
-
-        <script src="./plugins/slick.checkboxselectcolumn.js"></script>
-        <script src="./plugins/slick.autotooltips.js"></script>
-        <script src="./plugins/slick.cellrangedecorator.js"></script>
-        <script src="./plugins/slick.cellrangeselector.js"></script>
-        <script src="./plugins/slick.cellcopymanager.js"></script>
-        <script src="./plugins/slick.cellselectionmodel.js"></script>
-        <script src="./plugins/slick.rowselectionmodel.js"></script>
-        <script src="./controls/slick.columnpicker.js"></script>
-
-        <style>
-        .delete-button { 
-                background: url('close_button.png') no-repeat; 
-                width: 30px; 
-                height: 30px; 
-            }
-
-        .delete-button:hover { 
-            background-position: 0 -30px; 
-        }
-        </style>
-        <script src="./slick.editors.js"></script>
-    </head>
-
-    <body>
-<!-- Large modal -->
-<button class="btn btn-primary" data-toggle="modal" data-target=".bs-example-modal-lg">Large modal</button>
+    // var width = 1600;
+    // var height = 1400;
 
 
 
-<div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      
-        <ul class="nav nav-tabs" id='MyTab'>
-          <li class="active"><a href="#tab" data-toggle="tab">Table</a></li>
-          <li><a href="#bar" data-toggle="tab">BarChart</a></li>
-        </ul>
+    function init_column_make_container() {
+        var body = d3.select('body');
+        var container = body.select('#table');
 
-        <!-- Tab panes -->
-        <div class="tab-content">
-        
-          <div class="tab-pane active" id="table">
-            <!-- Tab -->
-          <!-- Table content -->
-          
-          </div>
-          <div class="tab-pane" id="bar">
-          <!-- barchart content -->
-          bar
-          </div>
-        </div>
-    </div>
-  </div>
-</div>
+        //bind
 
-    <script type='text/javascript'>
-    example_graph = {
-            
-                't1': {
-                    'name': 't1',
-                    'query_var_name': 't1',
-                    'type' : 'node',
-                    'incoming_lines': ['l1'],
-                    'query_param': {
-                        'input': null,
-                        'selection': [{ value: 'http://example.com/ontology1#wife', type: 'uri' }]
-                    },
-                    'geometry' : {
-                        'x' : 150,
-                        'y' : 125,
-                        'width' : 1010,
-                        'height' : 500
-                    },
-                    'active_visualization_type' : 'TableView', // must be one of keys in visualization_defs
-                    'visualization_defs' : {
-                        'TableView' : {
+        // create container for columns
+        var tab_container = container.append('div')
+            .classed('input-group', true)
+            .style('height', 700 + 'px')
+            .style('width', '100%');
 
-                        },
-                        'BarChartView' : {
-                            'properties':{
-                                'y_axis_column' : '??'
-                            }
-                        }
-                    },
-                    'columns' : [
-                        {
-                            // data property
-                            'id' : '86ee15e2-2415-4b01-93f9-1fd9b8656d6f',
-                            'type' : 'direct',
-                            'column_label' : 'label1',
-                            'property_name' : 'rdfs:label',
-                            'sort': 'none' 
-                        },
-                        {
-                            // data property
-                            'id' : 'aeac50f1-7173-4330-80d3-2afb0f991726',
-                            'type' : 'direct',
-                            'column_label' : 'label2',
-                            'property_name' : '<http://example.com/ontology1#wife>',
-                            'sort': 'asc'
-                        },
-                        {
-                            // data property
-                            'id' : 'e8727bc7-1279-4fb0-897a-84c6f73abce8',
-                            'type' : 'aggregate',
-                            'column_label' : 'count_l1',
-                            'aggregation_function': 'count',
-                            'what_to_aggregate': 'l1', // incoming line [], node
-                            'sort' : 'desc'
-                        }
-                    ]
-                }
     }
-    
-
-    var body = d3.select('body');
-
-    var width = 600;
-    var height = 400;
-
-
-
-    
-    var container = body.select('#table');
-
-    //bind
-
-    // create container for columns
-    var tab_container = container.append('div')
-        .classed('input-group', true)
-        .style('height', 300 + 'px')
-        .style('width', '100%');
-
-
-    function render_columns(graph, node) { 
-        var column_rows = tab_container.selectAll('.column_row')
+    function render_columns(graph, node) {
+        console.log('column'); 
+        var column_rows = d3.select('.input-group').selectAll('.column_row')
             .data(node.columns, function(column) {
                
                 return column.id;
@@ -361,7 +203,7 @@
                              div.selectAll('.sort_type_value') // type div dropdown seeable part
                                     .text(function(d) {
                                            
-                                            return div.datum().value;
+                                            return d.column_def.sort;
                                         })
                         }                        
                     },
@@ -385,6 +227,8 @@
                                     //console.warn(this, d, this.value);
                                     d.update(this.value);
                                     render_columns(graph, node)
+                                    render_graph(graph);
+                                    fill_tables(graph);
                                 })
                                 
                         },
@@ -546,7 +390,7 @@
                              div.selectAll('.sort_type_value') // type div dropdown seeable part
                                     .text(function(d) {
                                             // console.log(d, obj_element)
-                                            return div.datum().value;
+                                            return d.column_def.sort;
                                         })
                         }                         
                     },
@@ -569,7 +413,9 @@
                                     .on('change', function(d) {
                                         console.warn('input change');
                                         d.update(this.value);
-                                        render_columns(graph, node)
+                                        render_columns(graph, node);
+                                        render_graph(graph);
+                                        fill_tables(graph);
                                     })
 
                         },
@@ -692,7 +538,7 @@
         console.log(li.node(),li.datum().data,  li.datum().data.update(li.datum().value)) // somehow this does not work
 
 
-        render_columns(example_graph, example_graph['t1']);
+        render_columns(graph, node);
         
        
      
@@ -709,6 +555,7 @@
             'sort': 'none' 
         }
         graph[node.name].columns.push(column);
+        render_graph(graph);
         
     }
 
@@ -720,30 +567,19 @@
 
         delete graph[node.name].columns[delete_index];
         graph[node.name].columns = _.compact(graph[node.name].columns);
+
+        render_graph(graph);
         
     }
 
-    function refresh_window(graph) {
-        //refresh
-    }
+    // function refresh_window(graph) {
+    //     //refresh
+    // }
 
-    function guid() { // taken from http://stackoverflow.com/a/2117523
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-           var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
-           return v.toString(16);
-        });
-    }
+    // function guid() { // taken from http://stackoverflow.com/a/2117523
+    //     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    //        var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+    //        return v.toString(16);
+    //     });
+    // }
 
-    render_columns(example_graph, example_graph['t1']);
-
-    render_columns(example_graph, example_graph['t1']);
-
-
-                                    
-
-
-
-
-    </script>
-    </body>
-</html>
