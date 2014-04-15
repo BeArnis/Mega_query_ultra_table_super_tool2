@@ -333,15 +333,24 @@
                 .max()
                 .value();
             node_num = parseInt(node_num);
-            node_num = node_num + 1;        
-            return node_num;   
+            node_num = node_num + 1;
+            if(node_num) {
+                return node_num;
+            } else {
+                return '0';
+            }     
+               
         }
 
         function make_node(graph, x, y) {
 
             //guid()
-
-            var table_name = 't' + get_max_element_number(graph, 'node');
+            var table_name;
+            console.log(graph)
+      
+            table_name = 't' + get_max_element_number(graph, 'node');
+           
+           
             //table_name
             var temp = {
                     'name': table_name,
@@ -437,6 +446,7 @@
             //graph = _.omit(graph, node.name);
             //console.log(node.name, graph);
             render_graph(graph);
+            fill_tables(graph);
         }
         
          function lineIntersection (x1, y1, x2, y2, x3, y3, x4, y4) {
@@ -608,6 +618,9 @@
             // sleep(100)
             render_graph(example_graph);
 
+          })
+          .on('dragend', function(d) {
+            drag_type = null;
           })
 
 
@@ -1543,7 +1556,7 @@
         function make_edge1(graph){
             var container = d3.select('#query-graph-container');
             var nodes = container.selectAll('.query-node');
-            var edges = edge_canvas.selectAll('.query-edge');
+            var edges = edge_canvas.selectAll('.query-edges_red');
 
             edges.on('click', function(edge) {
                 console.log('click_edge1');
@@ -1552,7 +1565,7 @@
             });
 
             nodes.on('click', function(node) {
-                //console.log('click', node.name, d3.event.keyCode);
+                console.log('click');
                 make_edge2(graph, node, node.type);
 
             });
@@ -1565,7 +1578,7 @@
             var nodes = container.selectAll('.query-node');
             var edges = edge_canvas.selectAll('.query-edge');
 
-             edges.on('click', function(edge) {
+             var finish_making_edge = function(node2) {
                 console.log('click_edge2');
                 if(elem.name == edge.name) {
                     return;
@@ -1576,7 +1589,7 @@
                     d3.event.stopPropagation();
                     return;
                 } 
-            })
+            }
             
             var finish_making_edge = function(node2) {
                 //console.log('click2', node2.name, d3.event.keyCode);
