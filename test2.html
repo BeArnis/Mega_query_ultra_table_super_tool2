@@ -1583,12 +1583,14 @@
                 if(elem.name == edge.name) {
                     return;
                 } else if(type == 'edge' || type == 'hyper_edge') {
-                    return
-                }else {
                     draw_edge(graph, elem, edge);
                     d3.event.stopPropagation();
                     return;
-                } 
+                } else if(type == 'node') {
+                    draw_edge(graph, elem, edge);
+                    d3.event.stopPropagation();
+                    return;
+                }
             }
             
             var finish_making_edge = function(node2) {
@@ -1608,12 +1610,19 @@
             }
             
             nodes.on('click', finish_making_edge)
+
+            edges.on('click', finish_making_edge)
         }
 
         function draw_edge(graph, elem1, elem2) {
             //console.log(node, node2);
 
-            var edge_name = 'l' + get_max_element_number(graph, 'edge') // needs better name giving XD
+            if (elem1.type == 'hyper_edge' || elem2.type == 'hyper_edge') {
+                var edge_name = 'hl' + get_max_element_number(graph, 'edge')
+            } else {
+                var edge_name = 'l' + get_max_element_number(graph, 'edge') // needs better name giving XD
+            }
+            
             var edge = edge_name;
             if(elem1.type == 'node') {
                 var x1 = elem1['geometry']['x'];
@@ -1634,9 +1643,8 @@
             }
 
 
-  
-
-            edge_template = {
+            if (elem1.type == 'hyper_edge' || elem2.type == 'hyper_edge') {
+                edge_template = {
                     'name': edge_name,
                     'query_var_name': edge_name,
                     'incoming_lines': [],
@@ -1650,6 +1658,24 @@
                     'end': elem2.name,
                     'type': 'edge'
                 }
+            } else {
+                edge_template = {
+                    'name': edge_name,
+                    'query_var_name': edge_name,
+                    'incoming_lines': [],
+                    'geometry': {
+                        'x1': x1,
+                        'y1': y1,
+                        'x2': x2,
+                        'y2': y2
+                    },
+                    'start': elem1.name,
+                    'end': elem2.name,
+                    'type': 'edge'
+                }
+            }
+
+            
 
             graph[elem1.name]['incoming_lines'].push(edge_name);
             graph[elem2.name]['incoming_lines'].push(edge_name);
