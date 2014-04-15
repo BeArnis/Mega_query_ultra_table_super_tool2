@@ -1,7 +1,7 @@
 
 
     
-
+var d = [1];
     // var width = 1600;
     // var height = 1400;
 
@@ -19,16 +19,36 @@
             .style('height', 700 + 'px')
             .style('width', '100%');
 
+        
+
+
     }
     function render_columns(graph, node) {
         console.log('column'); 
         var column_rows = d3.select('.input-group').selectAll('.column_row')
-            .data(node.columns, function(column) {
-               
+            .data(node.columns, function(column, i) {
+                console.log('column_nr', i)
                 return column.id;
             });
 
-       
+        var create = d3.select('.input-group').selectAll('.first_create') // need this only once :D
+        .data([d])
+
+
+        create.enter()
+        .append('div')
+            .classed('create-button', true)
+            .classed('delete-button', true)
+            .classed('first_create', true)
+            .classed('col-lg-12', true)
+            .style('background-color', 'yellow')
+            .on('click', function(d) {
+                //create, needs access to graph
+                create_new_column(graph, node)
+                render_columns(graph, node)
+            })
+
+        // create.data([]).exit().remove();
 
         //create rows
         column_rows
@@ -41,6 +61,8 @@
                     .style('width', '100%')
                 .each( function(column) { 
                     row = d3.select(this); // each column seperate
+
+
 
                     
                     var main_container = row.append('div')
@@ -98,6 +120,7 @@
                         id: 'column_type_name',
                         value: column.type,
                         column_def: column,
+                        node: node,
                         field: 'type',
                         field_data: ['direct', 'count', 'sum', 'max'],
                         container_type: 'input_dropdown',
@@ -106,11 +129,13 @@
                             if (new_value == 'direct') {
                                 //console.log(new_value, this.column_def);
                                 this.column_def.type = new_value;
+                                this.column_def.property_name = '';
                             } else {
                                 
                                 
                                 this.column_def.type = 'aggregate';
                                 this.column_def.aggregation_function = new_value;
+                                this.column_def.what_to_aggregate = node.incoming_lines[1];
                                 
                             }
                             
@@ -162,7 +187,8 @@
                         value: column.sort,
                         column_def: column,
                         field: 'sort',
-                        field_data: ['none', 'asc', 'desc'],
+                        node: node,
+                        field_data: ['none', 'ascending', 'descending'],
                         container_type: 'input_dropdown',
                         update: function(new_value) {
                             
@@ -278,18 +304,22 @@
                         value: column.type,
                         column_def: column,
                         field: 'type',
+                        node: node,
                         field_data: ['direct', 'count', 'sum', 'max'],
                         container_type: 'input_dropdown',
                         yes: 'a',
                         update: function(new_value) {
-                            if (new_value == 'direct') {
+                           if (new_value == 'direct') {
                                 //console.log(new_value, this.column_def);
                                 this.column_def.type = new_value;
+                                this.column_def.property_name = '';
                             } else {
-                               
+                                
+                                
                                 this.column_def.type = 'aggregate';
                                 this.column_def.aggregation_function = new_value;
-                                // console.log(new_value, this.column_def);
+                                this.column_def.what_to_aggregate = '';
+                                
                             }
                             
                         },
@@ -347,7 +377,8 @@
                         value: column.sort,
                         column_def: column,
                         field: 'sort',
-                        field_data: ['none', 'asc', 'desc'],
+                        node: node,
+                        field_data: ['none', 'ascending', 'descending'],
                         container_type: 'input_dropdown',
                         update: function(new_value) {
                             
@@ -433,7 +464,7 @@
                         column_def: column,
                         field: 'what_to_aggregate',
                         update: function(new_value) {
-                            // this.data.what_to_aggregat = new_value;
+                            this.column_def.what_to_aggregate = new_value;
                         },
                         create_view: function(div) {
                             div.append('input') // type div dropdown seeable part
@@ -442,6 +473,13 @@
                                     // .classed('btn btn-default dropdown-toggle', true)
                                     .classed('what_to_aggregate', true)
                                     .attr('data-toggle', 'dropdown')
+                                    .on('change', function(d) {
+                                        console.warn('input change');
+                                        d.update(this.value);
+                                        render_columns(graph, node);
+                                        render_graph(graph);
+                                        fill_tables(graph);
+                                    })
                                     .attr('value', function(d) {
                                             
                                             return d.value; // maybe need to pasre this 
@@ -532,17 +570,7 @@
     }
 
 
-    $( document.body ).on( 'click', '.dropdown-menu li', function( event ) {
-    
-        var li = d3.select(event.currentTarget);
-        console.log(li.node(),li.datum().data,  li.datum().data.update(li.datum().value)) // somehow this does not work
 
-
-        render_columns(graph, node);
-        
-       
-     
-    });
 
 
     function create_new_column(graph, node) {
