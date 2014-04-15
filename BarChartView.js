@@ -25,6 +25,8 @@ var bar_start_and_end_coord_x;
 
 var data;
 
+var chart_container;
+
 
 function init(init_div, init_node, init_graph) {
     div = init_div;
@@ -50,7 +52,7 @@ function init(init_div, init_node, init_graph) {
 
 
 
-	var chart_container = d3.select(div).append('div')
+	chart_container = d3.select(div).append('div')
 		.attr('class', 'chart-container')
 		.style('position', 'relative') 
 		.style('left', '30px')
@@ -66,10 +68,9 @@ function init(init_div, init_node, init_graph) {
 	svg = chart_container.append("svg")
 		//.attr('transform', 'translate(50,50)')
 		.attr('class', 'chart-canvas')
-	    .style('background-color', 'white')
+	    // .style('background-color', 'white')
 	  .append("g")
 	    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-	    .style('background-color', 'white')
 
     xAxis_g = svg.append("g")
       .attr("class", "x axis")
@@ -167,7 +168,18 @@ function refresh_view_from_node() {
 	yAxis_g
 		.call(yAxis);
 
-	
+
+	if (data) {
+		set_data(data);
+	}
+	chart_container
+		.style('width', function(node) {
+            return node.geometry.width - 60 + 'px';
+        })
+        .style('height', function(node) {
+            return node.geometry.height - 80 + 'px';
+        });
+
     //console.warn('refresh_view_from_node is not implemented');
 }
 
