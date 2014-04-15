@@ -607,6 +607,7 @@
             }
             // sleep(100)
             render_graph(example_graph);
+
           })
 
 
@@ -684,12 +685,12 @@
                             .style("font-size", '30px');
 
 
-                        top_div.append('div')
-                            .attr('class', 'table-button')
-                            .style('position', 'absolute')
-                            .style('height', 40 + 'px')
-                            .style('width', 40 + 'px')
-                            .style('background-color', 'pink')
+                        // top_div.append('div')
+                        //     .attr('class', 'table-button')
+                        //     .style('position', 'absolute')
+                        //     .style('height', 40 + 'px')
+                        //     .style('width', 40 + 'px')
+                        //     .style('background-color', 'pink')
 
 
                         top_div.append('div')
@@ -956,7 +957,7 @@
                 .append('path')
                     .classed('query-edges_red', true)
                     .attr('stroke', "red")
-                    .attr('stroke-width', "6px")
+                    .attr('stroke-width', "9px")
                     .attr('id', function(node) {return node['name']; })
                     .on('click', function(d) {
                         toggleWay(graph, d);
@@ -1532,7 +1533,7 @@
         d3.select("body") // why here?
         .on("keydown", function() {
             //console.log('edge', d3.event.keyCode);
-            if(d3.event.keyCode == 17) {
+            if(d3.event.keyCode == 16) {
                 make_edge1(example_graph)
                 return;
             } 
@@ -1545,7 +1546,7 @@
             var edges = edge_canvas.selectAll('.query-edge');
 
             edges.on('click', function(edge) {
-                //console.log('click_edge', edge.name);
+                console.log('click_edge1');
                 make_edge2(graph, edge, edge.type);
 
             });
@@ -1565,7 +1566,7 @@
             var edges = edge_canvas.selectAll('.query-edge');
 
              edges.on('click', function(edge) {
-                //console.log('click_edge2', edge.name, d3.event.keyCode);
+                console.log('click_edge2');
                 if(elem.name == edge.name) {
                     return;
                 } else if(type == 'edge' || type == 'hyper_edge') {
@@ -1773,6 +1774,28 @@
                 }
             }
         }
+
+
+        $( document.body ).on( 'click', '.dropdown-menu li', function( event ) { // problem with scope?
+
+        console.log('list');
+
+        var li = d3.select(event.currentTarget);
+        console.log(li.node(),li.datum().data.node,  li.datum().data.update(li.datum().value)) // somehow this does not work
+
+
+        render_columns(example_graph, li.datum().data.node); // need node of this collumn 
+        render_graph(example_graph);
+        fill_tables(example_graph);// this cuould not be good
+        // this here
+
+        
+
+
+
+        });
+
+
         </script>
     
     </body>
