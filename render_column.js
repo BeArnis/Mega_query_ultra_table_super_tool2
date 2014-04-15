@@ -48,7 +48,13 @@ var d = [1];
                 render_columns(graph, node)
             })
 
-        // create.data([]).exit().remove();
+
+        create.on('click', function(d) {
+                //create, needs access to graph
+                create_new_column(graph, node)
+                render_columns(graph, node)
+            })
+        create.data([]).exit().remove();
 
         //create rows
         column_rows

@@ -1068,7 +1068,7 @@
                         offset: 0
                     },
                     function(data) {
-                        console.log(node['query_param']['selection']);
+                       // console.log(node['query_param']['selection']);
                         var actual_results = data.results.bindings;
                         if (actual_results.length == 1) {
                             // jo ja ir agregaacijs, tad pat ja ir tuksh rezultaats,
@@ -1614,7 +1614,7 @@
         function draw_edge(graph, elem1, elem2) {
             //console.log(node, node2);
 
-            if (elem1.type == 'hyper_edge' || elem2.type == 'hyper_edge') {
+            if (elem1.type == 'edge' || elem2.type == 'edge') {
                 var edge_name = 'hl' + get_max_element_number(graph, 'edge')
             } else {
                 var edge_name = 'l' + get_max_element_number(graph, 'edge') // needs better name giving XD
@@ -1640,7 +1640,7 @@
             }
 
 
-            if (elem1.type == 'hyper_edge' || elem2.type == 'hyper_edge') {
+            if (elem1.type == 'edge' || elem2.type == 'edge') {
                 edge_template = {
                     'name': edge_name,
                     'query_var_name': edge_name,
@@ -1653,13 +1653,14 @@
                     },
                     'start': elem1.name,
                     'end': elem2.name,
-                    'type': 'edge'
+                    'type': 'hyper_edge'
                 }
             } else {
                 edge_template = {
                     'name': edge_name,
                     'query_var_name': edge_name,
                     'incoming_lines': [],
+
                     'geometry': {
                         'x1': x1,
                         'y1': y1,
