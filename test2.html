@@ -1576,7 +1576,7 @@
             //console.log(elem);
             var container = d3.select('#query-graph-container');
             var nodes = container.selectAll('.query-node');
-            var edges = edge_canvas.selectAll('.query-edge');
+            var edges = edge_canvas.selectAll('.query-edges_red');
 
              var finish_making_edge = function(node2) {
                 console.log('click_edge2');
@@ -1586,11 +1586,7 @@
                     draw_edge(graph, elem, edge);
                     d3.event.stopPropagation();
                     return;
-                } else if(type == 'node') {
-                    draw_edge(graph, elem, edge);
-                    d3.event.stopPropagation();
-                    return;
-                }
+                } 
             }
             
             var finish_making_edge = function(node2) {
@@ -1605,6 +1601,7 @@
                         draw_edge(graph, elem, node2);
                         d3.event.stopPropagation();
                         nodes.on('click', null);
+
                         return;
                 }         
             }
