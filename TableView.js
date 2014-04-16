@@ -91,7 +91,7 @@ TableView = function() {
         return that;
     }
 
-    
+
 
     function render_cell_data(row, cell, value, columnDef, dataContext) { // selection is an array
 
@@ -114,9 +114,9 @@ TableView = function() {
 
         var columns = _.map(node.columns, function(column) {
             return {
-                id: column_name_generator(node, column),
+                id: column_name_generator(graph, node, column),
                 name: column.column_label,
-                field: column_name_generator(node, column),
+                field: column_name_generator(graph, node, column),
                 formatter: render_cell_data,
                 width: 330,
                 sortable: column.sort == 'ascending' || column.sort == 'descending'
@@ -140,7 +140,7 @@ TableView = function() {
             })
             .map(function(column) {
                 return {
-                    columnId: column_name_generator(node, column),
+                    columnId: column_name_generator(graph, node, column),
                     sortAsc: column.sort == 'ascending'
                 }
             })

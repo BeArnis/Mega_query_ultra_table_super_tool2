@@ -192,7 +192,7 @@ BarChartView = function() {
         var column = _.find(node.columns, function(column) {
             return column.id == node.visualization_defs.BarChartView.properties.y_axis_column;
         })
-        var column_name = column_name_generator(node, column);
+        var column_name = column_name_generator(graph, node, column);
         console.log(column_name, column);
 
 
