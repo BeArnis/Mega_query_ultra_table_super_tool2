@@ -13,7 +13,7 @@ function get_edge_name_fom_hyper(graph, elem) {
 
 function column_name_generator(graph, node, column) { // column.what_to_aggregate '(' + column.aggregation_function + '(?' + column.what_to_aggregate + ') AS ?' + xxx  +')'
 
-    // console.log(graph)
+    //console.log(node, column)
     var i = _.indexOf(node.columns, column);
     if (column.type == 'aggregate') {
 
