@@ -54,7 +54,7 @@ var d = [1];
                 create_new_column(graph, node)
                 render_columns(graph, node)
             })
-        create.data([]).exit().remove();
+
 
         //create rows
         column_rows
@@ -135,13 +135,14 @@ var d = [1];
                             if (new_value == 'direct') {
                                 //console.log(new_value, this.column_def);
                                 this.column_def.type = new_value;
-                                this.column_def.property_name = '';
+                                this.column_def.property_name = 'rdfs:label';
                             } else {
                                 
                                 
                                 this.column_def.type = 'aggregate';
                                 this.column_def.aggregation_function = new_value;
                                 this.column_def.what_to_aggregate = node.incoming_lines[1];
+                                delete this.column_def.property_name;
                                 
                             }
                             
@@ -318,13 +319,14 @@ var d = [1];
                            if (new_value == 'direct') {
                                 //console.log(new_value, this.column_def);
                                 this.column_def.type = new_value;
-                                this.column_def.property_name = '';
+                                this.column_def.property_name = 'rdfs:label';
                             } else {
                                 
                                 
                                 this.column_def.type = 'aggregate';
                                 this.column_def.aggregation_function = new_value;
                                 this.column_def.what_to_aggregate = '';
+                                delete this.column_def.property_name;
                                 
                             }
                             
