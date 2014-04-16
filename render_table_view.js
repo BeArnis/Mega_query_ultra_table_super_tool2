@@ -183,65 +183,6 @@ function make_it(graph) {
     }
 
 
-    function destroy_node(graph, node) {
-        //console.log(node.name, graph);
-
-        var edges = _.filter(graph, function(obj) {
-            if (obj['type'] == 'edge') {
-                return obj;
-            }
-        });
-
-        var hyper_edges = _.filter(graph, function(obj) {
-            if (obj['type'] == 'hyper_edge') {
-                return obj;
-            }
-        });
-
-        delete graph[node.name];
-
-        var need_to_delete_these_edges = [];
-        _.each(edges, function(edge) {
-
-            if (edge.start == node.name) {
-                graph[edge.end]['incoming_lines'] = _.without(graph[edge.end]['incoming_lines'], edge.name);
-                delete graph[edge.name];
-                return;
-            }
-            if (edge.end == node.name) {
-                //console.log(edge.start, node.name);
-                graph[edge.start]['incoming_lines'] = _.without(graph[edge.start]['incoming_lines'], edge.name);
-                delete graph[edge.name];
-                return;
-            }
-        })
-
-        _.each(hyper_edges, function(hyp) {
-
-            if (graph[hyp.start] == undefined) {
-                graph[hyp.end]['incoming_lines'] = _.without(graph[hyp.end]['incoming_lines'], hyp.name);
-                delete graph[hyp.name];
-            } else if (graph[hyp.end] == undefined) {
-                graph[hyp.start]['incoming_lines'] = _.without(graph[hyp.start]['incoming_lines'], hyp.name);
-                delete graph[hyp.name];
-            }
-
-        })
-
-        //console.log(need_to_delete_these_edges);
-        //delete_edges_after_nodes(graph, need_to_delete_these_edges);
-
-        //console.log(need_to_delete_these_edges);
-        //graph = _.omit(graph, node.name);
-        //console.log(node.name, graph);
-        render_graph(graph);
-        fill_tables(graph);
-    }
-
-
-    
-
-
 
     function are_equal_as_sets(obj_1, obj_2) {
 
@@ -456,5 +397,5 @@ function make_it(graph) {
     console.assert(graph);
 
     render_graph(graph);
-    fill_tables(graph); 
+    fill_tables(graph);
 }

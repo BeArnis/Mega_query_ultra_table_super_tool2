@@ -1,6 +1,3 @@
-var d = [1];
-// var width = 1600;
-// var height = 1400;
 
 
 
@@ -28,8 +25,8 @@ function render_columns(graph, node) {
             return column.id;
         });
 
-    var create = d3.select('.input-group').selectAll('.first_create') // need this only once :D
-    .data([d])
+    var create = d3.select('.input-group').selectAll('.first_create')
+        .data([null]); // need this only once
 
 
     create.enter()
@@ -595,14 +592,3 @@ function delete_column(graph, node, column) { // could be problems with indexes
     render_graph(graph);
 
 }
-
-// function refresh_window(graph) {
-//     //refresh
-// }
-
-// function guid() { // taken from http://stackoverflow.com/a/2117523
-//     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-//        var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
-//        return v.toString(16);
-//     });
-// }

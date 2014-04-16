@@ -1,3 +1,34 @@
+var conn = new Stardog.Connection();
+conn.setEndpoint('http://localhost:5820/');
+conn.setCredentials('admin', 'admin');
+conn.setReasoning('QL');
+
+function show_loading_indicator(node) {
+    console.assert(node.node_div);
+    var node_div = node.node_div;
+    if (!node.tmp) {
+        node.tmp = {};
+    }
+    if (!node.tmp.loadingIndicator) {
+        var loadingIndicator = $('<span class="loading-indicator"><label>Buffering...</label></span>').appendTo(node_div.node());
+        var $g = $(node_div.node());
+
+        node.tmp.loadingIndicator = loadingIndicator;
+
+        loadingIndicator
+            .css('position', 'relative')
+            .css('top', node.geometry.height / 2 - loadingIndicator.height() / 2)
+            .css('left', node.geometry.width / 2 - loadingIndicator.width() / 2);
+    }
+
+    // console.log('SHOW loading indicator for', node.id);
+    node.tmp.loadingIndicator.show();
+}
+
+function hide_loading_indicator(node) {
+    node.tmp.loadingIndicator.hide();
+}
+
 function render_graph(graph) {
 
 
@@ -85,8 +116,10 @@ function render_graph(graph) {
         .call(ultimate_drag)
     //.call(drag)
 
-    .call(function(node) {
-        var node_div = this;
+    .each(function(node) {
+        var node_div = d3.select(this);
+
+        node.node_div = node_div;
 
         var top_div = node_div.append('div')
             .attr('class', 'top-container')
@@ -491,6 +524,9 @@ function fill_tables(graph) {
             //var query = get_table_query(graph, node.name);
             //var query_template = _.template("select distinct ?<%= name %> where {{?<%= name %> ?p ?o} UNION {?s ?<%= name %> ?o} UNION {?s ?p ?<%= name %>}}");
             //console.log(node.name);
+console.log(node)
+            show_loading_indicator(node);
+
             var query = generate_query(graph, node);
             conn.query({
                     database: 'myDB4',
@@ -520,6 +556,8 @@ function fill_tables(graph) {
                     console.assert(node.current_visualization_view)
                     //console.log(node.name, actual_results, node, node.current_visualization_view);
                     node.current_visualization_view.set_data(actual_results)
+
+                    hide_loading_indicator(node);
 
                 })
         });
@@ -621,8 +659,3 @@ function generate_query(graph, node) {
 
     return query;
 }
-
-var conn = new Stardog.Connection();
-conn.setEndpoint('http://localhost:5820/');
-conn.setCredentials('admin', 'admin');
-conn.setReasoning('QL');
