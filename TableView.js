@@ -87,6 +87,21 @@ TableView = function() {
             }
         });
 
+        table_grid.onColumnsResized.subscribe(function(e, args)
+        { 
+            var cols = table_grid.getColumns(); // get all grid columns
+            // can get all widths 
+            // indexes are ok I guess or not
+            // need node
+            _.each(node.columns, function(column, i) {
+                column.width = cols[i + 1].width;
+            })
+            console.log(cols, node.columns[0])
+        }) 
+        // table_grid.onColumnsResized = function() {
+        //     alert("Resized");
+        // }
+
         refresh_view_from_node();
         return that;
     }
@@ -101,6 +116,10 @@ TableView = function() {
             return '';
         }
 
+    }
+
+    function get_column_width(column) {
+        return column.width;
     }
 
     function refresh_view_from_node() {
@@ -118,7 +137,7 @@ TableView = function() {
                 name: column.column_label,
                 field: column_name_generator(graph, node, column),
                 formatter: render_cell_data,
-                width: 330,
+                width: get_column_width(column),
                 sortable: column.sort == 'ascending' || column.sort == 'descending'
             };
         });

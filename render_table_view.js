@@ -366,16 +366,6 @@ function make_it(graph) {
 
 
 
-    function input_info() {
-        var name = prompt("Please enter your name", "")
-        var Age = prompt("Please enter your Age", "")
-        if (name != null && name != "") {
-            if (Age != null && Age != "") {
-                document.write("Hello " + name + "! Your age is " + Age);
-            }
-        }
-    }
-
 
     $(document.body).on('click', '.dropdown-menu li', function(event) { // problem with scope?
 
@@ -393,6 +383,14 @@ function make_it(graph) {
 
 
     });
+
+    $("#resize").click(function() {
+        console.log('yes');
+        var cols = grid.getColumns();
+        cols[0].width = 120;
+        grid.setColumns(cols);
+    });
+
 
     console.assert(graph);
 

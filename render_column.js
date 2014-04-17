@@ -573,8 +573,9 @@ function create_new_column(graph, node) {
         'type': 'direct',
         'column_label': 'label1',
         'property_name': 'rdfs:label',
-        'sort': 'none'
-    }
+        'sort': 'none',
+        'width': 330
+    };
     graph[node.name].columns.push(column);
     render_graph(graph);
 
