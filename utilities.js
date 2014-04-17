@@ -286,4 +286,17 @@ function toggleWay(graph, edge) {
         }
         render_graph(graph)
         fill_tables(graph);
-    }
+    }  
+
+        // bottom_div.append('div')
+        //     .attr('class', 'make-something')
+        //     .classed('button', true)
+        //     .attr('id', node.name)
+        //     .style('position', 'absolute')
+        //     .style('height', 40 + 'px')
+        //     .style('width', 40 + 'px')
+        //     .style('background-color', 'red')
+        //     .on('click', function(node) {
+        //         // delete selections
+        //         console.log('make node');
+        //     });

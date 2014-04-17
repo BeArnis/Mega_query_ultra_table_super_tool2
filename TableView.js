@@ -119,7 +119,7 @@ TableView = function() {
         if (matching_prefix_def) {
             return '<i>' + matching_prefix_def.prefix + ': </i>' + data_value.replace(matching_prefix_def.namespace, '');
         } else {
-            return data_valuex;
+            return data_value;
         }
   
     }

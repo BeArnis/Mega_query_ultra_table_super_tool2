@@ -1,0 +1,157 @@
+/* The CSS */
+    .query-button {
+        background: url('glyphicons_195_circle_info.png ') no-repeat; 
+        width: 40px; 
+        height: 40px;
+        background-position:center; 
+        
+    }
+
+    .refresh-button {
+        background: url('glyphicons_081_refresh.png') no-repeat; 
+        width: 50px; 
+        height: 50px;
+        background-position:center; 
+    }
+
+    .button-sprite { 
+        background: url('close_button.png') no-repeat; 
+        width: 30px; 
+        height: 30px; 
+    }
+
+    .button-sprite:hover { 
+        background-position: 0 -30px; 
+    }
+
+    .resize-sprite {
+        background: url('glyphicons_215_resize_full.png') no-repeat; 
+        width: 30px; 
+        height: 30px;
+        -webkit-transform:rotate(90deg);
+        -moz-transform: rotate(90deg);
+
+        background-position:center;                 
+    }
+
+    .table-button {
+        background: url('glyphicons_119_table.png') no-repeat; 
+        width: 40px; 
+        height: 40px;
+        background-position:center; 
+    }
+
+    .chart-button {
+        background: url('glyphicons_079_signal.png') no-repeat; 
+        width: 40px; 
+        height: 40px;
+        background-position:center;
+    }
+
+    .delete-selection {
+        background: url('glyphicons_365_restart.png') no-repeat; 
+        width: 40px; 
+        height: 40px;
+        background-position:center; 
+    }
+    
+    /* chart styles*/
+    .bar { 
+      fill: steelblue;
+    }
+
+    .bar:hover {
+      fill: brown;
+    }
+
+    .axis {
+      font: 10px sans-serif;
+    }
+
+    .axis path,
+    .axis line {
+      fill: none;
+      stroke: #000;
+      shape-rendering: crispEdges;
+    }
+
+    .x.axis path {
+      display: none;
+    }
+
+    .brush .extent {
+      stroke: sff;
+      fill-opacity: .125;
+      shape-rendering: crispEdges;
+    }
+
+    .selected {
+      fill: red;
+    }
+
+    .selected_bar {
+        fill:red;
+    }
+
+    .delete-button { 
+        background: url('close_button.png') no-repeat; 
+        width: 30px; 
+        height: 30px; 
+    }
+
+.delete-button:hover { 
+    background-position: 0 -30px; 
+}
+#query-graph-container {
+    background-color: gray;
+}
+
+.query-node {
+    background-color: #dddddd;
+    border-style: solid;
+    border-color: #435B6D;
+    border-radius:20px;
+    /*background: linear-gradient(#719BB9, #6C93AF);*/
+}
+
+.query-edge{
+    stroke: #8C89C9;
+    border-style: solid;
+    /*stroke-dasharray: 2,2;*/
+    stroke-linejoin: round;     
+    stroke-width: 12px;
+}
+
+.query-edges_red{
+    stroke: #D0DAD9;
+
+
+    stroke-width: 5px;
+          
+   
+}
+
+.button {
+    border-radius:30px;
+    opacity:0.6;
+}
+
+.create-button {
+    background-color: yellow;
+}
+
+.chart-container {
+    background-color: white;
+}
+
+.edge_marker {
+    fill: #8C89C9;
+}
+
+.edge_marker_end {
+    fill: #D0DAD9;
+}
+
+.edge_marker_start{
+    fill: #D0DAD9;
+}

@@ -36,6 +36,7 @@ function make_it(graph) {
         var end_marker = edge_canvas.append('marker')
         //.attr('style', ' markerWidth="6" markerHeight="6" orient="auto"')
         .attr('id', 'link_path_end')
+            .classed('edge_marker', true)
             .attr('viewBox', '-10 -5 10 10')
             .attr('refX', -2)
             .attr('refY', 0)
@@ -43,11 +44,11 @@ function make_it(graph) {
             .attr('markerHeight', 3)
             .attr('orient', 'auto')
             .append('path')
-            .attr('d', 'M-10,-5L0,0L-10,5')
-            .attr('fill', '#8DCC35');
+            .attr('d', 'M-10,-5L0,0L-10,5');
 
         var end_red_marker = edge_canvas.append('marker')
             .attr('id', 'link_path_end_red')
+            .classed('edge_marker_end', true)
             .attr('viewBox', '-10 -5 10 10')
             .attr('refX', -2)
             .attr('refY', 0)
@@ -55,11 +56,11 @@ function make_it(graph) {
             .attr('markerHeight', 4)
             .attr('orient', 'auto')
             .append('path')
-            .attr('d', 'M-10,-5L0,0L-10,5')
-            .attr('fill', '#D0DAD9');
+            .attr('d', 'M-10,-5L0,0L-10,5');
 
         var start_marker = edge_canvas.append('marker')
             .attr('id', 'link_path_start')
+            .classed('edge_marker_start', true)
             .attr('viewBox', '0 -5 10 10')
             .attr('refX', 2)
             .attr('refY', 0)
@@ -67,8 +68,7 @@ function make_it(graph) {
             .attr('markerHeight', 4)
             .attr('orient', 'auto')
             .append('path')
-            .attr('d', 'M10,-5L0,0L10,5')
-            .attr('fill', '#D0DAD9');
+            .attr('d', 'M10,-5L0,0L10,5');
 
 
     }

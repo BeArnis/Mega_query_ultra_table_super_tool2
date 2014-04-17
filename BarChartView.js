@@ -60,7 +60,6 @@ BarChartView = function() {
             .attr('class', 'chart-container')
             .style('position', 'relative')
             .style('left', '30px')
-            .style('background-color', 'white')
             .style('width', function(node) {
                 return node.geometry.width - 60 + 'px';
             })

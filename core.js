@@ -144,11 +144,10 @@ function render_graph(graph) {
 
         top_div.append('div')
             .attr('class', 'name-container')
-            .classed('button', true)
             .style('position', 'absolute')
             .style('height', 40 + 'px')
             .style('width', 40 + 'px')
-            .style('background-color', 'white')
+ 
             .text(function(node) {
                 return node.name;
             })
@@ -170,7 +169,7 @@ function render_graph(graph) {
             .style('position', 'absolute')
             .style('height', 40 + 'px')
             .style('width', 40 + 'px')
-            .style('background-color', 'green')
+      
             .on('click', function(node) {
                 if (node['active_visualization_type'] == 'TableView') {
                     node['active_visualization_type'] = 'BarChartView';
@@ -186,7 +185,7 @@ function render_graph(graph) {
 
         top_div.append('div')
             .attr('class', 'button-sprite')
-            .classed('button', true)
+            
             .style('position', 'absolute')
             .style('top', '-15px')
             .on('click', function(node) {
@@ -202,7 +201,7 @@ function render_graph(graph) {
             .style('position', 'absolute')
             .style('height', 40 + 'px')
             .style('width', 40 + 'px')
-            .style('background-color', 'blue')
+   
             .on('click', function(node) {
                 render_columns(graph, node);
 
@@ -218,7 +217,7 @@ function render_graph(graph) {
             .style('position', 'absolute')
             .style('height', 40 + 'px')
             .style('width', 40 + 'px')
-            .style('background-color', 'blue')
+      
         // .on('mousedown', function(node) {
         //     d3.event.stopPropagation();
         // })
@@ -231,7 +230,7 @@ function render_graph(graph) {
             .style('position', 'absolute')
             .style('height', 40 + 'px')
             .style('width', 40 + 'px')
-            .style('background-color', 'yellow')
+         
             .on('click', function(node) {
                 var query = generate_query(graph, node);
                 console.log('query: \n', query, '\n', node.query_param);
@@ -245,7 +244,7 @@ function render_graph(graph) {
             .style('position', 'absolute')
             .style('height', 40 + 'px')
             .style('width', 40 + 'px')
-            .style('background-color', 'white')
+          
             .on('click', function(node) {
                 fill_tables(graph);
             });
@@ -259,13 +258,25 @@ function render_graph(graph) {
             .style('position', 'absolute')
             .style('height', 40 + 'px')
             .style('width', 40 + 'px')
-            .style('background-color', 'red')
+  
             .on('click', function(node) {
                 // delete selections
                 node['query_param']['selection'] = [];
                 fill_tables(graph);
             });
 
+        bottom_div.append('div')
+            .attr('class', 'make-something')
+            .attr('id', node.name)
+            .style('position', 'absolute')
+            .style('height', 40 + 'px')
+            .style('width', 40 + 'px')
+            .style('background-color', 'red')
+            .style('top', 10 + 'px')
+            .on('click', function(node) {
+                // delete selections
+                console.log('make node');
+            });
     });
 
 
@@ -358,8 +369,11 @@ function render_graph(graph) {
                 .style('left', function(node) {
                     return node.geometry.width - 390 + 'px';
                 });
-
-
+                
+            bottom_div.select('.make-something')
+                .style('left', function(node) {
+                    return node.geometry.width - 490 + 'px';
+                })
         })
         .each(function(node) { // updating container visualization
 

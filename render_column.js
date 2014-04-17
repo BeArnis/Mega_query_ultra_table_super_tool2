@@ -35,7 +35,7 @@ function render_columns(graph, node) {
         .classed('delete-button', true)
         .classed('first_create', true)
         .classed('col-lg-12', true)
-        .style('background-color', 'yellow')
+        
         .on('click', function(d) {
             //create, needs access to graph
             create_new_column(graph, node)
