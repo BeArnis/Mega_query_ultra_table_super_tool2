@@ -110,12 +110,18 @@ TableView = function() {
 
     function render_cell_data(row, cell, value, columnDef, dataContext) { // selection is an array
 
-        if (value) {
-            return value.value;
-        } else {
-            return '';
-        }
+        var data_value = value && value.value || '';
+        var matching_prefix_def = _(graph.prefixes).find(function(prefix_def) {
+            //console.log(value, prefix_def.namespace.length)
+            return data_value.substring(0, prefix_def.namespace.length) === prefix_def.namespace;
+        });
 
+        if (matching_prefix_def) {
+            return '<i>' + matching_prefix_def.prefix + ': </i>' + data_value.replace(matching_prefix_def.namespace, '');
+        } else {
+            return data_value;
+        }
+  
     }
 
     function get_column_width(column) {
