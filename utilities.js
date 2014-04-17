@@ -254,3 +254,36 @@ function destroy_node(graph, node) {
     render_graph(graph);
     fill_tables(graph);
 }
+
+function toggleWay(graph, edge) {
+
+        var start_node = edge['start'];
+        var end_node = edge['end'];
+
+        //console.log('swap', edge.name, graph[start_node], graph[end_node]);
+
+        if ((_.contains(graph[start_node]['incoming_lines'], edge.name)) && !(_.contains(graph[end_node]['incoming_lines'], edge.name))) {
+            graph[start_node]['incoming_lines'] = _.without(graph[start_node]['incoming_lines'], edge.name);
+
+            graph[end_node]['incoming_lines'].push(edge.name);
+
+
+        } else if (!(_.contains(graph[start_node]['incoming_lines'], edge.name)) && (_.contains(graph[end_node]['incoming_lines'], edge.name))) {
+            graph[start_node]['incoming_lines'].push(edge.name);
+
+
+        } else if ((_.contains(graph[start_node]['incoming_lines'], edge.name)) && (_.contains(graph[end_node]['incoming_lines'], edge.name))) {
+            graph[start_node]['incoming_lines'] = _.without(graph[start_node]['incoming_lines'], edge.name);
+            graph[end_node]['incoming_lines'] = _.without(graph[end_node]['incoming_lines'], edge.name);
+
+
+
+        } else if (!(_.contains(graph[start_node]['incoming_lines'], edge.name)) && !(_.contains(graph[end_node]['incoming_lines'], edge.name))) {
+            graph[start_node]['incoming_lines'].push(edge.name);
+
+
+
+        }
+        render_graph(graph)
+        fill_tables(graph);
+    }

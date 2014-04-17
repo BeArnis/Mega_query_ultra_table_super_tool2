@@ -24,38 +24,7 @@ function make_it(graph) {
 
     init_column_make_container();
 
-    function toggleWay(graph, edge) {
-
-        var start_node = edge['start'];
-        var end_node = edge['end'];
-
-        //console.log('swap', edge.name, graph[start_node], graph[end_node]);
-
-        if ((_.contains(graph[start_node]['incoming_lines'], edge.name)) && !(_.contains(graph[end_node]['incoming_lines'], edge.name))) {
-            graph[start_node]['incoming_lines'] = _.without(graph[start_node]['incoming_lines'], edge.name);
-
-            graph[end_node]['incoming_lines'].push(edge.name);
-
-
-        } else if (!(_.contains(graph[start_node]['incoming_lines'], edge.name)) && (_.contains(graph[end_node]['incoming_lines'], edge.name))) {
-            graph[start_node]['incoming_lines'].push(edge.name);
-
-
-        } else if ((_.contains(graph[start_node]['incoming_lines'], edge.name)) && (_.contains(graph[end_node]['incoming_lines'], edge.name))) {
-            graph[start_node]['incoming_lines'] = _.without(graph[start_node]['incoming_lines'], edge.name);
-            graph[end_node]['incoming_lines'] = _.without(graph[end_node]['incoming_lines'], edge.name);
-
-
-
-        } else if (!(_.contains(graph[start_node]['incoming_lines'], edge.name)) && !(_.contains(graph[end_node]['incoming_lines'], edge.name))) {
-            graph[start_node]['incoming_lines'].push(edge.name);
-
-
-
-        }
-        render_graph(graph)
-        fill_tables(graph);
-    }
+    
 
     function make_marker() {
         //console.log(this)
@@ -70,36 +39,36 @@ function make_it(graph) {
             .attr('viewBox', '-10 -5 10 10')
             .attr('refX', -2)
             .attr('refY', 0)
-            .attr('markerWidth', 6)
-            .attr('markerHeight', 6)
+            .attr('markerWidth', 4)
+            .attr('markerHeight', 3)
             .attr('orient', 'auto')
             .append('path')
             .attr('d', 'M-10,-5L0,0L-10,5')
-            .attr('fill', 'steelblue');
+            .attr('fill', '#8DCC35');
 
         var end_red_marker = edge_canvas.append('marker')
             .attr('id', 'link_path_end_red')
             .attr('viewBox', '-10 -5 10 10')
             .attr('refX', -2)
             .attr('refY', 0)
-            .attr('markerWidth', 6)
-            .attr('markerHeight', 6)
+            .attr('markerWidth', 4)
+            .attr('markerHeight', 4)
             .attr('orient', 'auto')
             .append('path')
             .attr('d', 'M-10,-5L0,0L-10,5')
-            .attr('fill', 'red');
+            .attr('fill', '#D0DAD9');
 
         var start_marker = edge_canvas.append('marker')
             .attr('id', 'link_path_start')
             .attr('viewBox', '0 -5 10 10')
             .attr('refX', 2)
             .attr('refY', 0)
-            .attr('markerWidth', 6)
-            .attr('markerHeight', 6)
+            .attr('markerWidth', 4)
+            .attr('markerHeight', 4)
             .attr('orient', 'auto')
             .append('path')
             .attr('d', 'M10,-5L0,0L10,5')
-            .attr('fill', 'red');
+            .attr('fill', '#D0DAD9');
 
 
     }

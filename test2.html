@@ -67,19 +67,15 @@
         <script src="./slick.editors.js"></script>
 
           <style>
-            .cell-title {
-              font-weight: bold;
-            }
 
-            .cell-effort-driven {
-              text-align: center;
-            }
+
 
             .query-button {
                 background: url('glyphicons_195_circle_info.png ') no-repeat; 
                 width: 40px; 
                 height: 40px;
                 background-position:center; 
+                
             }
 
             .refresh-button {
@@ -177,9 +173,41 @@
         .delete-button:hover { 
             background-position: 0 -30px; 
         }
+        #query-graph-container {
+            background-color: #EBF1F1;
+        }
 
-          </style>
+        .query-node {
+            background-color: #F2FED6;
+            border-style: solid;
+            border-color: #D1DDB9;
+            border-radius:20px;
+        }
 
+        .query-edge{
+            stroke: #8DCC35;
+            border-style: solid;
+            /*stroke-dasharray: 2,2;*/
+            stroke-linejoin: round;     
+            stroke-width: 12px;
+        }
+
+        .query-edges_red{
+            stroke: #D0DAD9;
+
+
+            stroke-width: 5px;
+                  
+           
+        }
+
+        .button {
+            border-radius:30px;
+        }
+
+
+
+        </style>
     </head>
 
 

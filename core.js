@@ -109,7 +109,7 @@ function render_graph(graph) {
         .append('div')
         .classed('query-node', true) // if type node than node is needed
     .style('position', 'absolute')
-        .style('background-color', 'indianred')
+        
         .attr('id', function(node) {
             return node['name'];
         })
@@ -144,6 +144,7 @@ function render_graph(graph) {
 
         top_div.append('div')
             .attr('class', 'name-container')
+            .classed('button', true)
             .style('position', 'absolute')
             .style('height', 40 + 'px')
             .style('width', 40 + 'px')
@@ -165,6 +166,7 @@ function render_graph(graph) {
 
         top_div.append('div')
             .attr('class', 'chart-button')
+            .classed('button', true)
             .style('position', 'absolute')
             .style('height', 40 + 'px')
             .style('width', 40 + 'px')
@@ -184,6 +186,7 @@ function render_graph(graph) {
 
         top_div.append('div')
             .attr('class', 'button-sprite')
+            .classed('button', true)
             .style('position', 'absolute')
             .style('top', '-15px')
             .on('click', function(node) {
@@ -193,6 +196,7 @@ function render_graph(graph) {
         top_div.append('div')
             .attr('class', 'input-window')
             .classed('btn btn-primary', true)
+            .classed('button', true)
             .attr('data-toggle', 'modal')
             .attr('data-target', '.bs-example-modal-lg')
             .style('position', 'absolute')
@@ -209,6 +213,7 @@ function render_graph(graph) {
 
         bottom_div.append('div')
             .attr('class', 'resize-sprite')
+            .classed('button', true)
             .attr('id', node.name)
             .style('position', 'absolute')
             .style('height', 40 + 'px')
@@ -221,6 +226,7 @@ function render_graph(graph) {
 
         bottom_div.append('div')
             .attr('class', 'query-button')
+            .classed('button', true)
             .attr('id', node.name)
             .style('position', 'absolute')
             .style('height', 40 + 'px')
@@ -234,6 +240,7 @@ function render_graph(graph) {
 
         bottom_div.append('div')
             .attr('class', 'refresh-button')
+            .classed('button', true)
             .attr('id', node.name)
             .style('position', 'absolute')
             .style('height', 40 + 'px')
@@ -247,6 +254,7 @@ function render_graph(graph) {
 
         bottom_div.append('div')
             .attr('class', 'delete-selection')
+            .classed('button', true)
             .attr('id', node.name)
             .style('position', 'absolute')
             .style('height', 40 + 'px')
@@ -411,8 +419,7 @@ function render_graph(graph) {
     edges.enter()
         .append('path')
         .classed('query-edge', true)
-        .attr('stroke', "steelblue")
-        .attr('stroke-width', "2px")
+
         .attr('marker-end', "url(#link_path_end)")
         .attr('id', function(node) {
             return node['name'];
@@ -524,7 +531,7 @@ function fill_tables(graph) {
             //var query = get_table_query(graph, node.name);
             //var query_template = _.template("select distinct ?<%= name %> where {{?<%= name %> ?p ?o} UNION {?s ?<%= name %> ?o} UNION {?s ?p ?<%= name %>}}");
             //console.log(node.name);
-console.log(node)
+            console.log(node)
             show_loading_indicator(node);
 
             var query = generate_query(graph, node);
@@ -564,4 +571,3 @@ console.log(node)
 
 
 }
-
