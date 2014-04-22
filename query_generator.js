@@ -204,12 +204,12 @@ function get_type_filter_input(node, equivalent_map) { // lot of change
     }
 }
 
-function local_column_queries(node, equivalent_map) {
+function local_column_queries(graph, node, equivalent_map) {
     return _.map(node.columns, function(column) {
         if (column.property_name == undefined) {
             return;
         } else {
-            return 'OPTIONAL { ' + elem_var_str(node.name, equivalent_map) + '  ' + column.property_name + '  ?' + column_name_generator(node, column) + ' . } .';
+            return 'OPTIONAL { ' + elem_var_str(node.name, equivalent_map) + '  ' + column.property_name + '  ?' + column_name_generator(graph, node, column) + ' . } .';
         }
     }).join('\n\t');
 }
