@@ -174,7 +174,7 @@ function make_it(graph) {
     function make_edge1(graph) {
         var container = d3.select('#query-graph-container');
         var nodes = container.selectAll('.query-node');
-        var edges = edge_canvas.selectAll('.query-edges_red');
+        var edges = edge_canvas.selectAll('.query-edge');
 
         edges.on('click', function(edge) {
             console.log('click_edge1');
@@ -195,7 +195,7 @@ function make_it(graph) {
         //console.log(elem);
         var container = d3.select('#query-graph-container');
         var nodes = container.selectAll('.query-node');
-        var edges = edge_canvas.selectAll('.query-edges_red');
+        var edges = edge_canvas.selectAll('.query-edge');
 
         var finish_making_edge = function(node2) {
             console.log('click_edge2');
