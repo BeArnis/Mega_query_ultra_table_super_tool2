@@ -271,7 +271,7 @@ function local_selection(graph, node, equivalent_map) {
         var elem_var = elem_var_str(node.name, equivalent_map);
         var conditions = _.map(new_selection, function(value) {
             return elem_var + ' = ' + value;
-        }).join(' | ');
+        }).join(' || ');
         var patern = '\tFILTER( ' + conditions + ' ) .\n';
     }
 

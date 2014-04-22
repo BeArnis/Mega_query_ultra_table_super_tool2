@@ -164,12 +164,13 @@ function render_graph(graph) {
 
 
         top_div.append('div')
-            .attr('class', 'chart-button')
+            .classed('glyphicon glyphicon-signal', true)
             .classed('button', true)
             .style('position', 'absolute')
             .style('height', 40 + 'px')
             .style('width', 40 + 'px')
-      
+            .style('top', 9 + 'px')
+            .style('left', 5 + 'px')
             .on('click', function(node) {
                 if (node['active_visualization_type'] == 'TableView') {
                     node['active_visualization_type'] = 'BarChartView';
@@ -184,21 +185,23 @@ function render_graph(graph) {
 
 
         top_div.append('div')
-            .attr('class', 'button-sprite')
-            
+            .attr('class', 'delete-node')           
             .style('position', 'absolute')
-            .style('top', '-15px')
+            .style('top', '-11px')
             .on('click', function(node) {
                 destroy_node(graph, node);
             })
 
         top_div.append('div')
             .attr('class', 'input-window')
-            .classed('btn btn-primary', true)
+            .classed('glyphicon glyphicon-align-justify', true)
+
             .classed('button', true)
             .attr('data-toggle', 'modal')
             .attr('data-target', '.bs-example-modal-lg')
             .style('position', 'absolute')
+            .style('top', 9 + 'px')
+            .style('left', 5 + 'px')
             .style('height', 40 + 'px')
             .style('width', 40 + 'px')
    
@@ -211,26 +214,34 @@ function render_graph(graph) {
             })
 
         bottom_div.append('div')
-            .attr('class', 'resize-sprite')
+            //.attr('class', 'resize-sprite')
             .classed('button', true)
             .attr('id', node.name)
             .style('position', 'absolute')
             .style('height', 40 + 'px')
             .style('width', 40 + 'px')
-      
+            .call(ultimate_drag)
+            .append('div')
+                .style('position', 'absolute')
+                .classed('glyphicon glyphicon-resize-full resize-sprite', true)
+                .style('top', 5 + 'px')
+                .style('left', 5 + 'px')
+                .call(ultimate_drag)
         // .on('mousedown', function(node) {
         //     d3.event.stopPropagation();
         // })
-        .call(ultimate_drag);
+        
 
         bottom_div.append('div')
             .attr('class', 'query-button')
+            .classed('glyphicon glyphicon-info-sign', true)
             .classed('button', true)
             .attr('id', node.name)
             .style('position', 'absolute')
+            .style('top', 5 + 'px')
+            .style('left', 5 + 'px')
             .style('height', 40 + 'px')
             .style('width', 40 + 'px')
-         
             .on('click', function(node) {
                 var query = generate_query(graph, node);
                 console.log('query: \n', query, '\n', node.query_param);
@@ -239,9 +250,12 @@ function render_graph(graph) {
 
         bottom_div.append('div')
             .attr('class', 'refresh-button')
+            .classed('glyphicon glyphicon-refresh', true)
             .classed('button', true)
             .attr('id', node.name)
             .style('position', 'absolute')
+            .style('top', 5 + 'px')
+            .style('left', 5 + 'px')            
             .style('height', 40 + 'px')
             .style('width', 40 + 'px')
           
@@ -253,9 +267,12 @@ function render_graph(graph) {
 
         bottom_div.append('div')
             .attr('class', 'delete-selection')
+            .classed('glyphicon glyphicon glyphicon-repeat', true)
             .classed('button', true)
             .attr('id', node.name)
             .style('position', 'absolute')
+            .style('top', 5 + 'px')
+            .style('left', 5 + 'px')
             .style('height', 40 + 'px')
             .style('width', 40 + 'px')
   
@@ -324,26 +341,26 @@ function render_graph(graph) {
 
 
 
-            top_div.select('.table-button')
-                .style('left', function(node) {
-                    return node.geometry.width - 150 + 'px';
-                });
+            // top_div.select('.glyphicon-signal')
+            //     .style('left', function(node) {
+            //         return node.geometry.width - 150 + 'px';
+            //     });
 
-            top_div.select('.chart-button')
+            top_div.select('.glyphicon-signal')
                 .style('left', function(node) {
                     return node.geometry.width - 100 + 'px';
                 });
 
 
 
-            top_div.select('.button-sprite')
+            top_div.select('.delete-node')
                 .style('left', function(node) {
-                    return node.geometry.width - 15 + 'px';
+                    return node.geometry.width - 25 + 'px';
                 });
 
             top_div.select('.input-window')
                 .style('left', function(node) {
-                    return node.geometry.width - 50 + 'px';
+                    return node.geometry.width - 150 + 'px';
                 });
 
 

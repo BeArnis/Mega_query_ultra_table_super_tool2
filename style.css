@@ -1,45 +1,43 @@
 /* The CSS */
-    .query-button {
+/*    .query-button {
         background: url('glyphicons_195_circle_info.png ') no-repeat; 
         width: 40px; 
         height: 40px;
         background-position:center; 
         
-    }
+    }*/
 
-    .refresh-button {
+/*    .refresh-button {
         background: url('glyphicons_081_refresh.png') no-repeat; 
         width: 50px; 
         height: 50px;
         background-position:center; 
-    }
+    }*/
 
-    .button-sprite { 
+    .delete-node { 
         background: url('close_button.png') no-repeat; 
         width: 30px; 
         height: 30px; 
     }
 
-    .button-sprite:hover { 
+    .delete-node:hover { 
         background-position: 0 -30px; 
     }
 
     .resize-sprite {
-        background: url('glyphicons_215_resize_full.png') no-repeat; 
-        width: 30px; 
-        height: 30px;
+
         -webkit-transform:rotate(90deg);
         -moz-transform: rotate(90deg);
 
-        background-position:center;                 
+                         
     }
 
-    .table-button {
+/*    .table-button {
         background: url('glyphicons_119_table.png') no-repeat; 
         width: 40px; 
         height: 40px;
         background-position:center; 
-    }
+    }*/
 
     .chart-button {
         background: url('glyphicons_079_signal.png') no-repeat; 
@@ -48,12 +46,12 @@
         background-position:center;
     }
 
-    .delete-selection {
+/*    .delete-selection {
         background: url('glyphicons_365_restart.png') no-repeat; 
         width: 40px; 
         height: 40px;
         background-position:center; 
-    }
+    }*/
     
     /* chart styles*/
     .bar { 
@@ -103,11 +101,11 @@
     background-position: 0 -30px; 
 }
 #query-graph-container {
-    background-color: gray;
+    background-color: #3B5155;
 }
 
 .query-node {
-    background-color: #dddddd;
+    background-color: #D6DDA4;
     border-style: solid;
     border-color: #435B6D;
     border-radius:20px;
@@ -115,7 +113,7 @@
 }
 
 .query-edge{
-    stroke: #8C89C9;
+    stroke: hsl(186, 59%, 51%);
     border-style: solid;
     /*stroke-dasharray: 2,2;*/
     stroke-linejoin: round;     
@@ -131,10 +129,10 @@
    
 }
 
-.button {
+/*.button {
     border-radius:30px;
     opacity:0.6;
-}
+}*/
 
 .create-button {
     background-color: yellow;
@@ -145,7 +143,7 @@
 }
 
 .edge_marker {
-    fill: #8C89C9;
+    fill: hsl(186, 59%, 51%);
 }
 
 .edge_marker_end {
@@ -154,4 +152,30 @@
 
 .edge_marker_start{
     fill: #D0DAD9;
+}
+
+.glyphicon {
+  position: relative;
+  font-family: 'Glyphicons Halflings';
+  font-style: normal;
+  font-size: 25px;
+  color: #6C93AF;
+
+}
+.glyphicon:hover {
+    color: hsl(206, 24%, 35%);
+}
+
+.input-window {
+
+    -webkit-transform:rotate(90deg);
+    -moz-transform: rotate(90deg);
+}
+
+.slick-cell {
+
+}
+
+.name-container {
+    color: hsl(291, 414%, 35%);
 }
