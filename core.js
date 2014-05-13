@@ -3,30 +3,41 @@ conn.setEndpoint('http://localhost:5820/');
 conn.setCredentials('admin', 'admin');
 conn.setReasoning('QL');
 
-function show_loading_indicator(node) {
+function show_indicator(node, indicator_class, indicator_label) {
     console.assert(node.node_div);
     var node_div = node.node_div;
     if (!node.tmp) {
         node.tmp = {};
     }
-    if (!node.tmp.loadingIndicator) {
-        var loadingIndicator = $('<span class="loading-indicator"><label>Buffering...</label></span>').appendTo(node_div.node());
-        var $g = $(node_div.node());
+    if (!node.tmp.indicator) {
+        var indicator = $('<span class="indicator"><label></label></span>').appendTo(node_div.node());
 
-        node.tmp.loadingIndicator = loadingIndicator;
 
-        loadingIndicator
+        node.tmp.indicator = indicator;
+
+        indicator
             .css('position', 'relative')
-            .css('top', node.geometry.height / 2 - loadingIndicator.height() / 2)
-            .css('left', node.geometry.width / 2 - loadingIndicator.width() / 2);
+            .css('top', node.geometry.height / 2 - indicator.height() / 2)
+            .css('left', node.geometry.width / 2 - indicator.width() / 2);
+
     }
 
+    
+    node.tmp.indicator.addClass(indicator_class);
+    node.tmp.indicator.find('label').text(indicator_label);
+   
+   
+
+
     // console.log('SHOW loading indicator for', node.id);
-    node.tmp.loadingIndicator.show();
+    node.tmp.indicator.show();
 }
 
 function hide_loading_indicator(node) {
-    node.tmp.loadingIndicator.hide();
+    node.tmp.indicator.hide(); // what
+    node.tmp.indicator.removeClass();
+    node.tmp.indicator.addClass('indicator');
+    node.tmp.indicator.find('label').empty();
 }
 
 function render_graph(graph) {
@@ -63,7 +74,7 @@ function render_graph(graph) {
                 d.geometry.width = Math.max(d3.event.x, 500);
                 d.geometry.height = Math.max(d3.event.y, 300);
             } else if (drag_type == 'move') {
-                console.log(d.geometry, d3.event);
+                //console.log(d.geometry, d3.event);
                 d.geometry.x = d3.event.x;
                 d.geometry.y = d3.event.y;
             } else {
@@ -78,7 +89,7 @@ function render_graph(graph) {
             drag_type = null;
         })
 
-    console.log(graph)
+    //console.log(graph)
 
     var container = d3.select('#query-graph-container')
         .style('position', 'relative');
@@ -117,9 +128,13 @@ function render_graph(graph) {
     //.call(drag)
 
     .each(function(node) {
+
+
         var node_div = d3.select(this);
 
         node.node_div = node_div;
+
+
 
         var top_div = node_div.append('div')
             .attr('class', 'top-container')
@@ -142,26 +157,92 @@ function render_graph(graph) {
 
 
 
-        top_div.append('div')
+        var type_field = top_div.append('div')
             .attr('class', 'name-container')
             .style('position', 'absolute')
+            .style('top', -50 + 'px')
             .style('height', 40 + 'px')
-            .style('width', 40 + 'px')
- 
-            .text(function(node) {
-                return node.name;
-            })
+            .style('width', 200 + 'px')
             .style("font-family", "sans-serif")
-            .style("font-size", '30px');
+            .style("font-size", '30px')
+            
 
 
+        var input_group = type_field.append('div')
+            .classed('col-lg-12', true)
+
+
+
+            .append('select')
+                .style('width', 400 + 'px')
+                .classed('input-group', true)
+                .classed('form-control', true)
+                .classed('type_combobox', true)
+                    .classed('type_ul', true); // very bad name
+
+
+
+          
+                
+
+        // var input = input_group.append('input')
+        //         .attr('type', 'text')
+        //         .classed('form-control', true)
+        //         .classed('input', true)
+        //         .attr('value', function(d) {
+
+        //             return d.query_param.current_type;
+        //         })
+        //         .on('keydown', function(e) {
+        //             if (d3.event.keyCode == 13) {
+        //                 e.query_param.current_type = this.value;
+
+
+        //                 // render_graph(graph);
+        //                 // fill_tables(graph);
+        //             }
+        //         })
+
+        // var type_div = input_group.append('div')
+        //     //.classed('input-group-bt', true);
+
+
+
+        // var button = type_div.append('button')
+        //     .classed('btn btn-default dropdown-toggle', true)
+        //     .attr('data-toggle', 'dropdown');
+
+        // button.append('span')
+        //     .classed('caret', true)
+
+        // var ul = type_div.append('select')
+            
+        //     .classed('dropdown-menu', true)
+
+  
         // top_div.append('div')
-        //     .attr('class', 'table-button')
+        // top_div.append('div')
+        //     .classed('button', true)
         //     .style('position', 'absolute')
+        //     .style('background-color', 'red')
         //     .style('height', 40 + 'px')
         //     .style('width', 40 + 'px')
-        //     .style('background-color', 'pink')
+        //     .style('left', 20 + 'px')   
+        //     .on('click', function(node) {
+        //         get_types(graph, node);
+        //         render_graph(graph);
+        //         fill_tables(graph);
+        //     });    
 
+
+        top_div.append('div')
+            .classed('button', true)
+            .classed('glyphicon glyphicon-info-sign type_query', true)
+            .style('height', 40 + 'px')
+            .style('width', 40 + 'px')
+            .on('click', function(node) {
+                console.log('type query\n', node.query_param.type_query);
+            });
 
         top_div.append('div')
             .classed('glyphicon glyphicon-signal', true)
@@ -195,7 +276,6 @@ function render_graph(graph) {
         top_div.append('div')
             .attr('class', 'input-window')
             .classed('glyphicon glyphicon-align-justify', true)
-
             .classed('button', true)
             .attr('data-toggle', 'modal')
             .attr('data-target', '.bs-example-modal-lg')
@@ -328,7 +408,7 @@ function render_graph(graph) {
                     return node.geometry.width + 'px';
                 })
                 .style('height', function(node) {
-                    return node.geometry.height - 80 + 'px';
+                    return node.geometry.height - 100 + 'px';
                 });
 
             var bottom_div = node_div.select('.bottom-container')
@@ -345,6 +425,35 @@ function render_graph(graph) {
             //     .style('left', function(node) {
             //         return node.geometry.width - 150 + 'px';
             //     });
+
+      // ul.selectAll('.li') // update
+      //           .data(function(d) {
+      //               //console.log(d.query_param.type_arr);
+      //               return d.query_param.type_arr;
+      //           })
+                
+
+            //bind
+            var li = top_div.select('.type_ul').selectAll('option')
+                .data(function(d) {
+                    return d.query_param.type_arr;
+                })
+               
+            //create
+            li.enter()
+                .append('option')
+                .classed('option', true);
+              
+            //update    
+            li.text(function(d) {
+
+                    return d;
+                });  
+            
+
+            //exit
+            li.exit().remove();
+
 
             top_div.select('.glyphicon-signal')
                 .style('left', function(node) {
@@ -562,43 +671,55 @@ function fill_tables(graph) {
             //var query = get_table_query(graph, node.name);
             //var query_template = _.template("select distinct ?<%= name %> where {{?<%= name %> ?p ?o} UNION {?s ?<%= name %> ?o} UNION {?s ?p ?<%= name %>}}");
             //console.log(node.name);
-            console.log(node)
-            show_loading_indicator(node);
+            //console.log(node)
+            show_indicator(node, 'warning', 'Binding....');
 
             var query = generate_query(graph, node);
-            conn.query({
+            throttled_query({
                     database: 'myDB4',
                     query: query,
                     limit: 30,
                     offset: 0
                 },
                 function(data) {
-                    // console.log(node['query_param']['selection']);
-                    var actual_results = data.results.bindings;
-                    if (actual_results.length == 1) {
-                        // jo ja ir agregaacijs, tad pat ja ir tuksh rezultaats,
-                        // tad buus viens ieraksts kur agregaacijas kolonaas ir 0es
-                        actual_results = _.filter(actual_results, function(obj) {
-                            return obj[node.name]
-                        });
+                    console.log(data);
+                    if (data.results == undefined) {
+                        hide_loading_indicator(node);
+                        show_indicator(node, 'error', 'Error....');
+                    } else { 
+                        var actual_results = data.results.bindings;
+                        if (actual_results.length == 1) {
+                            // jo ja ir agregaacijs, tad pat ja ir tuksh rezultaats,
+                            // tad buus viens ieraksts kur agregaacijas kolonaas ir 0es
+                            actual_results = _.filter(actual_results, function(obj) {
+                                return obj[node.name]
+                            });
+                        }
+
+                        var first_collum_obj = _.pluck(actual_results, node.name);
+                        var table_values = get_selection_values(first_collum_obj);
+                        // var table_values = _.chain(data.results.bindings).pluck(node.name).pluck('value').value();
+
+
+                        node['query_param']['selection'] = selection_intersection(node['query_param']['selection'], first_collum_obj); // gets those values that were in the graph selection before  need change 
+
+
+                        console.assert(node.current_visualization_view)
+                        //console.log(node.name, actual_results, node, node.current_visualization_view);
+                        node.current_visualization_view.set_data(actual_results)
+
+                        hide_loading_indicator(node);
+
+
                     }
-
-                    var first_collum_obj = _.pluck(actual_results, node.name);
-                    var table_values = get_selection_values(first_collum_obj);
-                    // var table_values = _.chain(data.results.bindings).pluck(node.name).pluck('value').value();
+                });
 
 
-                    node['query_param']['selection'] = selection_intersection(node['query_param']['selection'], first_collum_obj); // gets those values that were in the graph selection before  need change 
 
+            get_types(graph, node);
 
-                    console.assert(node.current_visualization_view)
-                    //console.log(node.name, actual_results, node, node.current_visualization_view);
-                    node.current_visualization_view.set_data(actual_results)
-
-                    hide_loading_indicator(node);
-
-                })
         });
-
+    
 
 }
+

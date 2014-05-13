@@ -79,7 +79,13 @@ function generate_query(graph, node) {
         } else return '';
     }
 
-
+    function selected_type_in_query(graph, node) {
+        if (node.query_param.current_type == null || node.query_param.current_type == 'all') {
+            return;
+        } else {
+            return '?' + node.name + ' a <' + node.query_param.current_type + '>';
+        }
+    }
 
     //console.log(query_column_names, group_names);
     // ?node.name + colum_vars(but not all)  hmmm???
@@ -179,7 +185,7 @@ function local_filter(node, equivalent_map) {
     var type_filter_input = get_type_filter_input(node);
     //console.log(type_filter_input);
     if (type_filter_input) {
-
+        
         pattern = elem_var_str(node.name, equivalent_map) + ' a <' + type_filter_input + '> .\n';
 
     } else if (_.isEmpty(node.incoming_lines)) {
@@ -199,8 +205,8 @@ function local_filter(node, equivalent_map) {
 
 
 function get_type_filter_input(node, equivalent_map) { // lot of change
-    if (_.isString(node['query_param']) && node['query_param']['input'].lenght > 0) {
-        return node['query_param']['input'];
+    if (node['query_param']['current_type']) {
+        return node['query_param']['current_type'];
     } else {
         return null;
     }

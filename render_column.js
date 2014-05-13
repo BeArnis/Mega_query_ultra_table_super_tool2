@@ -1,39 +1,38 @@
 
 
-
 function init_column_make_container() {
     var body = d3.select('body');
-    var container = body.select('#table');
+    var table_view_column_container = body.select('#preferences_container');
 
     //bind
 
     // create container for columns
-    var tab_container = container.append('div')
+    var view_def_container = table_view_column_container.append('div')
         .classed('input-group', true)
+        .attr('id', 'view_def_container')
         .style('height', 700 + 'px')
         .style('width', '100%');
-
-
 
 }
 
 function render_columns(graph, node) {
-    console.log('column');
-    var column_rows = d3.select('.input-group').selectAll('.column_row')
+
+    //
+    var column_rows = d3.select('#view_def_container').selectAll('.column_row')
         .data(node.columns, function(column, i) {
-            console.log('column_nr', i)
             return column.id;
         });
 
-    var create = d3.select('.input-group').selectAll('.first_create')
-        .data([null]); // need this only once
+    var create = d3.select('#view_def_container').selectAll('.first_create')
+        .data([null]); 
+        // need this only once
 
 
     create.enter()
         .append('div')
-        .classed('create-button', true)
-        .classed('delete-button', true)
-        .classed('first_create', true)
+        .classed('create-button', true) // default create button
+        .classed('delete-button', true) // adds the glyph for it
+        .classed('first_create', true) // original class
         .classed('col-lg-12', true)
         
         .on('click', function(d) {
@@ -94,7 +93,7 @@ function render_columns(graph, node) {
                 .classed('create-button', true)
                 .classed('delete-button', true)
                 .classed('col-lg-6', true)
-                .style('background-color', 'yellow')
+                
                 .on('click', function(d) {
                     //create, needs access to graph
                     create_new_column(graph, node)
@@ -134,7 +133,7 @@ function render_columns(graph, node) {
 
                             this.column_def.type = 'aggregate';
                             this.column_def.aggregation_function = new_value;
-                            this.column_def.what_to_aggregate = node.incoming_lines[1];
+                            this.column_def.what_to_aggregate = node.incoming_lines[0]; 
                             delete this.column_def.property_name;
 
                         }
@@ -153,7 +152,7 @@ function render_columns(graph, node) {
 
                         var list = div
                             .append('ul') // drop down table
-                        .classed('dropdown-menu pull-right', true)
+                        .classed('dropdown-menu pull-right column_ul', true)
 
                         list.selectAll('.li')
                             .data(_.map(div.datum().field_data, function(field_data) {
@@ -207,7 +206,7 @@ function render_columns(graph, node) {
 
                         var list = div
                             .append('ul') // drop down table
-                        .classed('dropdown-menu pull-right', true)
+                        .classed('dropdown-menu pull-right column_ul', true)
 
                         list.selectAll('.li')
                             .data(_.map(div.datum().field_data, function(field_data) {
@@ -315,7 +314,7 @@ function render_columns(graph, node) {
 
                             this.column_def.type = 'aggregate';
                             this.column_def.aggregation_function = new_value;
-                            this.column_def.what_to_aggregate = '';
+                            this.column_def.what_to_aggregate = node.incoming_lines[0];
                             delete this.column_def.property_name;
 
                         }
@@ -340,7 +339,7 @@ function render_columns(graph, node) {
 
                         var list = div
                             .append('ul') // drop down table
-                        .classed('dropdown-menu pull-right', true)
+                        .classed('dropdown-menu pull-right column_ul', true)
 
                         list.selectAll('.li')
                             .data(_.map(div.datum().field_data, function(field_data) {
@@ -397,7 +396,7 @@ function render_columns(graph, node) {
 
                         var list = div
                             .append('ul') // drop down table
-                        .classed('dropdown-menu pull-right', true)
+                        .classed('dropdown-menu pull-right column_ul', true)
 
                         list.selectAll('.li')
                             .data(_.map(div.datum().field_data, function(field_data) {
@@ -467,6 +466,7 @@ function render_columns(graph, node) {
                             .classed('form-control', true)
                         // .classed('btn btn-default dropdown-toggle', true)
                         .classed('what_to_aggregate', true)
+
                             .attr('data-toggle', 'dropdown')
                             .on('change', function(d) {
                                 console.warn('input change');
@@ -474,16 +474,17 @@ function render_columns(graph, node) {
                                 render_columns(graph, node);
                                 render_graph(graph);
                                 fill_tables(graph);
-                            })
-                            .attr('value', function(d) {
-
-                                return d.value; // maybe need to pasre this 
-                            })
+                            });
                     },
                     update_view: function(div) {
+                        console.log(div.datum())
+                        div.classed('has-error', div.datum().value == undefined || div.datum().value == '');
+
                         div.selectAll('.what_to_aggregate')
                             .attr('value', function(d) {
-                                return d.value; // maybe need to pasre this 
+                                console.warn('value', div.datum().value, d.value)
+
+                                return d.value; // maybe need to  
                             })
                     }
                 }];

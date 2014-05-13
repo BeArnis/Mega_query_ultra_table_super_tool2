@@ -52,7 +52,8 @@ BarChartView = function() {
         yAxis = d3.svg.axis()
             .scale(y)
             .orient("left")
-            .ticks(10);
+            .ticks(10)
+
 
 
 
@@ -77,6 +78,9 @@ BarChartView = function() {
 
         xAxis_g = svg.append("g")
             .attr("class", "x axis")
+            // .attr("transform", function(d) {
+            //     return "rotate(-65)" 
+            //     });
 
 
         yAxis_g = svg.append("g")
@@ -99,7 +103,10 @@ BarChartView = function() {
 
 
 
+
         refresh_view_from_node();
+
+
         return that;
     }
 
@@ -164,6 +171,8 @@ BarChartView = function() {
 
         xAxis_g
             .attr("transform", "translate(0," + height + ")")
+
+
             .call(xAxis);
         yAxis_g
             .call(yAxis);
@@ -196,10 +205,23 @@ BarChartView = function() {
 
 
         function get_x_value(d) {
-            return d[node.name].value;
+            console.log(d[node.name].value)
+            var data_value = d[node.name].value;
+            var matching_prefix_def = _(graph.prefixes).find(function(prefix_def) {
+            //console.log(value, prefix_def.namespace.length)
+            return data_value.substring(0, prefix_def.namespace.length) === prefix_def.namespace;
+            });
+
+            if (matching_prefix_def) {
+                return data_value.replace(matching_prefix_def.namespace, '');
+            } else {
+                return data_value;
+            }
+            //return d[node.name].value;
         }
 
         function get_y_value(d) {
+
             return parseInt(d[column_name].value);
         }
 
@@ -277,7 +299,10 @@ BarChartView = function() {
         brush_g
             .call(brush)
             .selectAll("rect")
-            .attr("height", height);
+            .attr("height", height)
+            ;
+
+
 
     }
 
@@ -297,3 +322,5 @@ BarChartView = function() {
 
     return that;
 };
+
+

@@ -13,7 +13,9 @@
         height: 50px;
         background-position:center; 
     }*/
-
+    .error {
+        color: red;
+    }
     .delete-node { 
         background: url('close_button.png') no-repeat; 
         width: 30px; 

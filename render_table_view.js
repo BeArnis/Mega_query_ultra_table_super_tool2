@@ -116,7 +116,8 @@ function make_it(graph) {
             'type': 'node',
             'incoming_lines': [],
             'query_param': {
-                'input': null,
+                'type_arr': [],
+                'current_type': null,
                 'selection': []
             },
             'geometry': {
@@ -197,16 +198,16 @@ function make_it(graph) {
         var nodes = container.selectAll('.query-node');
         var edges = edge_canvas.selectAll('.query-edge');
 
-        var finish_making_edge = function(node2) {
-            console.log('click_edge2');
-            if (elem.name == edge.name) {
-                return;
-            } else if (type == 'edge' || type == 'hyper_edge') {
-                draw_edge(graph, elem, edge);
-                d3.event.stopPropagation();
-                return;
-            }
-        }
+        // var finish_making_edge = function(node2) {
+        //     console.log('click_edge2');
+        //     if (elem.name == edge.name) {
+        //         return;
+        //     } else if (type == 'edge' || type == 'hyper_edge') {
+        //         draw_edge(graph, elem, edge);
+        //         d3.event.stopPropagation();
+        //         return;
+        //     }
+        // }
 
         var finish_making_edge = function(node2) {
             //console.log('click2', node2.name, d3.event.keyCode);
@@ -216,18 +217,29 @@ function make_it(graph) {
                 draw_edge(graph, elem, node2);
                 d3.event.stopPropagation();
                 nodes.on('click', null);
+                edges.on('click', null);
             } else {
                 draw_edge(graph, elem, node2);
                 d3.event.stopPropagation();
                 nodes.on('click', null);
+                edges.on('click', null);
 
                 return;
             }
         }
 
-        nodes.on('click', finish_making_edge)
+        
 
-        edges.on('click', finish_making_edge)
+        if (type == 'edge' || type == 'hyper_edge') {
+            console.log('not this');
+            nodes.on('click', finish_making_edge)
+        } else {
+            console.log('yes this');
+            edges.on('click', finish_making_edge);
+            nodes.on('click', finish_making_edge);
+        }
+
+        
     }
 
     function draw_edge(graph, elem1, elem2) {
@@ -336,12 +348,12 @@ function make_it(graph) {
 
 
 
-    $(document.body).on('click', '.dropdown-menu li', function(event) { // problem with scope?
+    $(document.body).on('click', '.column_ul', function(event) { // problem with scope?
 
         console.log('list');
 
         var li = d3.select(event.currentTarget);
-        console.log(li.node(), li.datum().data.node, li.datum().data.update(li.datum().value)) // somehow this does not work
+        console.log(li.node(), li.datum().data.node, li.datum().data.update(li.datum().value)) // somehow this does works
 
 
         render_columns(graph, li.datum().data.node); // need node of this collumn 
@@ -349,6 +361,30 @@ function make_it(graph) {
         fill_tables(graph); // this cuould not be good
         // this here
 
+    });
+
+    $(document.body).on('click', '.type_ul', function(event) { // problem with scope?
+
+
+        var li = d3.select(event.currentTarget);
+        console.log(graph, this.options[this.selectedIndex].text) // wtf how to get the value?????
+        d3.select(this)
+            .attr('value', function(d) {
+                d.query_param.current_type = this.options[this.selectedIndex].text;
+                console.log(this)
+            })
+        
+        render_graph(graph);
+        fill_tables(graph); // on fill tables the index of combox is lost
+        // this here
+        // d3.select(this)
+        //     .attr('value', function(d) {
+        //         console.log(d.query_param['type_arr']); // need to wait to get the set
+        //         // if (_.indexOf(d.query_param.type_arr, d.query_param.current_type) != -1) {
+        //         //     this.selectedIndex = _.indexOf(d.query_param.type_arr, d.query_param.current_type);
+        //         // }
+                
+        //     })
 
 
     });

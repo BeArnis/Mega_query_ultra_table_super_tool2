@@ -17,6 +17,7 @@
         <!-- bootstrap -->
         <link rel='stylesheet' href='bower_components/bootstrap/dist/css/bootstrap.min.css' type='text/css'/>
         <script src='bower_components/bootstrap/dist/js/bootstrap.min.js'></script>
+
         
 
         <!-- SlickGrid -->
@@ -40,6 +41,8 @@
 
         <link rel='stylesheet' href='./style.css' type='text/css'/>
         <script src="./style.css"></script>
+        <script src="./throttleg_query_exicution.js"></script>
+        
         <script src="./utilities.js"></script>
         <script src="./query_generator.js"></script>
         
@@ -89,20 +92,15 @@
       
         <ul class="nav nav-tabs" id='MyTab'>
           <li class="active"><a href="#tab" data-toggle="tab">Table</a></li>
-          <li><a href="#bar" data-toggle="tab">BarChart</a></li>
         </ul>
 
         <!-- Tab panes -->
         <div class="tab-content">
         
-          <div class="tab-pane active" id="table">
+          <div class="tab-pane active" id="preferences_container">
             <!-- Tab -->
           <!-- Table content -->
           
-          </div>
-          <div class="tab-pane" id="bar">
-          <!-- barchart content -->
-          bar
           </div>
         </div>
     </div>
@@ -140,17 +138,19 @@
         'type': 'node',
         'incoming_lines': ['l1'],
         'query_param': {
-            'input': null,
+            'type_query': '',
+            'current_type': null,
+            'type_arr': [],
             'selection': [{
                 value: 'http://example.com/ontology1#wife',
                 type: 'uri'
-            }]
+            }]  
         },
         'geometry': {
             'x': 150,
             'y': 125,
             'width': 1010,
-            'height': 500
+            'height': 550
         },
         'active_visualization_type': 'TableView', // must be one of keys in visualization_defs
         'visualization_defs': {
@@ -187,14 +187,16 @@
         'type': 'node',
         'incoming_lines': ['l1'],
         'query_param': {
-            'input': null,
+            'type_query': '',
+            'type_arr': [],
+            'current_type': null,
             'selection': []
         },
         'geometry': {
             'x': 1750,
             'y': 125,
             'width': 1010,
-            'height': 500,
+            'height': 550
         },
         'active_visualization_type': 'TableView', // must be one of keys in visualization_defs
         'visualization_defs': {
@@ -208,23 +210,23 @@
             }
         },
         'columns': [{
+            // // data property
+            // 'id': 'e11a9728-47a6-4e58-a9e8-5f897ab8223d',
+            // 'type': 'direct',
+            // 'column_label': 'label',
+            // 'property_name': 'rdfs:label',
+            // 'sort': 'ascending',
+            // 'width': 330
+        // }, {
             // data property
-            'id': 'e11a9728-47a6-4e58-a9e8-5f897ab8223d',
-            'type': 'direct',
-            'column_label': 'label',
-            'property_name': 'rdfs:label',
-            'sort': 'ascending',
-            'width': 330
-        }, {
-            // data property
-            'id': 'e8727bc7-1279-4fb0-897a-84c6f73abce8',
-            'type': 'aggregate',
-            'column_label': 'count_l1',
-            'aggregation_function': 'count',
-            'what_to_aggregate': 'l1',
-            'sort': 'descending',
-            'width': 330
-        }, {
+        //     'id': 'e8727bc7-1279-4fb0-897a-84c6f73abce8',
+        //     'type': 'aggregate',
+        //     'column_label': 'count_l1',
+        //     'aggregation_function': 'count',
+        //     'what_to_aggregate': 'l1',
+        //     'sort': 'descending',
+        //     'width': 330
+        // }, {
             // data property
             'id': '01ca3ae0-b85c-409b-97a7-6dca85860f88',
             'type': 'aggregate',
@@ -242,14 +244,16 @@
         'type': 'node',
         'incoming_lines': ['hl1'],
         'query_param': {
-            'input': null,
+            'type_query': '',
+            'type_arr': [],
+            'current_type': null,
             'selection': []
         },
         'geometry': {
             'x': 950,
             'y': 885,
             'width': 1010,
-            'height': 500,
+            'height': 550,
         },
         'active_visualization_type': 'TableView', // must be one of keys in visualization_defs
         'visualization_defs': {
