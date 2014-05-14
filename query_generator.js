@@ -102,7 +102,7 @@ function generate_query(graph, node) {
     return query;
 }
 
-function constraint(graph, elem, from_elem, visited, equivalent_map) {
+function constraint(graph, elem, from_elem, visited, equivalent_map, is_type_constraint) {
     var patterns = ['\n# ' + elem.name + ' ->'];
     if (!equivalent_map[elem.name]) {
         equivalent_map[elem.name] = elem.name;

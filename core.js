@@ -160,7 +160,8 @@ function render_graph(graph) {
         var type_field = top_div.append('div')
             .attr('class', 'name-container')
             .style('position', 'absolute')
-            .style('top', -50 + 'px')
+            //.style('top', -50 + 'px')
+            .style('left', 50 + 'px')
             .style('height', 40 + 'px')
             .style('width', 200 + 'px')
             .style("font-family", "sans-serif")
@@ -169,16 +170,26 @@ function render_graph(graph) {
 
 
         var input_group = type_field.append('div')
-            .classed('col-lg-12', true)
-
-
-
             .append('select')
                 .style('width', 400 + 'px')
                 .classed('input-group', true)
                 .classed('form-control', true)
                 .classed('type_combobox', true)
-                    .classed('type_ul', true); // very bad name
+                .classed('type_ul', true)
+                .on('change', function(node) {
+
+                    select = d3.select(this);
+                    options = select.selectAll('option');
+
+                    var selectedIndex = select.property('selectedIndex');
+                    console.log(select, options, selectedIndex)
+                    var data = d3.select(options[0][selectedIndex]).datum();
+                    node.query_param.current_type = data;
+                    console.log(node, data, graph)
+
+                    render_graph(graph);
+                    fill_tables(graph);                    
+                }); // very bad name
 
 
 
@@ -421,17 +432,6 @@ function render_graph(graph) {
 
 
 
-            // top_div.select('.glyphicon-signal')
-            //     .style('left', function(node) {
-            //         return node.geometry.width - 150 + 'px';
-            //     });
-
-      // ul.selectAll('.li') // update
-      //           .data(function(d) {
-      //               //console.log(d.query_param.type_arr);
-      //               return d.query_param.type_arr;
-      //           })
-                
 
             //bind
             var li = top_div.select('.type_ul').selectAll('option')
@@ -442,7 +442,8 @@ function render_graph(graph) {
             //create
             li.enter()
                 .append('option')
-                .classed('option', true);
+                .classed('option', true)
+
               
             //update    
             li.text(function(d) {

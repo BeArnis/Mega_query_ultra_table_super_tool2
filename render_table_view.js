@@ -363,31 +363,31 @@ function make_it(graph) {
 
     });
 
-    $(document.body).on('click', '.type_ul', function(event) { // problem with scope?
+    // $(document.body).on('click', '.type_ul', function(event) { // problem with scope? worst word
 
 
-        var li = d3.select(event.currentTarget);
-        console.log(graph, this.options[this.selectedIndex].text) // wtf how to get the value?????
-        d3.select(this)
-            .attr('value', function(d) {
-                d.query_param.current_type = this.options[this.selectedIndex].text;
-                console.log(this)
-            })
+    //     var li = d3.select(event.currentTarget);
+    //     console.log(graph, this.options[this.selectedIndex].text) // wtf how to get the value?????
+    //     d3.select(this)
+    //         .attr('value', function(d) {
+    //             d.query_param.current_type = this.options[this.selectedIndex].text;
+    //             console.log(this)
+    //         })
         
-        render_graph(graph);
-        fill_tables(graph); // on fill tables the index of combox is lost
-        // this here
-        // d3.select(this)
-        //     .attr('value', function(d) {
-        //         console.log(d.query_param['type_arr']); // need to wait to get the set
-        //         // if (_.indexOf(d.query_param.type_arr, d.query_param.current_type) != -1) {
-        //         //     this.selectedIndex = _.indexOf(d.query_param.type_arr, d.query_param.current_type);
-        //         // }
+    //     render_graph(graph);
+    //     fill_tables(graph); // on fill tables the index of combox is lost
+    //     // this here
+    //     // d3.select(this)
+    //     //     .attr('value', function(d) {
+    //     //         console.log(d.query_param['type_arr']); // need to wait to get the set
+    //     //         // if (_.indexOf(d.query_param.type_arr, d.query_param.current_type) != -1) {
+    //     //         //     this.selectedIndex = _.indexOf(d.query_param.type_arr, d.query_param.current_type);
+    //     //         // }
                 
-        //     })
+    //     //     })
 
 
-    });
+    // });
 
     $("#resize").click(function() {
         console.log('yes');
