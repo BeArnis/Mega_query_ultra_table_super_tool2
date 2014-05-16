@@ -668,7 +668,15 @@ function fill_tables(graph) {
 
                         node['query_param']['selection'] = selection_intersection(node['query_param']['selection'], first_collum_obj); // gets those values that were in the graph selection before  need change 
 
+                        if (!_.isEqual(node['table_values'], table_values)) {
+                            fill_tables(graph);
+                        }
+                        console.log(node['table_values'], table_values);
+                        node['table_values'] = table_values;
+
+
                         
+
 
                         current_selection = _.chain(node['query_param']['selection'])
                             .map(function(nested_obj) {
@@ -679,7 +687,7 @@ function fill_tables(graph) {
                             })
                             .value();
 
-                        console.log(table_values, node['query_param']['selection'], current_selection)
+                        // console.log(table_values, node['query_param']['selection'], current_selection, node)
                         // if (!obj_equal(bar_obj_selection, node.query_param['selection'])) {
                             
                         // }
