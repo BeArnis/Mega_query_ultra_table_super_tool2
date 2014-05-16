@@ -665,38 +665,40 @@ function fill_tables(graph) {
                         var table_values = get_selection_values(first_collum_obj);
                         // var table_values = _.chain(data.results.bindings).pluck(node.name).pluck('value').value();
 
-
+                        current = node['query_param']['selection'];
                         node['query_param']['selection'] = selection_intersection(node['query_param']['selection'], first_collum_obj); // gets those values that were in the graph selection before  need change 
 
-                        if (!_.isEqual(node['table_values'], table_values)) {
+                        if (!_.isEqual(node['query_param']['selection'], current)) {
                             fill_tables(graph);
-                        }
-                        console.log(node['table_values'], table_values);
-                        node['table_values'] = table_values;
+                        } else {
+                            console.log(node['table_values'], table_values);
+                            node['table_values'] = table_values;
 
 
-                        
-
-
-                        current_selection = _.chain(node['query_param']['selection'])
-                            .map(function(nested_obj) {
-                                return nested_obj;
-                            })
-                            .map(function(obj) {
-                                return obj.value;
-                            })
-                            .value();
-
-                        // console.log(table_values, node['query_param']['selection'], current_selection, node)
-                        // if (!obj_equal(bar_obj_selection, node.query_param['selection'])) {
                             
-                        // }
 
-                        console.assert(node.current_visualization_view)
-                        //console.log(node.name, actual_results, node, node.current_visualization_view);
-                        node.current_visualization_view.set_data(actual_results)
 
-                        hide_loading_indicator(node);
+                            current_selection = _.chain(node['query_param']['selection'])
+                                .map(function(nested_obj) {
+                                    return nested_obj;
+                                })
+                                .map(function(obj) {
+                                    return obj.value;
+                                })
+                                .value();
+
+                            // console.log(table_values, node['query_param']['selection'], current_selection, node)
+                            // if (!obj_equal(bar_obj_selection, node.query_param['selection'])) {
+                                
+                            // }
+
+                            console.assert(node.current_visualization_view)
+                            //console.log(node.name, actual_results, node, node.current_visualization_view);
+                            node.current_visualization_view.set_data(actual_results)
+
+                            hide_loading_indicator(node);
+                        }
+                        
 
 
                     }
