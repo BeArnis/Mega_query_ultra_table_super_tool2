@@ -14,9 +14,6 @@
         <script src='bower_components/d3/d3.js' type='text/javascript'></script>
         <script src='bower_components/vega/vega.js' type='text/javascript'></script>
 
-        <!-- bootstrap -->
-        <link rel='stylesheet' href='bower_components/bootstrap/dist/css/bootstrap.min.css' type='text/css'/>
-        <script src='bower_components/bootstrap/dist/js/bootstrap.min.js'></script>
 
         
 
@@ -30,11 +27,12 @@
         <link rel='stylesheet' href='bower_components/slickgrid/slick.grid.css' type='text/css'/>
         <link rel='stylesheet' href='bower_components/slickgrid/css/smoothness/jquery-ui-1.8.16.custom.css' type='text/css'/>
         <link rel='stylesheet' href='bower_components/slickgrid/examples/examples.css' type='text/css'/>
+        <link rel='stylesheet' href='bower_components/slickgrid/plugins/slick.headermenu.css' type='text/css'/>
 
 
         <script src="./lib/firebugx.js"></script>
 
-        <script src="./lib/jquery-1.7.min.js"></script>
+        
         <script src="./lib/jquery-ui-1.8.16.custom.min.js"></script>
         <script src="./lib/jquery.event.drag-2.2.js"></script>
 
@@ -53,13 +51,15 @@
         
         
         <script src="./render_column.js"></script>
-        <script src="./render_table_view.js"></script>
+        <script src="./init_graph_view.js"></script>
+        <script src="./handle_edges.js"></script>
+        <script src="./node_handler.js"></script>
 
 
         <script src="./slick.core.js"></script>
         <script src="./slick.formatters.js"></script>
         <script src="./slick.grid.js"></script>
-
+        <script src="./plugins/slick.headermenu.js"></script>
         <script src="./plugins/slick.checkboxselectcolumn.js"></script>
         <script src="./plugins/slick.autotooltips.js"></script>
         <script src="./plugins/slick.cellrangedecorator.js"></script>
@@ -70,6 +70,10 @@
         <script src="./controls/slick.columnpicker.js"></script>
 
         <script src="./slick.editors.js"></script>
+
+        <!-- bootstrap -->
+        <link rel='stylesheet' href='bower_components/bootstrap/dist/css/bootstrap.min.css' type='text/css'/>
+        <script src='bower_components/bootstrap/dist/js/bootstrap.min.js'></script>
 
           <style>
 
@@ -83,6 +87,8 @@
 
 </head>
 <body>
+
+
 
 <div id='query-graph-container'></div>
 
@@ -108,7 +114,7 @@
 </div>
 
 <script type='text/javascript'>
-
+    // main container where graph elements will be stored
     var example_graph = {
         'prefixes': [{
                 'prefix': 'rdf',
@@ -198,7 +204,8 @@
             'width': 1010,
             'height': 550
         },
-        'active_visualization_type': 'TableView', // must be one of keys in visualization_defs
+        // must be one of keys in visualization_defs
+        'active_visualization_type': 'TableView',
         'visualization_defs': {
             'TableView': {
 
@@ -210,6 +217,8 @@
             }
         },
         'columns': [{
+            //problem with lable columns, crashes barchart view
+
             // // data property
             // 'id': 'e11a9728-47a6-4e58-a9e8-5f897ab8223d',
             // 'type': 'direct',
@@ -253,9 +262,10 @@
             'x': 950,
             'y': 885,
             'width': 1010,
-            'height': 550,
+            'height': 550
         },
-        'active_visualization_type': 'TableView', // must be one of keys in visualization_defs
+        // must be one of keys in visualization_defs
+        'active_visualization_type': 'TableView',
         'visualization_defs': {
             'TableView': {
 
@@ -318,7 +328,7 @@
 };
 
 
-make_it(example_graph);
+init_query_graph(example_graph);
 
 
 </script>

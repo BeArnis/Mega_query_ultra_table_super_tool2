@@ -61,9 +61,9 @@ TableView = function() {
 
             console.log(e.srcElement);
             $(e.srcElement).popover({
-                placement: 'bottom', //placement of the popover. also can use top, bottom, left or     right
-                html: 'false', //needed to show html of course
-                content: 'abc'// hope this should b
+                placement: 'bottom', 
+                html: 'false', 
+                content: 'abc'
             })
 
             $(e.srcElement).popover('show');
@@ -148,7 +148,7 @@ TableView = function() {
 
             var previous_selected_values = node['query_param']['selection'];
 
-
+            
             if (!obj_equal(current_selected_values, previous_selected_values)) {
                 node['query_param']['selection'] = current_selected_values;
                 fill_tables(graph);
@@ -282,11 +282,6 @@ TableView = function() {
     function destroy() {
         var element = d3.select(div).select('.query-result-redering-container')
             .remove();
-        // console.log(element);
-
-
-        // element.removeChild(element);
-        //console.warn('destroy grid is not implemented');
     }
 
 

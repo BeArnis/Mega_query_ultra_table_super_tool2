@@ -1,7 +1,7 @@
-// query that will exicute max 3 connections while otheres wait
-//
+// query that will exicute max 3 connections while others wait
+// this is sick
 throttled_query = (function() {
-    waiting_tasks = [];
+    var waiting_tasks = [];
     var active_task_counter = 0;
     var max_active_tasks = 4;
 

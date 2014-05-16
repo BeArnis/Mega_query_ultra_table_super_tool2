@@ -1,37 +1,5 @@
 
-
-
-
-
-function get_edge_name_fom_hyper(graph, elem) {
-
-
-    //console.log(graph, elem, graph[elem]);
-    if (graph[elem]['start'].type == 'edge') { // one end of a hyper edge is always a an edge
-
-        return graph[elem]['start'];
-    } else {
-        //console.log(graph[elem]['end'], elem);
-        return graph[elem]['end'];
-    }
-}
-
-function column_name_generator(graph, node, column) { // column.what_to_aggregate '(' + column.aggregation_function + '(?' + column.what_to_aggregate + ') AS ?' + xxx  +')'
-
-    //console.log(node, column)
-    var i = _.indexOf(node.columns, column);
-    if (column.type == 'aggregate') {
-
-        if (graph[column.what_to_aggregate].type == 'hyper_edge') { // cheks if what to aggr is a hyper edge, if so we need its connected edge name
-            return node.name + '_' + get_edge_name_fom_hyper(graph, column.what_to_aggregate);
-
-        }
-
-        return node.name + '_' + column.what_to_aggregate; // needs groupp by at the end / how?
-    }
-    return node.name + '_col_' + (i + 1);
-}
-
+// selection functions
 function get_selection_values(selection_obj, node) { // selection is an array
     if (!_.isArray(selection_obj)) {
         var arr = [selection_obj];
@@ -47,28 +15,24 @@ function get_selection_values(selection_obj, node) { // selection is an array
     return selection_value_array;
 }
 
-function guid() { // taken from http://stackoverflow.com/a/2117523
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = Math.random() * 16 | 0,
-            v = c == 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
+
+
+function selection_to_obj(selection, obj_arr, node) {
+    var return_value = [];
+
+    return_value = _.filter(obj_arr, function(obj) {
+
+        if (_.contains(selection, obj[node.name]['value'])) {
+            return;
+        }
+
+        if (return_value.length == 0) {
+            return [];
+        } else {
+            return return_value; // need better neme
+        }
     });
 }
-
-function obj_equal(obj_1, obj_2) { // nedarbojas pareizi
-    var dif1_value_arr = get_selection_values(obj_1);
-    var dif2_value_arr = get_selection_values(obj_2);
-
-    //console.log(dif1_value_arr, dif2_value_arr, ' || ', obj_1, obj_2, _.isEmpty(_.difference(dif1_value_arr, dif2_value_arr)) && _.isEmpty(_.difference(dif2_value_arr, dif1_value_arr)));
-
-    return _.isEmpty(_.difference(dif1_value_arr, dif2_value_arr)) && _.isEmpty(_.difference(dif2_value_arr, dif1_value_arr));
-}
-
-
-
-
-
-
 
 function selection_intersection(A, B) { // A is first selection obj and B is secong obj
     if (A.length == 0) {
@@ -91,6 +55,13 @@ function selection_intersection(A, B) { // A is first selection obj and B is sec
     return intersect;
 }
 
+function obj_equal(obj_1, obj_2) {
+    var dif1_value_arr = get_selection_values(obj_1);
+    var dif2_value_arr = get_selection_values(obj_2);
+
+    return _.isEmpty(_.difference(dif1_value_arr, dif2_value_arr)) && _.isEmpty(_.difference(dif2_value_arr, dif1_value_arr));
+}
+//***//
 
 
 function rayIntersection(graph, source, target, rect) {
@@ -121,40 +92,7 @@ function rayIntersection(graph, source, target, rect) {
     return null;
 }
 
-function updateEdgeCoordinates(graph, node1_geo, node2_goe, ah, link_name) { //????????
-    //console.log(graph, node1_geo, node2_goe, ah);
-    var source_center = get_middle_point(node1_geo);
-    var target_center = get_middle_point(node2_goe);
 
-
-    var si = rayIntersection(graph, source_center, target_center, node1_geo);
-    if (!si)
-        si = {
-            x: source_center.x,
-            y: source_center.y
-        }; //?
-
-    var ti = rayIntersection(graph, target_center, source_center, node2_goe);
-    if (!ti)
-        ti = {
-            x: target_center.x,
-            y: target_center.y
-        }; // ?
-
-    var dx = ti.x - si.x,
-        dy = ti.y - si.y,
-        l = Math.sqrt(dx * dx + dy * dy);
-    var al = l - ah;
-
-    var arrowstart = {
-        x: si.x + al * dx / l,
-        y: si.y + al * dy / l
-    };
-    graph[link_name]['geometry']['x1'] = si.x;
-    graph[link_name]['geometry']['y1'] = si.y;
-    graph[link_name]['geometry']['x2'] = ti.x;
-    graph[link_name]['geometry']['y2'] = ti.y;
-}
 
 function get_middle_point(node1_geo) {
 
@@ -205,93 +143,82 @@ function lineIntersection(x1, y1, x2, y2, x3, y3, x4, y4) {
 }
 
 
-function destroy_node(graph, node) {
-    //console.log(node.name, graph);
+function updateEdgeCoordinates(graph, node1_geo, node2_goe, ah, link_name) { //????????
+    //console.log(graph, node1_geo, node2_goe, ah);
+    var source_center = get_middle_point(node1_geo);
+    var target_center = get_middle_point(node2_goe);
 
-    var edges = _.filter(graph, function(obj) {
-        if (obj['type'] == 'edge') {
-            return obj;
-        }
-    });
 
-    var hyper_edges = _.filter(graph, function(obj) {
-        if (obj['type'] == 'hyper_edge') {
-            return obj;
-        }
-    });
+    var si = rayIntersection(graph, source_center, target_center, node1_geo);
+    if (!si)
+        si = {
+            x: source_center.x,
+            y: source_center.y
+        }; //?
 
-    delete graph[node.name];
+    var ti = rayIntersection(graph, target_center, source_center, node2_goe);
+    if (!ti)
+        ti = {
+            x: target_center.x,
+            y: target_center.y
+        }; // ?
 
-    var need_to_delete_these_edges = [];
-    _.each(edges, function(edge) {
+    var dx = ti.x - si.x,
+        dy = ti.y - si.y,
+        l = Math.sqrt(dx * dx + dy * dy);
+    var al = l - ah;
 
-        if (edge.start == node.name) {
-            graph[edge.end]['incoming_lines'] = _.without(graph[edge.end]['incoming_lines'], edge.name);
-            delete graph[edge.name];
-            return;
-        }
-        if (edge.end == node.name) {
-            //console.log(edge.start, node.name);
-            graph[edge.start]['incoming_lines'] = _.without(graph[edge.start]['incoming_lines'], edge.name);
-            delete graph[edge.name];
-            return;
-        }
-    })
-
-    _.each(hyper_edges, function(hyp) {
-
-        if (graph[hyp.start] == undefined) {
-            graph[hyp.end]['incoming_lines'] = _.without(graph[hyp.end]['incoming_lines'], hyp.name);
-            delete graph[hyp.name];
-        } else if (graph[hyp.end] == undefined) {
-            graph[hyp.start]['incoming_lines'] = _.without(graph[hyp.start]['incoming_lines'], hyp.name);
-            delete graph[hyp.name];
-        }
-
-    })
-
-    //console.log(need_to_delete_these_edges);
-    //delete_edges_after_nodes(graph, need_to_delete_these_edges);
-
-    //console.log(need_to_delete_these_edges);
-    //graph = _.omit(graph, node.name);
-    //console.log(node.name, graph);
-    render_graph(graph);
-    fill_tables(graph);
+    var arrowstart = {
+        x: si.x + al * dx / l,
+        y: si.y + al * dy / l
+    };
+    graph[link_name]['geometry']['x1'] = si.x;
+    graph[link_name]['geometry']['y1'] = si.y;
+    graph[link_name]['geometry']['x2'] = ti.x;
+    graph[link_name]['geometry']['y2'] = ti.y;
 }
 
-function toggleWay(graph, edge) {
-
-        var start_node = edge['start'];
-        var end_node = edge['end'];
-
-        //console.log('swap', edge.name, graph[start_node], graph[end_node]);
-
-        if ((_.contains(graph[start_node]['incoming_lines'], edge.name)) && !(_.contains(graph[end_node]['incoming_lines'], edge.name))) {
-            graph[start_node]['incoming_lines'] = _.without(graph[start_node]['incoming_lines'], edge.name);
-
-            graph[end_node]['incoming_lines'].push(edge.name);
+ 
 
 
-        } else if (!(_.contains(graph[start_node]['incoming_lines'], edge.name)) && (_.contains(graph[end_node]['incoming_lines'], edge.name))) {
-            graph[start_node]['incoming_lines'].push(edge.name);
+    // gets max element value from graph elements
+    // works with nodes and edge type elements
+function get_max_element_number(graph, element) {
 
+    var node_num = _.chain(graph)
+        .filter(function(obj) {
+            // gets all elements of the specified type
+            if (obj['type'] == element) {
+                return obj.name;
+            }
+        })
+        .map(function(node_name) {
+            // gets all element numbers
+            var patt = /(\d)+/g;
+            var s = patt.exec(node_name.name)[0];
+            s = parseInt(s);
+            return s;
+        })
+        .max() 
+        .value();
+    node_num = parseInt(node_num);
+    node_num = node_num + 1;
+    if (node_num) {
+        return node_num;
+    } else {
+        return '0';
+    }
 
-        } else if ((_.contains(graph[start_node]['incoming_lines'], edge.name)) && (_.contains(graph[end_node]['incoming_lines'], edge.name))) {
-            graph[start_node]['incoming_lines'] = _.without(graph[start_node]['incoming_lines'], edge.name);
-            graph[end_node]['incoming_lines'] = _.without(graph[end_node]['incoming_lines'], edge.name);
+}
 
+function guid() { // taken from http://stackoverflow.com/a/2117523
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0,
+            v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}
 
-
-        } else if (!(_.contains(graph[start_node]['incoming_lines'], edge.name)) && !(_.contains(graph[end_node]['incoming_lines'], edge.name))) {
-            graph[start_node]['incoming_lines'].push(edge.name);
-
-
-
-        }
-        render_graph(graph)
-        fill_tables(graph);
-    }  
 
 
 function get_types(graph, node) {
@@ -313,6 +240,7 @@ function get_types(graph, node) {
     function(data) {
         console.log(data);
         if (data.results == undefined) {
+            console.log('typeq');
             hide_loading_indicator(node);
             show_indicator(node, 'error', 'Error....');
         } else { 

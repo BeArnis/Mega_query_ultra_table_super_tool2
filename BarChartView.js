@@ -6,6 +6,7 @@ BarChartView = function() {
         node,
         graph;
 
+    // that???
     var that;
 
     var chart_obj;
@@ -38,7 +39,6 @@ BarChartView = function() {
         node = init_node;
         graph = init_graph;
 
-        //console.log(node.name, 'BarChartView', 'init')
 
         x = d3.scale.ordinal();
 
@@ -299,8 +299,7 @@ BarChartView = function() {
         brush_g
             .call(brush)
             .selectAll("rect")
-            .attr("height", height)
-            ;
+            .attr("height", height);
 
 
 

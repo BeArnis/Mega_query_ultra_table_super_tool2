@@ -3,46 +3,11 @@ conn.setEndpoint('http://localhost:5820/');
 conn.setCredentials('admin', 'admin');
 conn.setReasoning('QL');
 
-function show_indicator(node, indicator_class, indicator_label) {
-    console.assert(node.node_div);
-    var node_div = node.node_div;
-    if (!node.tmp) {
-        node.tmp = {};
-    }
-    if (!node.tmp.indicator) {
-        var indicator = $('<span class="indicator"><label></label></span>').appendTo(node_div.node());
 
-
-        node.tmp.indicator = indicator;
-
-        indicator
-            .css('position', 'relative')
-            .css('top', node.geometry.height / 2 - indicator.height() / 2)
-            .css('left', node.geometry.width / 2 - indicator.width() / 2);
-
-    }
-
-    
-    node.tmp.indicator.addClass(indicator_class);
-    node.tmp.indicator.find('label').text(indicator_label);
-   
-   
-
-
-    // console.log('SHOW loading indicator for', node.id);
-    node.tmp.indicator.show();
-}
-
-function hide_loading_indicator(node) {
-    node.tmp.indicator.hide(); // what
-    node.tmp.indicator.removeClass();
-    node.tmp.indicator.addClass('indicator');
-    node.tmp.indicator.find('label').empty();
-}
 
 function render_graph(graph) {
 
-
+    // handles node draging
     var drag_type;
     var ultimate_drag = d3.behavior.drag()
         .origin(function(d) {
@@ -120,7 +85,6 @@ function render_graph(graph) {
         .append('div')
         .classed('query-node', true) // if type node than node is needed
     .style('position', 'absolute')
-        
         .attr('id', function(node) {
             return node['name'];
         })
@@ -704,6 +668,21 @@ function fill_tables(graph) {
 
                         node['query_param']['selection'] = selection_intersection(node['query_param']['selection'], first_collum_obj); // gets those values that were in the graph selection before  need change 
 
+                        
+
+                        current_selection = _.chain(node['query_param']['selection'])
+                            .map(function(nested_obj) {
+                                return nested_obj;
+                            })
+                            .map(function(obj) {
+                                return obj.value;
+                            })
+                            .value();
+
+                        console.log(table_values, node['query_param']['selection'], current_selection)
+                        // if (!obj_equal(bar_obj_selection, node.query_param['selection'])) {
+                            
+                        // }
 
                         console.assert(node.current_visualization_view)
                         //console.log(node.name, actual_results, node, node.current_visualization_view);

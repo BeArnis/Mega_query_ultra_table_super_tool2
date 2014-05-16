@@ -285,3 +285,54 @@ function local_selection(graph, node, equivalent_map) {
 
     return patern;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function show_indicator(node, indicator_class, indicator_label) {
+    console.assert(node.node_div);
+    var node_div = node.node_div;
+    if (!node.tmp) {
+        node.tmp = {};
+    }
+    if (!node.tmp.indicator) {
+        var indicator = $('<span class="indicator"><label></label></span>').appendTo(node_div.node());
+
+
+        node.tmp.indicator = indicator;
+
+        indicator
+            .css('position', 'relative')
+            .css('top', node.geometry.height / 2 - indicator.height() / 2)
+            .css('left', node.geometry.width / 2 - indicator.width() / 2);
+
+    }
+
+    
+    node.tmp.indicator.addClass(indicator_class);
+    node.tmp.indicator.find('label').text(indicator_label);
+   
+   
+
+
+    // console.log('SHOW loading indicator for', node.id);
+    node.tmp.indicator.show();
+}
+
+function hide_loading_indicator(node) {
+    node.tmp.indicator.hide(); // what
+    node.tmp.indicator.removeClass();
+    node.tmp.indicator.addClass('indicator');
+    node.tmp.indicator.find('label').empty();
+}

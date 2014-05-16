@@ -4,7 +4,6 @@ function init_column_make_container() {
     var body = d3.select('body');
     var table_view_column_container = body.select('#preferences_container');
 
-    //bind
 
     // create container for columns
     var view_def_container = table_view_column_container.append('div')
@@ -24,7 +23,7 @@ function render_columns(graph, node) {
         });
 
     var create = d3.select('#view_def_container').selectAll('.first_create')
-        .data([null]); 
+        .data([null]);
         // need this only once
 
 
@@ -43,7 +42,6 @@ function render_columns(graph, node) {
 
 
     create.on('click', function(d) {
-        //create, needs access to graph
         create_new_column(graph, node)
         render_columns(graph, node)
     });
@@ -565,12 +563,26 @@ function render_columns(graph, node) {
 
 }
 
+function column_name_generator(graph, node, column) { // column.what_to_aggregate '(' + column.aggregation_function + '(?' + column.what_to_aggregate + ') AS ?' + xxx  +')'
 
+    //console.log(node, column)
+    var i = _.indexOf(node.columns, column);
+    if (column.type == 'aggregate') {
+
+        if (graph[column.what_to_aggregate].type == 'hyper_edge') { // cheks if what to aggr is a hyper edge, if so we need its connected edge name
+            return node.name + '_' + get_edge_name_fom_hyper(graph, column.what_to_aggregate);
+
+        }
+
+        return node.name + '_' + column.what_to_aggregate; // needs groupp by at the end / how?
+    }
+    return node.name + '_col_' + (i + 1);
+}   
 
 function create_new_column(graph, node) {
     var column = {
         // data property
-        'id': guid(), // ????
+        'id': guid(),
         'type': 'direct',
         'column_label': 'label1',
         'property_name': 'rdfs:label',
