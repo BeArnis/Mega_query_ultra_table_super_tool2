@@ -24,7 +24,10 @@ function generate_query(graph, node) {
         if (column.type == 'aggregate') {
             needs_group_by = true;
 
-            if (graph[column.what_to_aggregate].type == 'hyper_edge') { // cheks if what to aggr is a hyper edge, if so we need its connected edge name
+            //what if
+
+            // cheks if what to aggr is a hyper edge, if so we need its connected edge name
+            if (graph[column.what_to_aggregate].type == 'hyper_edge') { 
                 return '(' + column.aggregation_function + '(' + elem_var_str(get_edge_name_fom_hyper(graph, column.what_to_aggregate), equivalent_map) + ') AS ?' + column_name_generator(graph, node, column) + ')';
             } else {
 

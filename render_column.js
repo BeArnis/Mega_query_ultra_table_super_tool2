@@ -118,7 +118,7 @@ function render_columns(graph, node) {
                     column_def: column,
                     node: node,
                     field: 'type',
-                    field_data: ['direct', 'count', 'sum', 'max'],
+                    field_data: ['direct', 'count'],
                     container_type: 'input_dropdown',
                     yes: 'a',
                     update: function(new_value) {
@@ -300,7 +300,7 @@ function render_columns(graph, node) {
                     column_def: column,
                     field: 'type',
                     node: node,
-                    field_data: ['direct', 'count', 'sum', 'max'],
+                    field_data: ['direct', 'count'],
                     container_type: 'input_dropdown',
                     yes: 'a',
                     update: function(new_value) {
@@ -608,3 +608,22 @@ function delete_column(graph, node, column) { // could be problems with indexes
     render_graph(graph);
 
 }
+
+function get_all_barchart_columns(graph, node) {
+    var col_names = _.chain(node.columns)
+        .map(function(column) {
+            if (column.type == 'aggregate' && column.aggregation_function == 'count') {
+                return column.column_label;
+            }
+
+        })
+        .value();
+
+    col_names.unshift(null);
+
+
+    return col_names;
+}
+
+
+

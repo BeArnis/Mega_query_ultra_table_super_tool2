@@ -1,7 +1,6 @@
 BarChartView = function() {
     "use strict";
 
-
     var div,
         node,
         graph;
@@ -78,9 +77,7 @@ BarChartView = function() {
 
         xAxis_g = svg.append("g")
             .attr("class", "x axis")
-            // .attr("transform", function(d) {
-            //     return "rotate(-65)" 
-            //     });
+
 
 
         yAxis_g = svg.append("g")
@@ -205,7 +202,7 @@ BarChartView = function() {
 
 
         function get_x_value(d) {
-            console.log(d[node.name].value)
+            //console.log(d[node.name].value)
             var data_value = d[node.name].value;
             var matching_prefix_def = _(graph.prefixes).find(function(prefix_def) {
             //console.log(value, prefix_def.namespace.length)
