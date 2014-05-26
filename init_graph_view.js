@@ -119,17 +119,14 @@ function render_graph(graph) {
 
 
             var type_field = top_div.append('div')
-                .attr('class', 'name-container')
                 .style('position', 'absolute')
                 .style('left', 50 + 'px')
-                .style('height', 40 + 'px')
-                .style('width', 200 + 'px')
                 .style("font-family", "sans-serif")
                 .style("font-size", '30px')
                 
 
 
-            var input_group = type_field.append('div')
+            var type_selection_container = type_field.append('div')
                 .append('select')
                     .style('width', 400 + 'px')
                     .classed('input-group', true)
@@ -142,7 +139,7 @@ function render_graph(graph) {
                         options = select.selectAll('option');
 
                         var selectedIndex = select.property('selectedIndex');
-                        // console.log(select, options, selectedIndex)
+                        
                         var data = d3.select(options[0][selectedIndex]).datum();
                         node.query_param.current_type = data;
                         // console.log(node, data, graph)
@@ -151,6 +148,56 @@ function render_graph(graph) {
                         fill_tables(graph);                    
                     });
 
+            var barchart_container = top_div.append('div')
+                .style('position', 'absolute')
+                .style('left', 450 + 'px')
+                .style("font-family", "sans-serif")
+                .style("font-size", '30px')
+
+
+            var barchart_selection_container = barchart_container.append('div')
+                    .append('select')
+                        .style('width', 400 + 'px')
+                        .classed('input-group', true)
+                        .classed('form-control', true)
+                        .classed('barchart_combobox', true)
+                        .classed('type_ul', true)
+                        .on('change', function(node) {
+
+                            select = d3.select(this);
+                            options = select.selectAll('option');
+
+                            console.log('bar')
+                            get_all_barchart_columns(graph, node);
+                            var selectedIndex = select.property('selectedIndex');
+                            // console.log(select, options, selectedIndex)
+                            var data = d3.select(options[0][selectedIndex]).datum();
+                            node.query_param.current_type = data;
+                            console.log(node, data, graph)
+
+                            if (data != undefined) {
+                                column_id = _.chain(node.columns)
+                                    .map(function(column) {
+                                    if (column.column_label == data) {
+                                        return column.id
+                                    }
+                                    })
+                                    .compact()
+                                    .value();
+
+                                node.visualization_defs.BarChartView.properties.y_axis_column = column_id[0];
+                            } else {
+                                node.visualization_defs.BarChartView.properties.y_axis_column = null;
+                            }
+                            fill_tables(graph);
+
+                            render_graph(graph);
+
+                            fill_tables(graph);
+                              
+                            render_graph(graph);
+                                              
+                        });
 
 
 
@@ -321,26 +368,52 @@ function render_graph(graph) {
 
 
             //bind
-            var li = top_div.select('.type_ul').selectAll('option')
+            var type_options = top_div.select('.type_ul').selectAll('option')
                 .data(function(d) {
                     return d.query_param.type_arr;
                 })
                
             //create
-            li.enter()
+            type_options.enter()
                 .append('option')
                 .classed('option', true)
 
               
             //update    
-            li.text(function(d) {
+            type_options.text(function(d) {
 
                     return d;
-                });  
+                });
             
 
             //exit
-            li.exit().remove();
+            type_options.exit().remove();
+
+
+            // bind
+            var bar_options = top_div.select('.barchart_combobox').selectAll('option')
+                .data(function(node) {
+                    get_all_barchart_columns(graph, node);
+                    return get_all_barchart_columns(graph, node);
+                })
+
+            //create
+            bar_options.enter()
+                .append('option')
+                .classed('option', true)
+
+              
+            //update    
+            bar_options.text(function(d) {
+                    return d;
+                });
+            
+
+            //exit
+            bar_options.exit().remove();
+
+
+
 
 
             top_div.select('.glyphicon-signal')
@@ -449,7 +522,9 @@ function render_graph(graph) {
             .attr('height', 40 + 'px')
             .attr('width', 40 + 'px')
             .on('click', function(edge) {
-                delete_edge(graph, edge)
+                delete_edge(graph, edge);
+                render_graph(graph);
+                fill_tables(graph);
             })
 
     //update
