@@ -113,6 +113,10 @@ function event_for_making_edge2(graph, elem, type) {
 
 function draw_edge(graph, elem1, elem2) {
 
+    if (elem1.type == 'hyper_edge' || elem2.type == 'hyper_edge') {
+        return;
+    }
+
     //console.log(node, node2);
     if (_.intersection(elem1.incoming_lines, elem2.incoming_lines).length != 0) {
         console.log('del');
@@ -239,7 +243,7 @@ function toggleWay(graph, edge) {
 
 function delete_edge(graph, prime_edge) {
 
-
+        delete_column_on_elem_deletion(graph, prime_edge.name)
         graph[prime_edge.start]['incoming_lines'] = _.without(graph[prime_edge.start]['incoming_lines'], prime_edge.name);
         graph[prime_edge.end]['incoming_lines'] = _.without(graph[prime_edge.end]['incoming_lines'], prime_edge.name);
         
@@ -253,10 +257,6 @@ function delete_edge(graph, prime_edge) {
 
         delete graph[prime_edge.name];
 
-
-
-    render_graph(graph);
-    fill_tables(graph);
 }
 
 

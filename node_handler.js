@@ -55,6 +55,7 @@ function make_node(graph, x, y) {
 
 function delete_node(graph, node) {
     //console.log(node.name, graph);
+    delete_column_on_elem_deletion(graph, node.name);
 
     var edges = _.filter(graph, function(obj) {
         if (obj['type'] == 'edge') {
@@ -68,23 +69,29 @@ function delete_node(graph, node) {
         }
     });
 
-    delete graph[node.name];
+    
 
-    var need_to_delete_these_edges = [];
+    // what was I thinking???
     _.each(edges, function(edge) {
 
         if (edge.start == node.name) {
             graph[edge.end]['incoming_lines'] = _.without(graph[edge.end]['incoming_lines'], edge.name);
-            delete graph[edge.name];
+            // delete_column_on_elem_deletion(graph, edge.name)
+            // delete graph[edge.name];
+            delete_edge(graph, edge)
             return;
         }
         if (edge.end == node.name) {
             //console.log(edge.start, node.name);
             graph[edge.start]['incoming_lines'] = _.without(graph[edge.start]['incoming_lines'], edge.name);
-            delete graph[edge.name];
+            // delete_column_on_elem_deletion(graph, edge.name)
+            // delete graph[edge.name];
+            delete_edge(graph, edge)
             return;
         }
     })
+
+    delete graph[node.name];
 
     _.each(hyper_edges, function(hyp) {
 
@@ -97,6 +104,9 @@ function delete_node(graph, node) {
         }
 
     })
+
+    
+
 
 
     render_graph(graph);

@@ -219,3 +219,29 @@ function guid() { // taken from http://stackoverflow.com/a/2117523
     });
 }
 
+function delete_column_on_elem_deletion(graph, elem_name) {
+
+    var nodes = _.map(graph, function(obj)  {
+        if (obj.type == 'node') {
+            return obj;
+        }
+    });
+
+    _.each(nodes, function(node) {
+        if (node == undefined) {
+            return;
+        }
+        // all nodes
+        _.each(node.columns, function(column) {
+            // all columns
+            
+            console.log(node.columns, column)
+            if (column.what_to_aggregate == elem_name) {
+                delete_column(graph, node, column)
+
+            }
+            
+        })
+    })
+
+}
