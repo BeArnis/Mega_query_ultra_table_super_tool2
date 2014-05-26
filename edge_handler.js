@@ -114,6 +114,10 @@ function event_for_making_edge2(graph, elem, type) {
 function draw_edge(graph, elem1, elem2) {
 
     //console.log(node, node2);
+    if (_.intersection(elem1.incoming_lines, elem2.incoming_lines).length != 0) {
+        console.log('del');
+        return;
+    }
 
     if (elem1.type == 'edge' || elem2.type == 'edge') {
         var edge_name = 'hl' + get_max_element_number(graph, 'edge')
@@ -230,6 +234,29 @@ function toggleWay(graph, edge) {
         }
         render_graph(graph)
         fill_tables(graph);
+}
+
+
+function delete_edge(graph, prime_edge) {
+
+
+        graph[prime_edge.start]['incoming_lines'] = _.without(graph[prime_edge.start]['incoming_lines'], prime_edge.name);
+        graph[prime_edge.end]['incoming_lines'] = _.without(graph[prime_edge.end]['incoming_lines'], prime_edge.name);
+        
+        if (prime_edge.incoming_lines.length != 0) {
+
+            _.each(prime_edge.incoming_lines, function(hyp) {
+                delete_edge(graph, graph[hyp]);
+            })
+
+        }
+
+        delete graph[prime_edge.name];
+
+
+
+    render_graph(graph);
+    fill_tables(graph);
 }
 
 

@@ -33,8 +33,8 @@ TableView = function() {
         // make slickgrid
         table_grid = new Slick.Grid(gridContainer.node(), data, columns, options);
 
-        // // asigns menu to a value
-        // var headerMenuPlugin = new Slick.Plugins.HeaderMenu({});
+        // asigns menu to a value
+        var headerMenuPlugin = new Slick.Plugins.HeaderMenu({});
 
         // headerMenuPlugin.onBeforeMenuShow.subscribe(function(e, args) {
         //   var menu = args;
@@ -116,14 +116,13 @@ TableView = function() {
                     node.columns[column_change_index].sort = 'ascending';
                 }
 
-                //render_graph(graph);
                 _.defer(function() {
                     render_graph(graph);
                     fill_tables(graph);
                 });
 
                 console.log('sort');
-                return;                
+                return;
             }
 
         });
@@ -156,8 +155,7 @@ TableView = function() {
         });
 
         // resize column function
-        table_grid.onColumnsResized.subscribe(function(e, args)
-        { 
+        table_grid.onColumnsResized.subscribe(function(e, args) { 
             var cols = table_grid.getColumns(); // get all grid columns 
             _.each(node.columns, function(column, i) {
                 column.width = cols[i + 1].width;
@@ -222,14 +220,15 @@ TableView = function() {
             width: 330
         })
 
-        columns.push({
-            id: 'add_column',
-            name: 'add_column',
-            field: 'add_column',
-            formatter: render_cell_data,
-            sortable: 'none',
-            width: 330
-        })
+        // add last column
+        // columns.push({
+        //     id: 'add_column',
+        //     name: 'add_column',
+        //     field: 'add_column',
+        //     formatter: render_cell_data,
+        //     sortable: 'none',
+        //     width: 330
+        // })
 
         d3.selectAll('#add_column')
             .on('click', function(d) {

@@ -53,7 +53,7 @@ function make_node(graph, x, y) {
 
 
 
-function destroy_node(graph, node) {
+function delete_node(graph, node) {
     //console.log(node.name, graph);
 
     var edges = _.filter(graph, function(obj) {
@@ -103,11 +103,3 @@ function destroy_node(graph, node) {
     fill_tables(graph);
 }
 
-
-function change_node_size(graph, node, dx, dy) {
-    var new_width = node.geometry.width + dx;
-    var new_height = node.geometry.height + dy;
-
-    node.geometry.width = _.max([new_width, 350]);
-    node.geometry.height = _.max([new_height, 400]);
-}

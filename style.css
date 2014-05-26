@@ -53,6 +53,12 @@
         height: 30px; 
     }
 
+    .delete_edge{
+      background: url('close_button.png') no-repeat; 
+        width: 30px; 
+        height: 30px;
+    }
+    
     .delete-node:hover { 
         background-position: 0 -30px; 
     }
@@ -64,6 +70,7 @@
 
                          
     }
+
 
 /*    .table-button {
         background: url('glyphicons_119_table.png') no-repeat; 

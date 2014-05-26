@@ -270,7 +270,7 @@ function local_selection(graph, node, equivalent_map) {
 
 
 
-    //console.log(new_selection, selection);
+    
     if (node['query_param']['selection'].length == 0) { // change
         var patern = '\t# no ' + node.name + ' local selection';
     } else {
@@ -285,15 +285,6 @@ function local_selection(graph, node, equivalent_map) {
 
     return patern;
 }
-
-
-
-
-
-
-
-
-
 
 
 
@@ -368,3 +359,55 @@ throttled_query = (function() {
         run_waiting_tasks();
     };
 })();
+
+function get_types(graph, node) {
+
+    // delete old values not valid while new ones are comming
+    node.query_param.type_arr = {};
+
+
+    var query = 'select distinct ?X where {' + constraint(graph, node, node, [], {}) +  // need to make this better
+        '\n ?' + node.name + ' a ?X\n}';
+
+    var value;
+    throttled_query({
+        database: 'myDB4',
+        query: query,
+        limit: 30,
+        offset: 0
+    },
+    function(data) {
+        console.log(data);
+        if (data.results == undefined) {
+            console.log('typeq');
+            hide_loading_indicator(node);
+            show_indicator(node, 'error', 'Error....');
+        } else { 
+            var data_arr = data.results.bindings; // error message
+
+            var types = _.chain(data_arr)
+                .pluck('X')
+                .pluck('value')
+                .value();
+            //console.log(data_arr, types);
+            
+            types.unshift(null);
+
+            node.query_param.type_arr = types;
+
+            node.query_param.type_query = query;
+            
+            render_graph(graph);
+
+            if (_.indexOf(node.query_param.type_arr, node.query_param.current_type) != -1) {
+                // this.selectedIndex = _.indexOf(d.query_param.type_arr, d.query_param.current_type);
+                //d3.select('#' + node.name).select('.type_ul').selectedIndex = _.indexOf(node.query_param.type_arr, node.query_param.current_type);
+                var s = $('#' + node.name);
+                s.find('select')[0].selectedIndex = _.indexOf(node.query_param.type_arr, node.query_param.current_type);
+                //console.log('YESSSSSSSSSSSSS', s.find('select')[0].selectedIndex);
+            } else {
+                node.query_param.current_type = types[0]; // there is a problem here what I dont know how to solve
+            }
+        }
+    })
+}

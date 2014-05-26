@@ -123,7 +123,7 @@ function render_columns(graph, node) {
                     yes: 'a',
                     update: function(new_value) {
                         if (new_value == 'direct') {
-                            //console.log(new_value, this.column_def);
+                            console.log(new_value, this.column_def);
                             this.column_def.type = new_value;
                             this.column_def.property_name = 'rdfs:label';
                         } else {
@@ -187,7 +187,7 @@ function render_columns(graph, node) {
                     field_data: ['none', 'ascending', 'descending'],
                     container_type: 'input_dropdown',
                     update: function(new_value) {
-
+                        console.log('sort', this.column_def.sort, new_value)
                         this.column_def.sort = new_value;
                     },
                     create_view: function(div) {
@@ -208,6 +208,7 @@ function render_columns(graph, node) {
 
                         list.selectAll('.li')
                             .data(_.map(div.datum().field_data, function(field_data) {
+                                console.log(div.datum())
                                 return {
                                     value: field_data,
                                     data: div.datum()
@@ -563,13 +564,14 @@ function render_columns(graph, node) {
 
 }
 
-function column_name_generator(graph, node, column) { // column.what_to_aggregate '(' + column.aggregation_function + '(?' + column.what_to_aggregate + ') AS ?' + xxx  +')'
+function column_name_generator(graph, node, column) { 
 
-    //console.log(node, column)
+    
     var i = _.indexOf(node.columns, column);
     if (column.type == 'aggregate') {
-
-        if (graph[column.what_to_aggregate].type == 'hyper_edge') { // cheks if what to aggr is a hyper edge, if so we need its connected edge name
+        if (graph[column.what_to_aggregate] == undefined) {
+            return;
+        } else if (graph[column.what_to_aggregate].type == 'hyper_edge') { // cheks if what to aggr is a hyper edge, if so we need its connected edge name
             return node.name + '_' + get_edge_name_fom_hyper(graph, column.what_to_aggregate);
 
         }
