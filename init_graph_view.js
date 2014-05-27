@@ -36,8 +36,8 @@ function render_graph(graph) {
 
                 d.geometry.width = Math.max(d3.event.x, 600);
                 d.geometry.height = Math.max(d3.event.y, 300);
-                d.geometry.width = Math.min(d3.event.x, 1500);
-                d.geometry.height = Math.min(d3.event.y, 1000);
+                d.geometry.width = Math.min(d.geometry.width, 1500);
+                d.geometry.height = Math.min(d.geometry.height, 1000);
             } else if (drag_type == 'move') {
                 //console.log(d.geometry, d3.event);
                 d.geometry.x = d3.event.x;
@@ -189,14 +189,9 @@ function render_graph(graph) {
                             } else {
                                 node.visualization_defs.BarChartView.properties.y_axis_column = null;
                             }
-                            fill_tables(graph);
-
-                            render_graph(graph);
 
                             fill_tables(graph);
-                              
-                            render_graph(graph);
-                                              
+                            render_graph(graph);                  
                         });
 
 

@@ -24,7 +24,7 @@ function generate_query(graph, node) {
         if (column.type == 'aggregate') {
             needs_group_by = true;
 
-            //what if
+            //what if aggregation is not on edge????
 
             // cheks if what to aggr is a hyper edge, if so we need its connected edge name
             if (graph[column.what_to_aggregate].type == 'hyper_edge') { 
