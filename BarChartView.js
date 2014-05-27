@@ -203,18 +203,18 @@ BarChartView = function() {
 
         function get_x_value(d) {
             //console.log(d[node.name].value)
-            var data_value = d[node.name].value;
-            var matching_prefix_def = _(graph.prefixes).find(function(prefix_def) {
-            //console.log(value, prefix_def.namespace.length)
-            return data_value.substring(0, prefix_def.namespace.length) === prefix_def.namespace;
-            });
+            // var data_value = d[node.name].value;
+            // var matching_prefix_def = _(graph.prefixes).find(function(prefix_def) {
+            // //console.log(value, prefix_def.namespace.length)
+            // return data_value.substring(0, prefix_def.namespace.length) === prefix_def.namespace;
+            // });
 
-            if (matching_prefix_def) {
-                return data_value.replace(matching_prefix_def.namespace, '');
-            } else {
-                return data_value;
-            }
-            //return d[node.name].value;
+            // if (matching_prefix_def) {
+            //     return data_value.replace(matching_prefix_def.namespace, '');
+            // } else {
+            //     return data_value;
+            // }
+            return d[node.name].value;
         }
 
         function get_y_value(d) {
