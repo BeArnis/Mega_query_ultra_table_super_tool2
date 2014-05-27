@@ -22,7 +22,7 @@
                 'prefix': 'project1',
                 'namespace': 'http://example.com/ontology1#'
         }],
-        'database': 'myDB4',
+        'database': 'nodeDB',
         'endpoint': 'http://localhost:5820/',
         'credentials': {
             'user': 'admin',
