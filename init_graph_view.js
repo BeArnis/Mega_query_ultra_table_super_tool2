@@ -34,12 +34,11 @@ function render_graph(graph) {
                 d.geometry.width = Math.min(d.geometry.width, 1500);
                 d.geometry.height = Math.min(d.geometry.height, 1000);
             } else if (drag_type == 'move') {
-                //console.log(d.geometry, d3.event);
                 d.geometry.x = d3.event.x;
                 d.geometry.y = d3.event.y;
             } else {
-                //console.error("unknown src class")
-                return; // we end to avoide render_graph
+
+                return;
             }
             render_graph(graph);
 
@@ -62,22 +61,18 @@ function render_graph(graph) {
     });
 
     var db_name = d3.select('#db_name_input')
-        .data(graph.database);
-
-    db_name
         .attr('value', function(d) {
             return graph.database;
         })
 
-    db_name.attr('value', function(d) {
-            return graph.database;
-        })
+    db_name.node().value = graph.database;
 
-    d3.select('#endpoint_input')
+    db_endpoint = d3.select('#endpoint_input')
         .attr('value', function(d) {
             return graph.endpoint;
         })
 
+    db_endpoint.node().value = graph.endpoint;
 
     d3.select('#reasoning_input')
         .attr('value', function(d) {
@@ -998,33 +993,8 @@ function init_query_graph(graph) {
             return;
         }
     });
-    // $(document.body).on('click', '.type_ul', function(event) { // problem with scope? worst word
 
 
-    //     var li = d3.select(event.currentTarget);
-    //     console.log(graph, this.options[this.selectedIndex].text) // wtf how to get the value?????
-    //     d3.select(this)
-    //         .attr('value', function(d) {
-    //             d.query_param.current_type = this.options[this.selectedIndex].text;
-    //             console.log(this)
-    //         })
-        
-    //     render_graph(graph);
-    //     fill_tables(graph); // on fill tables the index of combox is lost
-    //     // this here
-    //     // d3.select(this)
-    //     //     .attr('value', function(d) {
-    //     //         console.log(d.query_param['type_arr']); // need to wait to get the set
-    //     //         // if (_.indexOf(d.query_param.type_arr, d.query_param.current_type) != -1) {
-    //     //         //     this.selectedIndex = _.indexOf(d.query_param.type_arr, d.query_param.current_type);
-    //     //         // }
-                
-    //     //     })
-    // });
-    
-
-    // for testing this is here
-    //console.assert(graph);
 
     // calls functions that will show graph in the browser
     render_graph(graph);

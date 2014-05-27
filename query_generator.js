@@ -13,7 +13,8 @@ function generate_query(graph, node) {
 
     var equivalent_map = {};
 
-    var cons = constraint(graph, node, node, [], equivalent_map);
+    var is_type_constraint = false;
+    var cons = constraint(graph, node, node, [], equivalent_map, is_type_constraint);
 
 
     var needs_group_by = false;
@@ -114,7 +115,7 @@ function constraint(graph, elem, from_elem, visited, equivalent_map, is_type_con
         case 'node':
             var node = elem;
             if (elem == from_elem) { // need to ignore local selection
-                patterns.push(local_filter(node, equivalent_map));
+                patterns.push(local_filter(node, equivalent_map, is_type_constraint));
             } else {
                 patterns.push(local_constraint(graph, node, equivalent_map));
                 patterns.push('FILTER (!isBlank(' + elem_var_str(node.name, equivalent_map) + '))')
@@ -183,11 +184,13 @@ function constraint(graph, elem, from_elem, visited, equivalent_map, is_type_con
 
 
 
-function local_filter(node, equivalent_map) {
+function local_filter(node, equivalent_map, is_type_constraint) {
     var pattern = '';
     var type_filter_input = get_type_filter_input(node);
     //console.log(type_filter_input);
-    if (type_filter_input) {
+    if (is_type_constraint) {
+        pattern = '#' + node.name + ' - local filter for type query not needed';
+    } else if (type_filter_input) {
         
         pattern = elem_var_str(node.name, equivalent_map) + ' a <' + type_filter_input + '> .\n';
 
@@ -227,6 +230,7 @@ function local_column_queries(graph, node, equivalent_map) {
 
 function local_constraint(graph, elem, equivalent_map) {
     var pattern = '';
+
     switch (elem['type']) {
         case 'node':
             var node = elem;
@@ -368,8 +372,8 @@ function get_types(graph, node) {
     // delete old values not valid while new ones are comming
     node.query_param.type_arr = {};
 
-
-    var query = 'select distinct ?X where {' + constraint(graph, node, node, [], {}) +  // need to make this better
+    var is_type_constraint = true;
+    var query = 'select distinct ?X where {' + constraint(graph, node, node, [], {}, is_type_constraint) +  // need to make this better
         '\n ?' + node.name + ' a ?X\n}';
 
     var value;
