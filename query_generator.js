@@ -374,7 +374,7 @@ function get_types(graph, node) {
 
     var value;
     throttled_query({
-        database: 'myDB4',
+        database: graph.database,
         query: query,
         limit: 30,
         offset: 0

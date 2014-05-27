@@ -88,6 +88,29 @@
 </head>
 <body>
 
+<form class="form-inline" role="form">
+  <div class="form-group">
+    <label class="sr-only" for="exampleInputEmail2"></label>
+    <input type="text" class="form-control" id="db_name_input" placeholder="DB_name">
+  </div>
+  <div class="form-group">
+    <label class="sr-only" for="exampleInputPassword2"></label>
+    <input type="text" class="form-control" id="endpoint_input" placeholder="Endpoint">
+  </div>
+  <div class="form-group">
+    <label class="sr-only" for="exampleInputPassword2"></label>
+    <input type="text" class="form-control" id="reasoning_input" placeholder="Reasoning">
+  </div>
+  <div class="form-group">
+    <label class="sr-only" for="exampleInputPassword2">Password</label>
+    <input type="text" class="form-control" id="user_input" placeholder="User">
+  </div>
+  <div class="form-group">
+    <label class="sr-only" for="exampleInputPassword2">Password</label>
+    <input type="password" class="form-control" id="pass_input" placeholder="Pass">
+  </div>
+</form>
+
 
     <!--  column form cause it felt uneficient to make this all with d3 -->
     <div id='query-graph-container'></div>
@@ -109,6 +132,8 @@
             </div>
         </div>
     </div>
+
+
 
     <script type='text/javascript'>
 

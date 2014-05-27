@@ -586,7 +586,7 @@ function create_new_column(graph, node) {
         // data property
         'id': guid(),
         'type': 'direct',
-        'column_label': 'label1',
+        'column_label': create_column_name(graph, node),
         'property_name': 'rdfs:label',
         'sort': 'none',
         'width': 330
@@ -625,5 +625,7 @@ function get_all_barchart_columns(graph, node) {
     return col_names;
 }
 
-
+function create_column_name(graph, node) {
+    return 'col_' + (node.columns.length + 1);
+}
 

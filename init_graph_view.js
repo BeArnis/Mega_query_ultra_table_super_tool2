@@ -1,9 +1,4 @@
 var conn = new Stardog.Connection();
-conn.setEndpoint('http://localhost:5820/');
-conn.setCredentials('admin', 'admin');
-conn.setReasoning('QL');
-
-
 
 function render_graph(graph) {
 
@@ -66,7 +61,172 @@ function render_graph(graph) {
         return obj['type'] == 'edge' || obj['type'] == 'hyper_edge';
     });
 
-    var graph_elements = graph;
+    var db_name = d3.select('#db_name_input')
+        .data(graph.database);
+
+    db_name
+        .attr('value', function(d) {
+            return graph.database;
+        })
+
+    db_name.attr('value', function(d) {
+            return graph.database;
+        })
+
+    d3.select('#endpoint_input')
+        .attr('value', function(d) {
+            return graph.endpoint;
+        })
+
+
+    d3.select('#reasoning_input')
+        .attr('value', function(d) {
+            return graph.reasoning;
+        })
+
+    d3.select('#user_input')
+        .attr('value', function(d) {
+            return graph.credentials.user;
+        })
+
+    d3.select('#pass_input')
+        .attr('value', function(d) {
+            return graph.credentials.pass;
+        })
+    // var graph_elements = graph;
+
+    // var db_name = container.selectAll('.db_name')
+    //     .data([null]);
+
+
+    // db_name.enter()
+    //     .append('input')
+    //         .classed('db_name', true)
+    //         .style('position', 'relative')
+    //         .style('width', 200 + 'px')
+    //         .style('height', 50 + 'px')
+    //         .style('font-size', 30 + 'px')
+    //         .attr('value', function(d) {
+    //             return graph.database;
+    //         })
+    //         .on('change', function(d) {
+    //             d3.select(this)
+    //                 .attr('value', this.value);
+
+
+    //             graph.database = this.value;
+                
+    //             fill_tables(graph);
+    //         })
+    //         // .style('top', 1);
+
+    // db_name.exit().remove();
+
+    // var db_endpoint = container.selectAll('.endpoint')
+    //     .data([null]);
+
+
+    // db_endpoint.enter()
+    //     .append('input')
+    //         .classed('endpoint', true)
+    //         .style('position', 'relative')
+    //         .style('width', 300 + 'px')
+    //         .style('height', 50 + 'px')
+    //         .style('font-size', 30 + 'px')
+    //         .attr('value', function(d) {
+    //             return graph.endpoint;
+    //         })
+    //         .on('change', function(d) {
+    //             d3.select(this)
+    //                 .attr('value', this.value);
+
+
+    //             graph.endpoint = this.value;
+                
+    //             fill_tables(graph);
+    //         })
+    //         // .style('top', 1);
+
+    // db_endpoint.exit().remove();
+
+    // var db_reasoning = container.selectAll('.reasoning')
+    //     .data([null]);
+
+
+    // db_reasoning.enter()
+    //     .append('input')
+    //         .classed('reasoning', true)
+    //         .style('position', 'relative')
+    //         .style('width', 70 + 'px')
+    //         .style('height', 50 + 'px')
+    //         .style('font-size', 30 + 'px')
+    //         .attr('value', function(d) {
+    //             return graph.reasoning;
+    //         })
+    //         .on('change', function(d) {
+    //             d3.select(this)
+    //                 .attr('value', this.value);
+
+
+    //             graph.reasoning = this.value;
+                
+    //             fill_tables(graph);
+    //         })
+
+    // db_reasoning.exit().remove();
+
+    // var db_cred_user = container.selectAll('.cred_user')
+    //     .data([null]);
+
+
+    // db_cred_user.enter()
+    //     .append('input')
+    //         .classed('cred_user', true)
+    //         .style('position', 'relative')
+    //         .style('width', 100 + 'px')
+    //         .style('height', 50 + 'px')
+    //         .style('font-size', 30 + 'px')
+    //         .attr('value', function(d) {
+    //             return graph.credentials.user;
+    //         })
+    //         .on('change', function(d) {
+    //             d3.select(this)
+    //                 .attr('value', this.value);
+
+
+    //             graph.credentials.user = this.value;
+                
+    //             fill_tables(graph);
+    //         })
+
+    // db_cred_user.exit().remove();
+
+
+    // var db_cred_pass = container.selectAll('.cred_pass')
+    //     .data([null]);
+
+
+    // db_cred_pass.enter()
+    //     .append('input')
+    //         .classed('cred_pass', true)
+    //         .attr('type', 'password')
+    //         .style('position', 'relative')
+    //         .style('width', 100 + 'px')
+    //         .style('height', 50 + 'px')
+    //         .style('font-size', 30 + 'px')
+    //         .attr('value', function(d) {
+    //             return graph.credentials.pass;
+    //         })
+    //         .on('change', function(d) {
+    //             d3.select(this)
+    //                 .attr('value', this.value);
+
+    //             graph.credentials.pass = this.value;
+                
+    //             fill_tables(graph);
+    //         })
+
+    // db_cred_pass.exit().remove();
 
 
     //
@@ -649,6 +809,13 @@ function render_graph(graph) {
 
 function fill_tables(graph) {
 
+
+conn.setEndpoint(graph.endpoint);
+conn.setCredentials(graph.credentials.user, graph.credentials.pass);
+conn.setReasoning(graph.reasoning);
+
+
+
     _.chain(graph)
         .filter(function(elem) {
             return elem['type'] == 'node';
@@ -658,8 +825,9 @@ function fill_tables(graph) {
             show_indicator(node, 'warning', 'Buffering....');
 
             var query = generate_query(graph, node);
+            // node.current_visualization_view.set_data([])
             throttled_query({
-                    database: 'myDB4',
+                    database: graph.database,
                     query: query,
                     limit: 30,
                     offset: 0
@@ -724,8 +892,10 @@ function init_query_graph(graph) {
 
     // makes container for all edges
     var edge_container = query_graph_container.append('svg')
+        //.style('position', 'absolute')
         .attr('width', 4000)
         .attr('height', 2000)
+        .style('top', 30 + 'px')
         .classed('edge_canvas', true)
         .call(make_marker)
         .on('click', function(d) {
@@ -743,7 +913,63 @@ function init_query_graph(graph) {
 
     
 
+    d3.select('#db_name_input')
+        .data(graph.database)
+        .on('change', function(d) {
+            // d3.select(this)
+            //     .attr('value', this.value);
 
+
+            graph.database = this.value;
+            
+            fill_tables(graph);
+        })
+
+        
+    d3.select('#endpoint_input')
+        .on('change', function(d) {
+            // d3.select(this)
+            //     .attr('value', this.value);
+
+
+            graph.endpoint = this.value;
+            
+            fill_tables(graph);
+        })
+
+
+    d3.select('#reasoning_input')
+        .on('change', function(d) {
+            // d3.select(this)
+            //     .attr('value', this.value);
+
+
+            graph.reasoning = this.value;
+            
+            fill_tables(graph);
+        })
+
+    d3.select('#user_input')
+        .on('change', function(d) {
+            // d3.select(this)
+            //     .attr('value', this.value);
+
+
+            graph.credentials.user = this.value;
+            
+            fill_tables(graph);
+        })
+
+    d3.select('#pass_input')
+        .on('change', function(d) {
+            // d3.select(this)
+            //     .attr('value', this.value);
+
+
+            graph.credentials.pass = this.value;
+            
+            fill_tables(graph);
+        })
 
 
 
