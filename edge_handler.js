@@ -124,7 +124,7 @@ function draw_edge(graph, elem1, elem2) {
     }
 
     if (elem1.type == 'edge' || elem2.type == 'edge') {
-        var edge_name = 'hl' + get_max_element_number(graph, 'edge')
+        var edge_name = 'hl' + get_max_element_number(graph, 'hyper_edge')
     } else {
         var edge_name = 'l' + get_max_element_number(graph, 'edge') 
     }
