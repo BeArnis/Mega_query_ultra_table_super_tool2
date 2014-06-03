@@ -191,7 +191,7 @@ function draw_edge(graph, elem1, elem2) {
     updateEdgeCoordinates(graph, elem1['geometry'], elem2['geometry'], 5, edge_name);
 
     render_graph(graph);
-    fill_tables(graph);
+    fill_node_view(graph);
 
 }
 
@@ -207,7 +207,7 @@ function get_edge_name_fom_hyper(graph, elem) {
     }
 }
 
-function toggleWay(graph, edge) {
+function toggle_edge_flow(graph, edge) {
 
         var start_node = edge['start'];
         var end_node = edge['end'];
@@ -237,7 +237,7 @@ function toggleWay(graph, edge) {
 
         }
         render_graph(graph)
-        fill_tables(graph);
+        fill_node_view(graph);
 }
 
 
