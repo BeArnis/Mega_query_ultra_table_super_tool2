@@ -36,13 +36,13 @@ function render_columns(graph, node) {
         
         .on('click', function(d) {
             //create, needs access to graph
-            create_new_column(graph, node)
+            create_column(graph, node)
             render_columns(graph, node)
         })
 
 
     create.on('click', function(d) {
-        create_new_column(graph, node)
+        create_column(graph, node)
         render_columns(graph, node)
     });
 
@@ -94,7 +94,7 @@ function render_columns(graph, node) {
                 
                 .on('click', function(d) {
                     //create, needs access to graph
-                    create_new_column(graph, node)
+                    create_column(graph, node)
                     render_columns(graph, node)
                 })
 
@@ -250,7 +250,7 @@ function render_columns(graph, node) {
                             d.update(this.value);
                             render_columns(graph, node)
                             render_graph(graph);
-                            fill_tables(graph);
+                            fill_node_view(graph);
                         })
 
                     },
@@ -440,7 +440,7 @@ function render_columns(graph, node) {
                                 d.update(this.value);
                                 render_columns(graph, node);
                                 render_graph(graph);
-                                fill_tables(graph);
+                                fill_node_view(graph);
                             })
 
                     },
@@ -472,7 +472,7 @@ function render_columns(graph, node) {
                                 d.update(this.value);
                                 render_columns(graph, node);
                                 render_graph(graph);
-                                fill_tables(graph);
+                                fill_node_view(graph);
                             });
                     },
                     update_view: function(div) {
@@ -531,14 +531,7 @@ function render_columns(graph, node) {
                     obj_element.update_view(div, obj_element);
 
                     if (obj_element.id == 'column_type_name') {
-                        //div.classed('input-group-btn', true)
-                        //var data = [obj_element];
-
-
-                        //update 
-
-
-                        //remove
+      
 
                     } else if (obj_element.id == 'sort_type_value') {
 
@@ -581,7 +574,7 @@ function column_name_generator(graph, node, column) {
     return node.name + '_col_' + (i + 1);
 }   
 
-function create_new_column(graph, node) {
+function create_column(graph, node) {
     var column = {
         // data property
         'id': guid(),

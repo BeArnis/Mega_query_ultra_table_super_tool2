@@ -150,7 +150,7 @@ BarChartView = function() {
         if (!obj_equal(bar_obj_selection, node.query_param['selection'])) {
             node.query_param['selection'] = bar_obj_selection; // add selected to node
             // rect.remove();
-            fill_tables(graph);
+            fill_node_view(graph);
         };
     }
 

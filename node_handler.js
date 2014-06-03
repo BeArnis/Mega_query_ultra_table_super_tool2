@@ -6,7 +6,7 @@ function make_node(graph, x, y) {
     table_name = 't' + get_max_element_number(graph, 'node');
 
 
-    // node template that will go into query_graph
+    // node template that will go into query_module
     var temp = {
         'name': table_name,
         'query_var_name': table_name,
@@ -43,7 +43,7 @@ function make_node(graph, x, y) {
 
     // refreshes all views
     render_graph(graph);
-    fill_tables(graph);
+    fill_node_view(graph);
 }
 
 
@@ -54,7 +54,8 @@ function make_node(graph, x, y) {
 
 
 function delete_node(graph, node) {
-    //console.log(node.name, graph);
+    
+    // fist delets the columns that are agreggate this node
     delete_column_on_elem_deletion(graph, node.name);
 
     var edges = _.filter(graph, function(obj) {
@@ -70,22 +71,16 @@ function delete_node(graph, node) {
     });
 
     
-
-    // what was I thinking???
+    // goes trough every edges to see if it is remotly connected to the node
     _.each(edges, function(edge) {
 
         if (edge.start == node.name) {
             graph[edge.end]['incoming_lines'] = _.without(graph[edge.end]['incoming_lines'], edge.name);
-            // delete_column_on_elem_deletion(graph, edge.name)
-            // delete graph[edge.name];
             delete_edge(graph, edge)
             return;
         }
         if (edge.end == node.name) {
-            //console.log(edge.start, node.name);
             graph[edge.start]['incoming_lines'] = _.without(graph[edge.start]['incoming_lines'], edge.name);
-            // delete_column_on_elem_deletion(graph, edge.name)
-            // delete graph[edge.name];
             delete_edge(graph, edge)
             return;
         }
@@ -93,6 +88,7 @@ function delete_node(graph, node) {
 
     delete graph[node.name];
 
+    // checks if any hyperedge has one side undefined
     _.each(hyper_edges, function(hyp) {
 
         if (graph[hyp.start] == undefined) {
@@ -105,11 +101,9 @@ function delete_node(graph, node) {
 
     })
 
-    
 
-
-
+    // refreshes all view at the end so the view are up to date
     render_graph(graph);
-    fill_tables(graph);
+    fill_node_view(graph);
 }
 

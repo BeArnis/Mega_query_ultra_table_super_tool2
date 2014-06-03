@@ -36,22 +36,6 @@ TableView = function() {
         // asigns menu to a value
         var headerMenuPlugin = new Slick.Plugins.HeaderMenu({});
 
-        // headerMenuPlugin.onBeforeMenuShow.subscribe(function(e, args) {
-        //   var menu = args;
-        //   console.log(e, args)
-        //   // We can add or modify the menu here, or cancel it by returning false.
-        //   var i = menu.items.length;
-        //   menu.items.push({
-        //     title: "Menu item " + i,
-        //     command: "item" + i
-        //   });
-        // });
-
-        // headerMenuPlugin.onCommand.subscribe(function(e, args) {
-        //   alert("Command: " + args.command);
-        // });
-
-        // table_grid.registerPlugin(headerMenuPlugin);
 
 
         // change the sort of a column
@@ -95,7 +79,7 @@ TableView = function() {
 
                 _.defer(function() {
                     render_graph(graph);
-                    fill_tables(graph);
+                    fill_node_view(graph);
                 });
 
             } else {
@@ -118,7 +102,7 @@ TableView = function() {
 
                 _.defer(function() {
                     render_graph(graph);
-                    fill_tables(graph);
+                    fill_node_view(graph);
                 });
 
                 console.log('sort');
@@ -150,7 +134,7 @@ TableView = function() {
             
             if (!obj_equal(current_selected_values, previous_selected_values)) {
                 node['query_param']['selection'] = current_selected_values;
-                fill_tables(graph);
+                fill_node_view(graph);
             }
         });
 
@@ -220,15 +204,6 @@ TableView = function() {
             width: 330
         })
 
-        // add last column
-        // columns.push({
-        //     id: 'add_column',
-        //     name: 'add_column',
-        //     field: 'add_column',
-        //     formatter: render_cell_data,
-        //     sortable: 'none',
-        //     width: 330
-        // })
 
         d3.selectAll('#add_column')
             .on('click', function(d) {

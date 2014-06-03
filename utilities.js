@@ -233,8 +233,7 @@ function delete_column_on_elem_deletion(graph, elem_name) {
         }
         // all nodes
         _.each(node.columns, function(column) {
-            // all columns
-            
+              
             console.log(node.columns, column)
             if (column.what_to_aggregate == elem_name) {
                 delete_column(graph, node, column)

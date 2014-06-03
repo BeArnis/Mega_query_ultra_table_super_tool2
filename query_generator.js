@@ -367,13 +367,13 @@ throttled_query = (function() {
     };
 })();
 
-function get_types(graph, node) {
+function select_type(graph, node) {
 
     // delete old values not valid while new ones are comming
     node.query_param.type_arr = {};
 
     var is_type_constraint = true;
-    var query = 'select distinct ?X where {' + constraint(graph, node, node, [], {}, is_type_constraint) +  // need to make this better
+    var query = 'select distinct ?X where {' + constraint(graph, node, node, [], {}, is_type_constraint) + 
         '\n ?' + node.name + ' a ?X\n}';
 
     var value;
@@ -396,7 +396,7 @@ function get_types(graph, node) {
                 .pluck('X')
                 .pluck('value')
                 .value();
-            //console.log(data_arr, types);
+            
             
             types.unshift(null);
 
@@ -407,13 +407,10 @@ function get_types(graph, node) {
             render_graph(graph);
 
             if (_.indexOf(node.query_param.type_arr, node.query_param.current_type) != -1) {
-                // this.selectedIndex = _.indexOf(d.query_param.type_arr, d.query_param.current_type);
-                //d3.select('#' + node.name).select('.type_ul').selectedIndex = _.indexOf(node.query_param.type_arr, node.query_param.current_type);
-                var s = $('#' + node.name);
-                s.find('select')[0].selectedIndex = _.indexOf(node.query_param.type_arr, node.query_param.current_type);
-                //console.log('YESSSSSSSSSSSSS', s.find('select')[0].selectedIndex);
+                var type_value = $('#' + node.name);
+                type_index = type_value.find('select')[0].selectedIndex = _.indexOf(node.query_param.type_arr, node.query_param.current_type);
             } else {
-                node.query_param.current_type = types[0]; // there is a problem here what I dont know how to solve
+                node.query_param.current_type = types[0];
             }
         }
     })

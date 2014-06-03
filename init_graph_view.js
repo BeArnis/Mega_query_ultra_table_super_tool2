@@ -4,9 +4,9 @@ function render_graph(graph) {
 
     // handles node draging
     var drag_type;
-    var ultimate_drag = d3.behavior.drag()
+    var node_drag = d3.behavior.drag()
         .origin(function(d) {
-            // console.log("ultimate_drag start", d3.event)
+
             var srcElement = d3.select(d3.event.srcElement);
             if (srcElement.classed('resize-sprite')) {
                 drag_type = 'resize';
@@ -47,11 +47,12 @@ function render_graph(graph) {
             drag_type = null;
         });
 
-    //console.log(graph)
+
 
     var container = d3.select('#query-graph-container')
         .style('position', 'relative');
 
+    // make arrays of different elements
     var node_arr = _.filter(graph, function(obj) {
         return obj['type'] == 'node';
     });
@@ -60,6 +61,9 @@ function render_graph(graph) {
         return obj['type'] == 'edge' || obj['type'] == 'hyper_edge';
     });
 
+
+    // adds database connection values to the inputfields, so
+    // the user can see to what database is the connection is enstablished
     var db_name = d3.select('#db_name_input')
         .attr('value', function(d) {
             return graph.database;
@@ -74,20 +78,27 @@ function render_graph(graph) {
 
     db_endpoint.node().value = graph.endpoint;
 
-    d3.select('#reasoning_input')
+    db_reasoning = d3.select('#reasoning_input')
         .attr('value', function(d) {
             return graph.reasoning;
         })
 
-    d3.select('#user_input')
+    db_reasoning.node().value = graph.reasoning;
+
+
+    db_user = d3.select('#user_input')
         .attr('value', function(d) {
             return graph.credentials.user;
         })
 
-    d3.select('#pass_input')
+    db_user.node().value = graph.credentials.user;
+        
+    db_pass = d3.select('#pass_input')
         .attr('value', function(d) {
             return graph.credentials.pass;
         })
+
+    db_pass.node().value = graph.credentials.pass;
 
 
     //
@@ -103,12 +114,12 @@ function render_graph(graph) {
     // create
     nodes.enter()
         .append('div')
-        .classed('query-node', true) // if type node than node is needed
+        .classed('query-node', true) 
         .style('position', 'absolute')
         .attr('id', function(node) {
             return node['name'];
         })
-        .call(ultimate_drag)
+        .call(node_drag)
         .each(function(node) {
 
 
@@ -117,7 +128,7 @@ function render_graph(graph) {
             node.node_div = node_div;
 
 
-
+            // at start greate the three major node sections
             var top_div = node_div.append('div')
                 .attr('class', 'top-container')
                 .style('position', 'absolute')
@@ -140,6 +151,9 @@ function render_graph(graph) {
 
 
 
+
+            // after the major sections are created the buttons and actions 
+            // are put in into these sections
             var type_field = top_div.append('div')
                 .style('position', 'absolute')
                 .style('left', 50 + 'px')
@@ -164,10 +178,9 @@ function render_graph(graph) {
                         
                         var data = d3.select(options[0][selectedIndex]).datum();
                         node.query_param.current_type = data;
-                        // console.log(node, data, graph)
 
                         render_graph(graph);
-                        fill_tables(graph);                    
+                        fill_node_view(graph);                    
                     });
 
             var barchart_container = top_div.append('div')
@@ -192,7 +205,7 @@ function render_graph(graph) {
                             console.log('bar')
                             get_all_barchart_columns(graph, node);
                             var selectedIndex = select.property('selectedIndex');
-                            // console.log(select, options, selectedIndex)
+
                             var data = d3.select(options[0][selectedIndex]).datum();
                             node.query_param.current_type = data;
                             console.log(node, data, graph)
@@ -212,7 +225,7 @@ function render_graph(graph) {
                                 node.visualization_defs.BarChartView.properties.y_axis_column = null;
                             }
 
-                            fill_tables(graph);
+                            fill_node_view(graph);
                             render_graph(graph);                  
                         });
 
@@ -244,7 +257,7 @@ function render_graph(graph) {
                     }
                     console.log(node['active_visualization_type']);
                     render_graph(graph);
-                    fill_tables(graph);
+                    fill_node_view(graph);
                 });
 
 
@@ -278,13 +291,13 @@ function render_graph(graph) {
                 .style('position', 'absolute')
                 .style('height', 40 + 'px')
                 .style('width', 40 + 'px')
-                .call(ultimate_drag)
+                .call(node_drag)
                 .append('div')
                     .style('position', 'absolute')
                     .classed('glyphicon glyphicon-resize-full resize-sprite', true)
                     .style('top', 5 + 'px')
                     .style('left', 5 + 'px')
-                    .call(ultimate_drag);
+                    .call(node_drag);
 
             bottom_div.append('div')
                 .attr('class', 'query-button')
@@ -314,7 +327,7 @@ function render_graph(graph) {
                 .style('width', 40 + 'px')
               
                 .on('click', function(node) {
-                    fill_tables(graph);
+                    fill_node_view(graph);
                 });
 
 
@@ -333,13 +346,13 @@ function render_graph(graph) {
                 .on('click', function(node) {
                     // delete selections
                     node['query_param']['selection'] = [];
-                    fill_tables(graph);
+                    fill_node_view(graph);
                 });
 
         });
 
 
-
+    // at changes the element properties are just updated with d3, not deleted
     // update
     nodes
         .style('left', function(node) {
@@ -430,9 +443,6 @@ function render_graph(graph) {
             bar_options.exit().remove();
 
 
-
-
-
             top_div.select('.glyphicon-signal')
                 .style('left', function(node) {
                     return node.geometry.width - 100 + 'px';
@@ -490,20 +500,20 @@ function render_graph(graph) {
             var node_div = d3.select(this);
 
             var gridContainer = node_div.select('.middle-container');
-            // te vajag if kur paskatamies kāds ir aktīvais tips
-            if (!node.current_visualization_view) { // ja vispār nav, ta jāizveido un jārefrešo  
-                //onsole.log(node.name, 'nav view string');
+            // check what visualization type is set
+            if (!node.current_visualization_view) { // if it is not defined then it is made and the view are refreshed 
+                
                 var view_constructor = view_construct_for_view_type[node.active_visualization_type];
 
                 node.current_visualization_view = view_constructor().init(gridContainer.node(), node, graph);
 
 
             } else if (node.current_visualization_view.type == node.active_visualization_type) {
-                //console.log(node.name, 'refrešo eksistējošu');
-                // jau eksistē pareizais, vajag tikai refreshot
+                
+                // if the rigth type is set, then only view refreshing is needed
                 node.current_visualization_view.refresh_view_from_node();
 
-            } else { // eksistē cits tips, to vajag aizvākt, izveidot jaunu un refreshot
+            } else { // if a undefined type is defined then it is deleted and there is a good one made
 
                 node.current_visualization_view.destroy();
 
@@ -517,12 +527,13 @@ function render_graph(graph) {
 
         });
 
-
+    //deleting nodes that are no more in the graph
     // remove
     nodes.exit()
         .remove();
 
 
+    // start making edge elements and their properties
     //
     // DRAW EDGES
     //
@@ -535,13 +546,12 @@ function render_graph(graph) {
     edge_delete_field.enter()
         .append('rect')
             .classed('delete_edge', true)
-            //.style('position', 'absolute')
             .attr('height', 40 + 'px')
             .attr('width', 40 + 'px')
             .on('click', function(edge) {
                 delete_edge(graph, edge);
                 render_graph(graph);
-                fill_tables(graph);
+                fill_node_view(graph);
             })
 
     //update
@@ -563,7 +573,7 @@ function render_graph(graph) {
             return d.name;
         });
 
-    //create added
+    //create 
     edges.enter()
         .append('path')
         .classed('query-edge', true)
@@ -573,7 +583,7 @@ function render_graph(graph) {
         });
 
 
-    // update edges
+    // update
     
     edges.each(function(edge) {
 
@@ -588,15 +598,16 @@ function render_graph(graph) {
     // delete removed
     edges.exit().remove()
 
-    // NOW the same for red
+
+    // create paths for flow lines that show the flow of the edge
     // bind data
-    var red_edges = edge_canvas.selectAll('.query-edges_red')
+    var flow_edges = edge_canvas.selectAll('.query-edges_red')
         .data(edge_arr, function(d) {
             return d.name;
         })
 
     // create new
-    red_edges.enter()
+    flow_edges.enter()
         .append('path')
         .classed('query-edges_red', true)
         .attr('stroke', "red")
@@ -605,12 +616,12 @@ function render_graph(graph) {
             return node['name'];
         })
         .on('click', function(d) {
-            toggleWay(graph, d);
+            toggle_edge_flow(graph, d);
             return;
         });
 
     // update all
-    red_edges
+    flow_edges
         .attr('d', function(d) {
 
             if (d.geometry.x1 == d.geometry.x2) {
@@ -635,7 +646,7 @@ function render_graph(graph) {
         });
 
     // remove deleted
-    red_edges.exit().remove();
+    flow_edges.exit().remove();
 
 
     // bind lable 
@@ -645,7 +656,7 @@ function render_graph(graph) {
         });
 
     //create new labels
-    lables.enter() // no need for changing values
+    lables.enter()
     .append('text')
         .attr('class', 'text')
         .text(function(d) {
@@ -656,7 +667,7 @@ function render_graph(graph) {
         .attr("fill", "balck");
 
     // update labels
-    lables // only changing values, dont append a secong time what is in the create section
+    lables
     .attr('x', function(d) {
         return d.geometry['x'] || (d.geometry['x2'] - 20);
     })
@@ -669,7 +680,7 @@ function render_graph(graph) {
     lables.exit().remove();
 }
 
-function fill_tables(graph) {
+function fill_node_view(graph) {
 
 
 conn.setEndpoint(graph.endpoint);
@@ -717,7 +728,7 @@ conn.setReasoning(graph.reasoning);
                         node['query_param']['selection'] = selection_intersection(node['query_param']['selection'], first_collum_obj); // gets those values that were in the graph selection before  need change 
 
                         if (!_.isEqual(node['query_param']['selection'], current)) {
-                            fill_tables(graph);
+                            fill_node_view(graph);
                         } else {
                             //console.log(node['table_values'], table_values);
                             node['table_values'] = table_values;
@@ -737,7 +748,7 @@ conn.setReasoning(graph.reasoning);
                     }
                 });
 
-            get_types(graph, node);
+            select_type(graph, node);
 
         });
     
@@ -774,68 +785,53 @@ function init_query_graph(graph) {
     init_column_make_container();
 
     
-
+    // assign function to connection to database input fields
     d3.select('#db_name_input')
         .data(graph.database)
         .on('change', function(d) {
-            // d3.select(this)
-            //     .attr('value', this.value);
-
 
             graph.database = this.value;
             
-            fill_tables(graph);
+            fill_node_view(graph);
         })
 
         
     d3.select('#endpoint_input')
         .on('change', function(d) {
-            // d3.select(this)
-            //     .attr('value', this.value);
-
 
             graph.endpoint = this.value;
             
-            fill_tables(graph);
+            fill_node_view(graph);
         })
 
 
     d3.select('#reasoning_input')
         .on('change', function(d) {
-            // d3.select(this)
-            //     .attr('value', this.value);
-
 
             graph.reasoning = this.value;
             
-            fill_tables(graph);
+            fill_node_view(graph);
         })
 
     d3.select('#user_input')
         .on('change', function(d) {
-            // d3.select(this)
-            //     .attr('value', this.value);
-
 
             graph.credentials.user = this.value;
             
-            fill_tables(graph);
+            fill_node_view(graph);
         })
 
     d3.select('#pass_input')
         .on('change', function(d) {
-            // d3.select(this)
-            //     .attr('value', this.value);
-
 
             graph.credentials.pass = this.value;
             
-            fill_tables(graph);
+            fill_node_view(graph);
         })
 
 
 
-    
+    // catches some of the column value changes
     $(document.body).on('click', '.column_ul', function(event) { 
 
 
@@ -844,9 +840,9 @@ function init_query_graph(graph) {
         console.log('a', li.data(), 
             li.datum().update(event.srcElement.text))
 
-        render_columns(graph, li.datum().node); // need node of this collumn 
+        render_columns(graph, li.datum().node); 
         render_graph(graph);
-        fill_tables(graph); 
+        fill_node_view(graph); 
 
     });
 
@@ -865,5 +861,5 @@ function init_query_graph(graph) {
 
     // calls functions that will show graph in the browser
     render_graph(graph);
-    fill_tables(graph);
+    fill_node_view(graph);
 }

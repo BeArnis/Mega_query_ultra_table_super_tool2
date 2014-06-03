@@ -16,13 +16,11 @@
                 'prefix': 'owl',
                 'namespace': 'http://www.w3.org/2002/07/owl#'
             },
-
-            //specific need interface
             {
                 'prefix': 'project1',
                 'namespace': 'http://example.com/ontology1#'
         }],
-        'database': 'myDB1',
+        'database': 'myDB2',
         'endpoint': 'http://localhost:5820/',
         'credentials': {
             'user': 'admin',
@@ -219,4 +217,34 @@
             'end': 'l1',
             'type': 'hyper_edge'
         }
+    };
+
+    expample = {
+        'prefixes': [{
+            'prefix': 'rdf',
+            'namespace': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
+        }, 
+        {
+            'prefix': 'rdfs',
+            'namespace': 'http://www.w3.org/2000/01/rdf-schema#'
+        }, 
+        {
+            'prefix': 'xsd',
+            'namespace': 'http://www.w3.org/2001/XMLSchema#'
+        }, 
+        {
+            'prefix': 'owl',
+            'namespace': 'http://www.w3.org/2002/07/owl#'
+        },
+        {
+            'prefix': 'project1',
+            'namespace': 'http://example.com/ontology1#'
+        }],
+        'database': 'myDB2',
+        'endpoint': 'http://localhost:5820/',
+        'credentials': {
+            'user': 'admin',
+            'pass': 'admin'
+        },
+        'reasoning': 'QL'
     };
