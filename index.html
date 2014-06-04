@@ -56,9 +56,10 @@
         <script src="./node_handler.js"></script>
 
 
-        <script src="./slick.core.js"></script>
-        <script src="./slick.formatters.js"></script>
-        <script src="./slick.grid.js"></script>
+        <script src="./plugins/slick.core.js"></script>
+        <script src="./plugins/slick.formatters.js"></script>
+        <script src="./plugins/slick.grid.js"></script>
+        <script src="./plugins/slick.editors.js"></script>
         <script src="./plugins/slick.headermenu.js"></script>
         <script src="./plugins/slick.checkboxselectcolumn.js"></script>
         <script src="./plugins/slick.autotooltips.js"></script>
@@ -69,7 +70,7 @@
         <script src="./plugins/slick.rowselectionmodel.js"></script>
         <script src="./controls/slick.columnpicker.js"></script>
 
-        <script src="./slick.editors.js"></script>
+        
 
         <!-- bootstrap -->
         <link rel='stylesheet' href='bower_components/bootstrap/dist/css/bootstrap.min.css' type='text/css'/>
@@ -88,6 +89,7 @@
 </head>
 <body>
 
+<!-- database connection form -->
 <form class="form-inline" role="form">
   <div class="form-group">
     <label class="sr-only" for="exampleInputEmail2"></label>
@@ -137,7 +139,7 @@
 
     <script type='text/javascript'>
 
-        init_query_graph(expample);
+        init_query_graph(example);
 
 
     </script>
